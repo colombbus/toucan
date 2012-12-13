@@ -1,0 +1,62 @@
+/* main settings */
+body                {background-color:#82B8B4;color:#385d8a;font-size:9pt;font-family:verdana,"lucida sans unicode",arial, sans-serif;text-align:center;}
+a img               {border:none}
+a                   {text-decoration:none;}
+a:hover             {color:#CF0017;font-weight:normal;text-decoration:underline;}
+
+/* main elements*/
+#container          {width:700px;margin-left:auto;margin-right:auto;background-color:white;text-align:left;overflow:hidden;}
+#header             {text-align:center;background-image:url('haut.png');overflow:hidden;height:148px;width:700px;}
+#footer             {clear:both;background-image:url('bas.png');width:700px;height:148px;}
+#content            {margin-left:10px;float:left;width:680px;min-height: 300px;}
+#content_public     {padding-left:40px;width:620px;padding-right:40px;padding-top:20px;}
+#container_menus    {float: left;width:170px;margin-top:15px;margin-right:15px;padding-left:10px;margin-left:10px;font-size:1em;}
+#menu_user          {margin-bottom:10px;}
+#credentials        {width:1024px;height: 24px;width:100%;text-align:center;color:#385d8a;padding-top:5px;font-size:0.9em;}
+#credentials a      {color:#385d8a;text-decoration:none}
+#credentials a:hover  {color:#CF0017;text-decoration:underline}
+#error              {border:solid 1px #CF0017;padding:10px;background-color:#FFEEEE;color:#CF0017;margin-top:50px;}
+#message            {background-color:#F2F2F2;background-image:url('information.png');background-repeat:no-repeat;background-position:2px 4px;padding-left:25px;padding-top:5px;padding-bottom:5px;font-style:italic;margin-top:100px;margin-bottom:15px;}
+#title              {font-size:2em;margin-bottom:5px;}
+#description        {font-size:1.5em;margin-bottom:10px;}
+#title_logo         {text-align:right;}
+
+/* forms */
+.form               {}
+.toucan_button      {border:solid 2px #385D8A;color:#FFFFFF;background-color:#4F81BD;font-weight:bold;margin-top:10px;margin-left:5px;margin-right:5px;font-size:1.1em;}
+textarea            {width:95%;color:#284d7a;font-family:verdana,"Lucida Sans Unicode",arial, sans-serif;font-size:1em;}
+input.text_input    {width:95%}
+table.toucan_edition {width:100%;font-size:1em;border-collapse:collapse;}
+td.edition_label    {width:30%;text-align:right;margin-right:5px;vertical-align:top;background-color:#F2F2F2;border:none;padding-top:8px;padding-left:2px;padding-right:2px;padding-bottom:2px;}
+td.edition_entry    {width:70%;vertical-align:bottom;background-color:#F2F2F2;border:none;padding-top:8px;padding-left:2px;padding-right:2px;padding-bottom:2px;}
+td.edition_margin   {background-color:#F2F2F2;border:none;min-height:10px;height:10px;}
+td.edition_separator {background-color:#F2F2F2;}
+.form_separator     {background-color:#385D8A;color:#FFFFFF;font-size:1.5em;margin-top:10px;margin-bottom:5px;padding-left:5px;padding-right:5px;padding-top:2px;padding-bottom:2px;}
+.form_separator_description     {margin-left:5px;margin-right:5px;margin-bottom:5px;font-style:italic;}
+input               {color:#284d7a;}
+select              {color:#284d7a;}
+.form               {margin-bottom:5px;}
+.error              {color:#CF0017;margin-bottom:10px;}
+.form_description   {font-style:italic;margin-bottom:5px;}
+.calendar_trigger   {display:inline;margin-left:5px;cursor:pointer;}
+.calendar           {position:absolute;width:160px;height:160px;background-color:white;overflow:visible;padding:5px;border:1px solid #385D8A;}
+.required           {padding-right:4px;font-weight:bold;}
+#required_text      {font-style:italic;}
+                                    
+/* actions */
+#actions            {text-align:left;margin-top:10px;}
+#actions_left       {float:left;margin-right:30px}
+#actions_right       {float:left;}
+
+/* path */
+#path               {font-size:0.9em;color:#558ED5;margin-bottom:15px;margin-top:15px;}
+#path a             {color:#558ED5;text-decoration:none;}
+#path a:hover       {color:#CF0017;}
+.path_item          {float:left;}
+
+/* common elements */
+.float_end          {clear:both;}
+
+/* Resizable */
+div.grippie         {background:#EEEEEE url(grippie.png) no-repeat scroll center 2px;border-color:#DDDDDD;border-style:solid;border-width:0pt 1px 1px;cursor:s-resize;height:9px;overflow:hidden;}
+.resizable-textarea textarea {display:block;margin-bottom:0pt;width:95%;height:20%;}

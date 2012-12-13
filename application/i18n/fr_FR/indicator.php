@@ -1,0 +1,121 @@
+<?php defined('SYSPATH') or die('No direct access allowed.');
+ /**
+ * Toucan is a web application to perform evaluation and follow-up of
+ * activities.
+ * Copyright (C) 2010 Colombbus (http://www.colombbus.org)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+$lang=array(
+    "add"=>"Ajouter un indicateur",
+    "already_created"=>"Vous avez déjà un nouvel indicateur en cours d'édition",
+    "automatic_graphic"=>"Graphique calculé automatiquement",
+    "automatic_numerical"=>"Valeur numérique calculée automatiquement",
+    "calculation"=>"Calcul",
+    "calculation_description"=>"Valeur calculée :",
+    "calculation_not_set"=>"< Aucune valeur >",
+    "calculation_type"=>"Calcul :",
+    "calculation_variable"=>"Variable : ",
+    "change_operator"=>"Changer l'opérateur (ET/OU)",
+    "create_description"=>"Informations sur l'indicateur :",
+    "create_calculation"=>"Valeur numérique calculée",
+    "create_calculation_title"=>"Nouvel indicateur",
+    "create_calculation_description"=>"Valeur calculée :",
+    "create_graphic"=>"Indicateur graphique",
+    "create_graphic_title"=>"Nouvel indicateur",
+    "create_graphic_description"=>"Information sur le graphique calculé :",
+    "create_limits_title"=>"Nouvel indicateur",
+    "create_limits_description"=>"Seuils de représentation :",
+    "create_manual"=>"Indicateur fixé par les évaluateurs",
+    "create_population_title"=>"Nouvel indicateur",
+    "create_population_description"=>"Définition d'une sous-population :",
+    "create_start_title"=>"Création d'un nouvel indicateur",
+    "create_start_description"=>"Choisissez le type d'indicateur que vous voulez créer :",
+    "create_title"=>"Nouvel indicateur",
+    "create_values_title"=>"Nouvel indicateur",
+    "create_values_description"=>"Valeurs associées à cet indicateur :",
+    "creation_date"=>"Date de création :",
+    "current_operator"=>"Opérateur reliant les critères : %s",
+    "delete"=>"Supprimer l'indicateur",
+    "delete_confirm"=>"Êtes-vous sûr de vouloir supprimer cet indicateur ?",
+    "description"=>"Description :",
+    "details"=>"Détails",
+    "display"=>"Afficher",
+    "display_graphic"=>"Afficher / Masquer le graphique",
+    "edit"=>"Modifier l'indicateur",
+    "edit_calculation_description"=>"Modification de la valeur calculée :",
+    "edit_description"=>"Modification de l'indicateur :",
+    "edit_graphic_description"=>"Modification du graphique calculé :",
+    "error"=>"Erreur :",
+    "evaluator"=>"Indicateur fixé par :",
+    "explanations"=>"Explications :",
+    "export_description"=>"%s",
+    "export_value"=>"Valeur : <b>%s</b>",
+    "export_value_undefined"=>"Valeur : <i>non définie</i>",
+    "export_value_with_description"=>"Valeur : <b>%s</b> - %s",
+    "force_text_values"=>"Afficher les textes au lieu des valeurs :",
+    "graphic"=>"Graphique",
+    "graphic_description"=>"Graphique calculé :",
+    "graphic_not_set"=>"< Aucune valeur >",
+    "graphic_title"=>"Titre du graphique :",
+    "graphic_type"=>"Type de graphique :",
+    "graphic_variable"=>"Variable : ",
+    "hide_all"=>"Cacher tous les détails",
+    "include_not_answered"=>"Inclure le nombre de «\xc2\xa0non répondus\xc2\xa0»\xc2\xa0:",
+    "info"=>"Informations",
+    "inherit"=>"Appliquer le même contrôle d'accès que pour l'évaluation\xc2\xa0:",
+    "limits"=>"Seuils",
+    "limits_description"=>"Seuils de représentation :",
+    "list"=>"Indicateurs",
+    "main_title"=>"Indicateur « %s »",
+    "manual"=>"Fixé par les évaluateurs",
+    "may_contribute"=>"Evaluateurs :",
+    "may_edit"=>"Gestionnaires :",
+    "may_view"=>"Visible par :",
+    "message_created"=>"Indicateur créé",
+    "message_deleted"=>"Indicateur supprimé",
+    "message_edited"=>"Indicateur mis à jour",
+    "message_set"=>"Indicateur défini",
+    "name"=>"Nom :",
+    "no_item"=>"Aucun indicateur défini",
+    "not_answered"=>"Non répondu",
+    "not_set"=>"< indicateur non défini >",
+    "operator_1"=>"ET",
+    "operator_2"=>"OU",
+    "owner"=>"Propriétaire :",
+    "owner_description"=>"Sélection du propriétaire de l'indicateur :",
+    "population"=>"Population",
+    "population_description"=>"liste des critères définissant la sous-population :",
+    "reorder"=>"Changer l'ordre des indicateur",
+    "reset"=>"Recalculer",
+    "see_values"=>"voir les valeurs",
+    "self"=>"Le créateur de l'indicateur",
+    "session"=>"Questionnaire utilisé :",
+    "set"=>"Définir la valeur",
+    "set_date"=>"Date :",
+    "set_description"=>"Définir la valeur de l'indicateur :",
+    "set_owner"=>"Changer le propriétaire",
+    "show_all"=>"Montrer tous les détails",
+    "show_description"=>"Détails de l'indicateur :",
+    "type"=>"Type :",
+    "value"=>"Valeur :",
+    "values"=>"Valeurs :",
+    "values_description"=>"Liste des valeurs associées à cet indicateur :",
+    "values_header"=>"Valeurs",
+    "x_axis"=>"Légende en abscisse :",
+    "y_axis"=>"Légende en ordonnée :",
+
+);
+?>
