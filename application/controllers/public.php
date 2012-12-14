@@ -121,7 +121,7 @@ class Public_Controller extends DataPage_Controller {
                 $errors['form_password'] = Kohana::lang('form_errors.wrong_password');
             }
         }
-        if (($post = $this->input->post())&&isset($post['form_create_formCopy'])) {
+        if (($post = $this->input->post())&&isset($post['form_create_'.$this->copyName])) {
             if (isset($post["form_password"])) {
                 if (($formSession->password_flag==0)||($formSession->password == $post['form_password'])) {
                     // test ok
