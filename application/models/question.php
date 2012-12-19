@@ -67,7 +67,7 @@ class Question_Model extends ToucanTree_Model implements Ajax_Model {
                 else
                     $variableName = $this->variable->name;
                 $editableData[] = array ('type' => 'text','name' => 'variable_name','label' => 'question.variable', 'value' => $variableName);
-                $editableData[] = array ('type' => 'select','name' => 'type_id','label' => 'question.type','required'=>'1', 'values' => QuestionType_Model::getTranslatedTypes(), 'value' => $this->isSubSeparator());
+                $editableData[] = array ('type' => 'select','name' => 'type_id','label' => 'question.type','required'=>'1', 'values' => QuestionType_Model::getTranslatedTypes(), 'value' => $this->type->id);
                 $editableData[] = array ('type' => 'hidden','name' => 'variable_id', 'value' => $this->variable_id);
             } else {
                 $editableData[] = array ('type' => 'hidden','name' => 'required', 'value' => 0);

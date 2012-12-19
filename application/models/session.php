@@ -175,7 +175,7 @@ abstract class Session_Model extends Toucan_Model {
             ->pre_filter('trim')
             ->add_rules('name', 'required', 'length[1,127]')
             ->add_callbacks('name', array($this, 'uniqueNameByParent'))
-            ->add_rules('description', 'length[0,500]')
+            ->add_rules('description', 'length[0,10000]')
             ->add_rules('view_id', 'valid::numeric')
             ->add_rules('edit_id', 'valid::numeric')
             ->add_rules('contribute_id', 'valid::numeric')
