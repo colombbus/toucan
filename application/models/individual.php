@@ -22,6 +22,8 @@ class Individual_Model extends Toucan_Model implements Ajax_Model {
 
     protected $belongs_to = array("indicator");
     protected $has_one = array("selection","variable");
+    protected static $conditionals = array();
+    protected $ignored_columns = array('conditionals');
 
     public function getCreationData($access, & $user, & $parameters = null) {
         if (isset($parameters)&&isset($parameters['indicator_id'])) {
@@ -32,16 +34,36 @@ class Individual_Model extends Toucan_Model implements Ajax_Model {
 
     public function getEditableData($access, & $user) {
         $editableData = array();
-        $variables = $this->indicator->getVariablesList();
-        $editableData[] = array('type'=>'select', 'label'=>'individual.variable', 'name'=>'variable_id', 'values'=>$variables, 'value'=>$this->variable_id, 'required'=>1);
+        //$variables = $this->indicator->getVariablesList();
+        $variables = $this->indicator->getVariablesInfo();
+        $names = array();
+        $simple = array();
+        $multiple = array();
+        /*$simpleNumerical = array();
+        $multipleNumerical = array();*/
+        foreach($variables as $id=>$data) {
+            $names[$id] = $data['name'];
+            if ($data['simple']) {
+                $simple[] = $id;
+            } else {
+                $multiple[] = $id;
+            }
+        }
+        $editableData[] = array('type'=>'select', 'label'=>'individual.variable', 'name'=>'variable_id', 'values'=>$names, 'value'=>$this->variable_id, 'required'=>1);
         $selections = Selection_Model::getTranslatedList();
         $editableData[] = array('type'=>'select', 'label'=>'individual.selection', 'name'=>'selection_id', 'values'=>$selections, 'value'=>$this->selection_id, 'required'=>1, 'id'=>'selection_id');
+
+        self::$conditionals[] = array('trigger'=>'variable_id', 'triggered'=>'selection_id', 'triggeredValues'=> Selection_Model::getIdsSimpleOnly(), 'values'=>$simple);
+        self::$conditionals[] = array('trigger'=>'variable_id', 'triggered'=>'selection_id', 'triggeredValues'=> Selection_Model::getIdsMultipleOnly(), 'values'=>$multiple);
+        
         if ($this->selection_id == 0) {
             $hidden = !(ORM::factory('selection', 1)->requires_value);
         } else {
             $hidden = !($this->selection->requires_value);
         }
         $editableData[] = array('type'=>'text', 'label'=>'individual.value', 'name'=>'value', 'value'=>$this->value, 'hidden'=>$hidden, 'id'=>'value');
+        self::$conditionals[] = array('trigger'=>'selection_id', 'triggered'=>'value','values'=>Selection_Model::getIdsWithValue());
+
         if ($this->loaded) {
             $editableData[] = array ('type' => 'hidden','name' => 'indicator_id', 'value' => $this->indicator_id);
         }
@@ -153,9 +175,7 @@ class Individual_Model extends Toucan_Model implements Ajax_Model {
     }
 
     public function getConditional() {
-        $conditional = array();
-        $conditional[] = array('trigger'=>'selection_id', 'triggered'=>'value','values'=>Selection_Model::getIdsWithValue());
-        return $conditional;
+        return self::$conditionals;
     }
 
     public function isIn(& $copy) {
@@ -187,7 +207,6 @@ class Individual_Model extends Toucan_Model implements Ajax_Model {
         $newIndividual->save();
         return $newIndividual;
     }
-
 
 }
 ?>

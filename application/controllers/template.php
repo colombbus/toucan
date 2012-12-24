@@ -148,6 +148,7 @@ class Template_Controller extends DataPage_Controller {
             } else {
                 $this->ensureAccess(access::MAY_VIEW, $previousVersion);
                 $variables = $this->data->copy($previousVersion);
+                $session = $previousVersion->session;
                 $indicatorIds = $previousVersion->session->getIndicatorIds($this->user);
                 if ($previousVersion->session->evaluation_id > 0) {
                     // Session belongs to an Evaluation: we add manual indicators from this evaluation

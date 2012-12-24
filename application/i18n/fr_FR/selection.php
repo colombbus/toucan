@@ -27,5 +27,7 @@ $lang=array(
     "superior"=>"supérieure à",
     "superior_or_equal"=>"supérieure ou égale à",
     "un_set"=>"non définie",
+    "contains"=>"contient",
+    "not_contains"=>"ne contient pas",
 );
 ?>

@@ -197,6 +197,40 @@ abstract class Template_Model extends Toucan_Model {
         }
         return $result;
     }
+    
+    public function getVariablesIds($numericalOnly = false, $simple = null) {
+        $result = array();
+        foreach($this->questions as $question) {
+            if (!$question->isSeparator()) {
+                $variable = $question->variable;
+                if ((!$numericalOnly)||($variable->numerical)) {
+                    if (isset($simple)) {
+                        if ($simple) {
+                            if ($variable->question->type_id != QuestionType_Model::MULTIPLE_CHOICE)
+                                $result[] = $variable->id;
+                        } else {
+                            if ($variable->question->type_id == QuestionType_Model::MULTIPLE_CHOICE)
+                                $result[] = $variable->id;
+                        }
+                    } else
+                        $result[] = $variable->id;
+                }
+           }
+        }
+        return $result;
+    }
+    
+    public function getVariablesInfo() {
+        $result = array();
+        foreach($this->questions as $question) {
+            if (!$question->isSeparator()) {
+                $variable = $question->variable;
+                $result[$variable->id] = array('name' => $variable->name, 'numerical'=>$variable->numerical, 'simple'=> ($variable->question->type_id != QuestionType_Model::MULTIPLE_CHOICE));
+            }
+        }
+        return $result;
+    }
+    
 
     public function delete() {
         if ($this->loaded && $this->isEditable()) {
@@ -240,6 +274,9 @@ abstract class Template_Model extends Toucan_Model {
         foreach ($questions as $question) {
             $copiedQuestions[$question->id]->copyTriggers($question, $copiedQuestions);
         }
+        
+        // Required in order to reset database (to be investigated...)
+        $template->push();
         
         return $variables;
     }
@@ -365,7 +402,11 @@ abstract class Template_Model extends Toucan_Model {
     }
 
     public function getIndicatorIds(& $user) {
-        return $this->getIndicators($user)->primary_key_array();
+        $indicators = $this->getIndicators($user);
+        if (isset($indicators)&& count($indicators)>0)
+            return $indicators->primary_key_array();
+        else 
+            return array();
     }
 
     public function getQuestions($includePrivate = false) {
