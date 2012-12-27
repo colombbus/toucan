@@ -816,8 +816,16 @@ class Indicator_Model extends Toucan_Model implements Ajax_Model {
         return $this->evaluation->formSessions->as_array();
     }
     
+    public function getVariablesInfo() {
+        return $this->template->getVariablesInfo();
+    }
+    
     public function getVariablesList($numerical = false) {
         return $this->template->getVariablesList($numerical);
+    }
+    
+    public function getVariablesIds($numerical = false, $simple = null) {
+        return $this->template->getVariablesIds($numerical, $simple);
     }
     
     public function updateValues($values) {

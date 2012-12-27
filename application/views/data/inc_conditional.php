@@ -29,41 +29,87 @@
             $enable = true;
         else
             $enable = false;
+        if (isset($item['triggeredValues'])) {
+            $actionTrue =  "$$(\"select#".$item['triggered']." option\").each(function(o){ if (triggeredValues.indexOf(o.readAttribute('value')) != -1) { o.show(); }})";
+            $actionFalse =  "$$(\"select#".$item['triggered']." option\").each(function(o){ if (triggeredValues.indexOf(o.readAttribute('value')) != -1) { if (o.selected) resetNeeded = true; o.hide();}})";
+        } else {
+            $actionTrue =  "$(\"";
+            $actionFalse =  "$(\"";
+            if (!$enable) {
+                $actionTrue .= "form_";
+                $actionFalse .= "form_";
+            }
+            $actionTrue .= $item['triggered']."\").";
+            $actionFalse .= $item['triggered']."\").";
+            if ($enable) { 
+                $actionTrue .= "enable()"; 
+                $actionFalse .= "disable()";
+            } else {
+                $actionTrue .= "show()";
+                $actionFalse .= "hide()";
+            }
+        }
+    if (isset($item['value'])||isset($item['values'])) {
+?>
+        Event.observe("<?php echo $item['trigger']; ?>","change", function() {
+<?php
+        if (isset($item['triggeredValues'])) {
+?>
+            triggeredValues = [<?php
+            $first = true;
+            foreach ($item['triggeredValues'] as $value) {
+                if (!$first)
+                    echo ", ";
+                echo "\"$value\"";
+                $first = false;
+            }?>];
+            resetNeeded = false;
+<?php
+        }
         if (isset($item['value'])) {
 ?>
-    Event.observe("<?php echo $item['trigger']; ?>","change", function() {
-       if ($F("<?php echo $item['trigger']; ?>")<?php if (isset($item['reverse'])) echo "!="; else echo "==";?>"<?php echo $item['value']?>") {
-           $("<?php if (!$enable) echo "form_";?><?php echo $item['triggered'];?>").<?php if ($enable) echo "enable()"; else echo "show()";?>;
-       } else {
-            $("<?php if (!$enable) echo "form_";?><?php echo $item['triggered'];?>").<?php if ($enable) echo "disable()"; else echo "hide()";?>;
-       }
-    });
+            if ($F("<?php echo $item['trigger']; ?>")<?php if (isset($item['reverse'])) echo "!="; else echo "==";?>"<?php echo $item['value']?>") {
+                <?php echo $actionTrue;?>;
+            } else {
+                <?php echo $actionFalse;?>;
+            }
 <?php
         } else if (isset($item['values'])) {
 ?>
-    Event.observe("<?php echo $item['trigger']; ?>","change", function() {
-	valueList = [<?php
-	$first = true;
-	foreach ($item['values'] as $value) {
-	    if (!$first)
-	       echo ", ";
-        echo "\"$value\"";
-        $first = false;
-	}?>];
-    if (valueList.indexOf($F("<?php echo $item['trigger']; ?>"))<?php if (isset($item['reverse'])) echo "=="; else echo "!=";?>-1) {
-        $("<?php if (!$enable) echo "form_";?><?php echo $item['triggered'];?>").<?php if ($enable) echo "enable()"; else echo "show()";?>;
-    } else {
-         $("<?php if (!$enable) echo "form_";?><?php echo $item['triggered'];?>").<?php if ($enable) echo "disable()"; else echo "hide()";?>;
-    }
- });
+            valueList = [<?php
+            $first = true;
+            foreach ($item['values'] as $value) {
+                if (!$first)
+                    echo ", ";
+                echo "\"$value\"";
+                $first = false;
+            }?>];
+            if (valueList.indexOf($F("<?php echo $item['trigger']; ?>"))<?php if (isset($item['reverse'])) echo "=="; else echo "!=";?>-1) {
+                <?php echo $actionTrue;?>;
+            } else {
+                <?php echo $actionFalse;?>;
+            }
 <?php
-        } else {
+        }
+        if (isset($item['triggeredValues'])) {
+?>
+                if (resetNeeded) {
+                    window.alert("yes");
+                    list = $("<?php echo $item['triggered']; ?>");
+                    list.value = list.down('option').readAttribute('value');
+                }
+<?php
+        }
+?>
+        });
+<?php
+    } else {
 ?>
     Event.observe("<?php echo $item['trigger']; ?>","click", function() {
     if (<?php if (isset($item['reverse'])) echo "!" ?>$F("<?php echo $item['trigger']; ?>")) {
-        $("<?php if (!$enable) echo "form_";?><?php echo $item['triggered'];?>").<?php if ($enable) echo "enable()"; else echo "show()";?>;
+        <?php echo $actionTrue;?>;
     } else {
-         $("<?php if (!$enable) echo "form_";?><?php echo $item['triggered'];?>").<?php if ($enable) echo "disable()"; else echo "hide()";?>;
+        <?php echo $actionFalse;?>;
     }
  });
 

@@ -24,8 +24,16 @@ class Selection_Model extends ORM {
         return Kohana::lang("selection.$this->name");
     }
 
-    public static function getTranslatedList() {
-        $selections = self::factory('selection')->find_all();
+    public static function getTranslatedList($simple = null) {
+        if (isset($simple)) {
+            if ($simple) {
+                $selections = self::factory('selection')->where('simple', '1')->find_all();
+            } else {
+                $selections = self::factory('selection')->where('multiple', '1')->find_all();
+            }
+        } else {
+            $selections = self::factory('selection')->find_all();
+        }
         $result = array();
         foreach ($selections as $selection) {
             $result[$selection->id] = $selection->getTranslatedName();
@@ -38,6 +46,26 @@ class Selection_Model extends ORM {
         $result = array();
         foreach ($selections as $selection) {
             if ($selection->requires_value)
+                $result[] = $selection->id;
+        }
+        return $result;
+    }
+
+    public static function getIdsMultipleOnly() {
+        $selections = self::factory('selection')->find_all();
+        $result = array();
+        foreach ($selections as $selection) {
+            if ($selection->multiple && !$selection->simple)
+                $result[] = $selection->id;
+        }
+        return $result;
+    }
+
+    public static function getIdsSimpleOnly() {
+        $selections = self::factory('selection')->find_all();
+        $result = array();
+        foreach ($selections as $selection) {
+            if ($selection->simple && !$selection->multiple)
                 $result[] = $selection->id;
         }
         return $result;
