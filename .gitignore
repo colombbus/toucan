@@ -2,8 +2,5 @@
 application/config/config.php
 application/config/database.php
 application/logs/*
-<<<<<<< HEAD:.gitignore
 _install.php
-=======
 nbproject/
->>>>>>> 01616385caf5990d205eaae250ae109109b676ea:.gitignore
