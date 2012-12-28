@@ -341,11 +341,7 @@ abstract class Toucan_Model extends ORM {
             $query['from'] = array_merge($query['from'], $queryParent['from']);
             $query['where'] = array_merge($query['where'], $queryParent['where']);
             // 2nd - add parent query to current query with condition on inherit field
-            $inheritCondition = "$this->table_name.inherit = 1 and ((".$queryParent['where'][0].") ";
-            for ($i=1; $i<count($queryParent['where']); $i++) {
-                $inheritCondition.="and (".$queryParent['where'][$i].") ";
-            }
-            $inheritCondition.=")";
+            $inheritCondition = "$this->table_name.inherit = 1";
             $ownerField = "access_owner_id";
         } else {
             $ownerField = "owner_id";
@@ -357,15 +353,15 @@ abstract class Toucan_Model extends ORM {
         $registeredGroup = Group_Model::SPECIAL_GROUP_REGISTERED;
         // If user is set, check that user meets the requirements
         if (isset($user)) {
-            $selectionQuery = "$this->table_name.view_id=$publicGroup or $this->table_name.view_id=$registeredGroup or
-                               $this->table_name.$ownerField=$user->id or
-                                 ($this->table_name.view_id = groups.id and groups_users.group_id= groups.id and groups_users.user_id=$user->id )";
+            $userGroups = $user->getGroups();
+            if (strlen($userGroups)>0)
+                $userGroups = ",".$userGroups;
+            $selectionQuery = "$this->table_name.view_id in ($publicGroup, $registeredGroup $userGroups) or
+                               $this->table_name.$ownerField=$user->id ";
              if ($this->hasEdit())
-                $selectionQuery .= " or $this->table_name.edit_id=$registeredGroup  or
-                                 ($this->table_name.edit_id = groups.id and groups_users.group_id= groups.id and groups_users.user_id=$user->id )";
+                $selectionQuery .= " or $this->table_name.edit_id in($registeredGroup $userGroups)";
              if ($this->hasContribute())
-                $selectionQuery .= " or $this->table_name.contribute_id=$publicGroup or $this->table_name.contribute_id=$registeredGroup  or
-                                 ($this->table_name.contribute_id = groups.id and groups_users.group_id= groups.id and groups_users.user_id=$user->id )";
+                $selectionQuery .= " or $this->table_name.contribute_id in($publicGroup, $registeredGroup $userGroups)";
         } else {
             // If no user set, check that public access is granted
             $selectionQuery = "$this->table_name.view_id=$publicGroup";
@@ -380,7 +376,7 @@ abstract class Toucan_Model extends ORM {
 
     protected function buildVisibleItemsQuery(& $filter , & $user, $constraints = null) {
         if (isset($user)) {
-            $query = array('from'=>array('groups', 'users', 'groups_users'), 'where'=>array());
+            $query = array('from'=>array(), 'where'=>array());
         } else {
             $query = array('from'=>array(), 'where'=>array());
         }
@@ -410,7 +406,6 @@ abstract class Toucan_Model extends ORM {
             }
             $sqlQuery.=$filter->getSQLOrder($this->table_name);
         }
-
         return $sqlQuery;
     }
 

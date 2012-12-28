@@ -211,13 +211,15 @@ abstract class ToucanTree_Model extends ORM_Tree {
         $ownerGroup = Group_Model::SPECIAL_GROUP_OWNER;
         $publicGroup = Group_Model::SPECIAL_GROUP_PUBLIC;
         $registeredGroup = Group_Model::SPECIAL_GROUP_REGISTERED;
-        if (isset($user))
-            $query['where'][] = "$this->table_name.view_id=$publicGroup or $this->table_name.view_id=$registeredGroup or
+        if (isset($user)) {
+            $userGroups = $user->getGroups();
+            if (strlen($userGroups)>0)
+                $userGroups = ",".$userGroups;
+
+            $query['where'][] = "$this->table_name.view_id in ($publicGroup, $registeredGroup $userGroups) or
                                 $this->table_name.$ownerField=$user->id or
-                                 ($this->table_name.view_id = groups.id and groups_users.group_id= groups.id and groups_users.user_id=$user->id ) or
-                                 $this->table_name.edit_id=$registeredGroup  or
-                                 ($this->table_name.edit_id=$ownerGroup and $this->table_name.$ownerField=$user->id) or
-                                 ($this->table_name.edit_id = groups.id and groups_users.group_id= groups.id and groups_users.user_id=$user->id )";
+                                 $this->table_name.edit_id in ($registeredGroup $userGroups)";
+        }
         else
             $query['where'][] = "$this->table_name.view_id=$publicGroup";
 

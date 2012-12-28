@@ -264,6 +264,7 @@ class User_Model extends Auth_User_Model {
 
         // 2nd set groups
         $this->groups = $ids;
+        $this->computeGroups();
         if ($save)
             $this->save();
         return true;
@@ -493,7 +494,11 @@ class User_Model extends Auth_User_Model {
                 $template->setOwner($administrator, true);
             }
 
-            // 4th: delete user
+            // 4th: delete cached groups
+            $query = "delete from `cached_groups` where `user_id`='".$this->id."'";
+            $result = $this->db->query($query);
+            
+            // 5th: delete user
             parent::delete();
         }
     }
@@ -584,6 +589,7 @@ class User_Model extends Auth_User_Model {
                     $this->save();
             }
         }
+        $this->computeGroups();
         return true;
     }
 
@@ -769,5 +775,30 @@ class User_Model extends Auth_User_Model {
         parent::save();
     }
     
+    public function getGroups() {
+        $query = "select `groups` from `cached_groups` where `user_id`='".$this->id."'";
+        $result = $this->db->query($query);
+        if ($result->count()>0) {
+            return $result->current()->groups;
+        } else {
+            return $this->computeGroups();
+        }
+    }
+    
+    protected function computeGroups() {
+        $groups = $this->groups->primary_key_array();
+        $cachedGroups = implode(',',$groups);
+        $query = "insert into `cached_groups` (`user_id`, `groups`) values ('$this->id', '$cachedGroups') on duplicate key update `groups`='$cachedGroups'";
+        $result = $this->db->query($query);
+        return $cachedGroups;
+    }
+
+    public function __set($column, $value) {
+        if ($column == 'logins') {
+            // user has logged in: update cached groups
+            $this->computeGroups();
+        }
+        parent::__set($column, $value);
+    }
 }
 ?>
