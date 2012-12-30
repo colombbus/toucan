@@ -174,7 +174,7 @@ abstract class Copy_Controller extends DataPage_Controller {
                 break;
             case 'EDIT' :
                 $actions_back[] = array('type' => 'button','text' => 'button.cancel', 'url'=>"$this->dataName/stop/$copy->session_id/".$this->data->id);
-                if ($copy->state_id!=CopyState_Model::PUBLISHED)
+                if (!$copy->isPublished())
                     $actions[] = array('type' => 'button','js'=>'saveCopy()', 'text' => $this->dataName.'.temporary_save');
                 $actions[] = array('type' => 'submit','text' => $this->dataName.'.save');
         }
