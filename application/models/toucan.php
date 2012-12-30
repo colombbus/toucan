@@ -348,7 +348,6 @@ abstract class Toucan_Model extends ORM {
         }
         
         // Define special groups
-        $ownerGroup = Group_Model::SPECIAL_GROUP_OWNER;
         $publicGroup = Group_Model::SPECIAL_GROUP_PUBLIC;
         $registeredGroup = Group_Model::SPECIAL_GROUP_REGISTERED;
         // If user is set, check that user meets the requirements
