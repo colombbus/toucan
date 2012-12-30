@@ -37,7 +37,7 @@ class SurveyCopy_Model extends FormCopy_Model {
 
 
     public function validateEdition(array & $array,& $user, $save = FALSE, $saveAnyway = FALSE) {
-        $oldState = $this->state_id;
+        $alreadyPublished = $this->isPublished();
         $this->validateAnswers($array, $user);
         if ((sizeof($this->errors)>0)&&!$saveAnyway) {
             return false;
@@ -49,9 +49,9 @@ class SurveyCopy_Model extends FormCopy_Model {
         if ($save) {
             $this->save();
             $this->saveAnswers();
-			$this->session->clearCache();
+            $this->session->clearCache();
             // notification
-            if (($oldState != CopyState_Model::PUBLISHED) && ($this->state_id == CopyState_Model::PUBLISHED)) {
+            if (!$alreadyPublished && $this->isPublished()) {
                 $this->session->notify($this->copyName, $this->id);
             }
         }
