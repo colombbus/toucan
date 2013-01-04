@@ -20,7 +20,7 @@
 
 $lang=array(
     "add"=>"Ajouter un indicateur",
-    "already_created"=>"Vous avez déjà un nouvel indicateur en cours d'édition",
+    "already_editing"=>"Vous avez déjà un indicateur en cours d'édition",
     "automatic_graphic"=>"Graphique calculé automatiquement",
     "automatic_numerical"=>"Valeur numérique calculée automatiquement",
     "calculation"=>"Calcul",
