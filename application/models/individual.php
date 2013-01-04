@@ -23,7 +23,7 @@ class Individual_Model extends Toucan_Model implements Ajax_Model {
     protected $belongs_to = array("indicator");
     protected $has_one = array("selection","variable");
     protected static $conditionals = array();
-    protected $ignored_columns = array('conditionals');
+    protected $ignored_columns = array('conditionals', 'selection_id_simple','selection_id_simple_numerical', 'selection_id_multiple');
 
     public function getCreationData($access, & $user, & $parameters = null) {
         if (isset($parameters)&&isset($parameters['indicator_id'])) {
@@ -34,35 +34,80 @@ class Individual_Model extends Toucan_Model implements Ajax_Model {
 
     public function getEditableData($access, & $user) {
         $editableData = array();
-        //$variables = $this->indicator->getVariablesList();
         $variables = $this->indicator->getVariablesInfo();
         $names = array();
-        $simple = array();
+        $simpleNotNumerical = array();
+        $simpleNumerical = array();
         $multiple = array();
-        /*$simpleNumerical = array();
-        $multipleNumerical = array();*/
         foreach($variables as $id=>$data) {
             $names[$id] = $data['name'];
             if ($data['simple']) {
-                $simple[] = $id;
+                if ($data['numerical'])
+                    $simpleNumerical[] = $id;
+                else
+                    $simpleNotNumerical[] = $id;
             } else {
                 $multiple[] = $id;
             }
         }
         $editableData[] = array('type'=>'select', 'label'=>'individual.variable', 'name'=>'variable_id', 'values'=>$names, 'value'=>$this->variable_id, 'required'=>1);
-        $selections = Selection_Model::getTranslatedList();
-        $editableData[] = array('type'=>'select', 'label'=>'individual.selection', 'name'=>'selection_id', 'values'=>$selections, 'value'=>$this->selection_id, 'required'=>1, 'id'=>'selection_id');
+        $selectionsSimple = Selection_Model::getTranslatedList(true, false);
+        $selectionsSimpleNumerical = Selection_Model::getTranslatedList(true, true);
+        $selectionsMultiple = Selection_Model::getTranslatedList(false);
 
-        self::$conditionals[] = array('trigger'=>'variable_id', 'triggered'=>'selection_id', 'triggeredValues'=> Selection_Model::getIdsSimpleOnly(), 'values'=>$simple);
-        self::$conditionals[] = array('trigger'=>'variable_id', 'triggered'=>'selection_id', 'triggeredValues'=> Selection_Model::getIdsMultipleOnly(), 'values'=>$multiple);
+        $hideSimple = true;
+        $hideSimpleNumerical = true;
+        $hideMultiple = true;
+        
+        if ($this->variable_id == 0) {
+            $firstVariableId = current(array_keys($names));
+            $firstVariableInfo = $variables[$firstVariableId];
+            if ($firstVariableInfo['simple']) {
+                if ($firstVariableInfo['numerical'])
+                    $hideSimpleNumerical = false;
+                else
+                    $hideSimple = false;
+            } else {
+                $hideMultiple = false;
+            }
+        } else {
+            $variable = $this->variable;
+            if ($variable->isMultiple()) {
+                $hideMultiple = false;
+            } else {
+                if ($variable->numerical)
+                    $hideSimpleNumerical = false;
+                else
+                    $hideSimple = false;
+            }
+        }
+        
+        $editableData[] = array('type'=>'select', 'label'=>'individual.selection', 'name'=>'selection_id_simple', 'values'=>$selectionsSimple, 'value'=>$this->selection_id, 'required'=>1, 'id'=>'selection_id_simple', 'hidden'=>$hideSimple);
+        $editableData[] = array('type'=>'select', 'label'=>'individual.selection', 'name'=>'selection_id_simple_numerical', 'values'=>$selectionsSimpleNumerical, 'value'=>$this->selection_id, 'required'=>1, 'id'=>'selection_id_simple_numerical', 'hidden'=>$hideSimpleNumerical);
+        $editableData[] = array('type'=>'select', 'label'=>'individual.selection', 'name'=>'selection_id_multiple', 'values'=>$selectionsMultiple, 'value'=>$this->selection_id, 'required'=>1, 'id'=>'selection_id_multiple', 'hidden'=>$hideMultiple);
+
+        self::$conditionals[] = array('trigger'=>'variable_id', 'triggered'=>'selection_id_simple', 'values'=>$simpleNotNumerical);
+        self::$conditionals[] = array('trigger'=>'variable_id', 'triggered'=>'selection_id_simple_numerical', 'values'=>$simpleNumerical);
+        self::$conditionals[] = array('trigger'=>'variable_id', 'triggered'=>'selection_id_multiple', 'values'=>$multiple);
         
         if ($this->selection_id == 0) {
-            $hidden = !(ORM::factory('selection', 1)->requires_value);
+            $selections = array();
+            if (!$hideSimple)
+                $selections = $selectionsSimple;
+            else if (!$hideSimpleNumerical)
+                $selections = $selectionsSimpleNumerical;
+            else
+                $selections = $selectionsMultiple;
+            $firstId = current(array_keys($selections));
+            $hidden = !(ORM::factory('selection', $firstId)->requires_value);
         } else {
             $hidden = !($this->selection->requires_value);
         }
         $editableData[] = array('type'=>'text', 'label'=>'individual.value', 'name'=>'value', 'value'=>$this->value, 'hidden'=>$hidden, 'id'=>'value');
-        self::$conditionals[] = array('trigger'=>'selection_id', 'triggered'=>'value','values'=>Selection_Model::getIdsWithValue());
+
+        self::$conditionals[] = array('trigger'=>'selection_id_simple', 'triggered'=>'value','values'=>Selection_Model::getIdsWithValue());
+        self::$conditionals[] = array('trigger'=>'selection_id_simple_numerical', 'triggered'=>'value','values'=>Selection_Model::getIdsWithValue());
+        self::$conditionals[] = array('trigger'=>'selection_id_multiple', 'triggered'=>'value','values'=>Selection_Model::getIdsWithValue());
 
         if ($this->loaded) {
             $editableData[] = array ('type' => 'hidden','name' => 'indicator_id', 'value' => $this->indicator_id);
@@ -80,15 +125,34 @@ class Individual_Model extends Toucan_Model implements Ajax_Model {
     }
 
     public function validateEdition(array & $array,& $user, $save = FALSE) {
+        if (isset($array['variable_id'])&&is_numeric($array['variable_id'])) {
+            $variable = ORM::factory('variable', $array['variable_id']);
+            if ($variable->isMultiple()) {
+                if (isset($array['selection_id_multiple']))
+                    $array['selection_id'] = $array['selection_id_multiple'];
+            } else {
+                if ($variable->numerical) {
+                    if (isset($array['selection_id_simple_numerical']))
+                        $array['selection_id'] = $array['selection_id_simple_numerical'];
+                } else {
+                    if (isset($array['selection_id_simple']))
+                        $array['selection_id'] = $array['selection_id_simple'];
+                }
+            }                
+        }
         $this->validation = Validation::factory($array)
             ->pre_filter('trim')
             ->add_rules('variable_id', 'required', 'valid::numeric')
             ->add_rules('selection_id', 'required', 'valid::numeric')
             ->add_rules('indicator_id', 'required','valid::numeric')
             ->add_rules('value', 'length[0,50]')
-            ->add_callbacks('selection_id', array($this, 'checkNumerical'))
+            ->add_callbacks('selection_id', array($this, 'checkSelection'))
             ->add_callbacks('value', array($this, 'checkValue'));
-        return parent::validate($this->validation, $save);
+        $result = parent::validate($this->validation, $save);
+        if ($result) {
+            $this->indicator->clearCache();
+        }
+        return $result;
     }
 
     public function validateCreation(array & $array,& $user, $save = FALSE) {
@@ -111,23 +175,38 @@ class Individual_Model extends Toucan_Model implements Ajax_Model {
         return false;
     }
 
-    public function checkNumerical(Validation $valid) {
+    public function checkSelection(Validation $valid) {
         if (array_key_exists('selection_id', $valid->errors()))
             return;
         if (array_key_exists('variable_id', $valid->errors()))
             return;
-        $selection = ORM::factory('selection', $valid->selection_id);
         $variable = ORM::factory('variable', $valid->variable_id);
-        if (!isset($selection)) {
-            $valid->add_error( 'selection_id', 'default');
-            return;
-        }
+        $selection = ORM::factory('selection', $valid->selection_id);
         if (!isset($variable)) {
             $valid->add_error( 'variable_id', 'default');
             return;
         }
+        if (!isset($selection)) {
+            $valid->add_error( 'variable_id', 'default');
+            return;
+        }
+        if ($variable->isMultiple()) {
+            if (!$selection->isMultiple()) {
+                if ($variable->numerical)
+                    $valid->add_error( 'selection_id_simple_numerical', 'multiple');
+                else
+                    $valid->add_error( 'selection_id_simple', 'multiple');
+            }
+        } else {
+            if (! $selection->isSimple()) {
+                $valid->add_error( 'selection_id_multiple', 'simple');
+            }
+        }
         if (($selection->numerical)&&(!$variable->numerical)) {
-            $valid->add_error( 'selection_id', 'numerical');
+            if ($selection->isSimple())
+                $valid->add_error( 'selection_id_simple', 'numerical');
+            else
+                $valid->add_error( 'selection_id_multiple', 'numerical');
         }
     }
 
