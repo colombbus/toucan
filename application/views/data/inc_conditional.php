@@ -23,6 +23,7 @@
     if (isset($conditional)) {
 ?>
     <script type = "text/javascript">
+        
 <?php
     foreach ($conditional as $item) {
         if (isset($item['enable']))
@@ -30,28 +31,24 @@
         else
             $enable = false;
         if (isset($item['triggeredValues'])) {
-            $actionTrue =  "$$(\"select#".$item['triggered']." option\").each(function(o){ if (triggeredValues.indexOf(o.readAttribute('value')) != -1) { o.show(); }})";
-            $actionFalse =  "$$(\"select#".$item['triggered']." option\").each(function(o){ if (triggeredValues.indexOf(o.readAttribute('value')) != -1) { if (o.selected) resetNeeded = true; o.hide();}})";
+            $actionTrue =  "$$(\"select#".$item['triggered']." option\").each(function(o){ if (triggeredValues.indexOf(o.readAttribute('value')) != -1) { o.disabled = false;o.show(); }})";
+            $actionFalse =  "$$(\"select#".$item['triggered']." option\").each(function(o){ if (triggeredValues.indexOf(o.readAttribute('value')) != -1) { if (o.selected) resetNeeded = true; o.disabled = true;o.hide();}})";
         } else {
-            $actionTrue =  "$(\"";
-            $actionFalse =  "$(\"";
-            if (!$enable) {
-                $actionTrue .= "form_";
-                $actionFalse .= "form_";
-            }
-            $actionTrue .= $item['triggered']."\").";
-            $actionFalse .= $item['triggered']."\").";
-            if ($enable) { 
-                $actionTrue .= "enable()"; 
-                $actionFalse .= "disable()";
+            if ($enable) {
+                $actionTrue =  "$(\"".$item['triggered']."\").enable()";
+                $actionFalse =  "$(\"".$item['triggered']."\").disable()";
             } else {
-                $actionTrue .= "show()";
-                $actionFalse .= "hide()";
+                $actionTrue =  "$(\"form_".$item['triggered']."\").show();Event.fire($(\"".$item['triggered']."\"), 'toucan:change');";
+                $actionFalse =  "$(\"form_".$item['triggered']."\").hide();";
             }
         }
     if (isset($item['value'])||isset($item['values'])) {
 ?>
         Event.observe("<?php echo $item['trigger']; ?>","change", function() {
+            $("<?php echo $item['trigger']; ?>").fire("toucan:change");
+        });
+        
+        Event.observe("<?php echo $item['trigger']; ?>","toucan:change", function() {
 <?php
         if (isset($item['triggeredValues'])) {
 ?>
@@ -94,9 +91,12 @@
         if (isset($item['triggeredValues'])) {
 ?>
                 if (resetNeeded) {
-                    window.alert("yes");
                     list = $("<?php echo $item['triggered']; ?>");
-                    list.value = list.down('option').readAttribute('value');
+                    option = list.down('option[disabled!=true]');
+                    if (option != undefined) {
+                        option.selected = true;
+                        list.value = option.readAttribute('value');
+                    }
                 }
 <?php
         }
