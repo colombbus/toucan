@@ -24,10 +24,13 @@ class Selection_Model extends ORM {
         return Kohana::lang("selection.$this->name");
     }
 
-    public static function getTranslatedList($simple = null) {
+    public static function getTranslatedList($simple = null, $numerical = true) {
         if (isset($simple)) {
             if ($simple) {
-                $selections = self::factory('selection')->where('simple', '1')->find_all();
+                if (!$numerical)
+                    $selections = self::factory('selection')->where('simple', '1')->where('numerical', '0')->find_all();
+                else
+                    $selections = self::factory('selection')->where('simple', '1')->find_all();
             } else {
                 $selections = self::factory('selection')->where('multiple', '1')->find_all();
             }
@@ -78,5 +81,14 @@ class Selection_Model extends ORM {
         return parent::__get($column);
     }
 
+    public function isSimple() {
+        return $this->loaded && ($this->simple == 1);
+    }
+
+    public function isMultiple() {
+        return $this->loaded && ($this->multiple == 1);
+    }
+
+    
 }
 ?>
