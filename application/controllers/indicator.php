@@ -109,7 +109,7 @@ class Indicator_Controller extends DataPage_Controller {
         $this->template->content->reorderUrl = "axValue/reorder/".$id;
         $this->template->content->addUrl = "axValue/create/".$id;
         $this->template->content->confirmDeletion = "indicatorValue.delete_confirm";
-        $this->template->content->itemAlreadyCreated = "indicatorValue.already_created";
+        $this->template->content->alreadyEditing = "indicatorValue.already_editing";
         $this->template->content->hideItems = "indicatorValue.hide_all";
         $this->template->content->showItems = "indicatorValue.show_all";
 
@@ -143,7 +143,7 @@ class Indicator_Controller extends DataPage_Controller {
         $this->template->content->addUrl = "axIndividual/create/".$this->data->id;
         $this->template->content->deleteUrl = "axIndividual/delete/";
         $this->template->content->confirmDeletion = "individual.delete_confirm";
-        $this->template->content->itemAlreadyCreated = "individual.already_created";
+        $this->template->content->alreadyEditing = "individual.already_editing";
         $this->template->content->info = sprintf(Kohana::lang('indicator.current_operator'),$this->data->getDisplayableOperator());
         $this->setPageInfo('POPULATION');
     }
@@ -168,7 +168,7 @@ class Indicator_Controller extends DataPage_Controller {
         $this->template->content->deleteUrl = "axLimit/delete/";
         $this->template->content->addUrl = "axLimit/create/".$id;
         $this->template->content->confirmDeletion = "limit.delete_confirm";
-        $this->template->content->itemAlreadyCreated = "limit.already_created";
+        $this->template->content->alreadyEditing = "limit.already_editing";
         $this->template->content->addItem = "limit.add";
         $this->template->content->showContent = true;
 
