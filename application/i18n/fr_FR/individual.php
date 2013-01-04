@@ -20,7 +20,7 @@
 
 $lang=array(
     "add"=>"Ajouter un critère",
-    "already_created"=>"Vous avez déjà un nouveau critère en cours d'édition",
+    "already_editing"=>"Vous avez déjà un critère en cours d'édition",
     "delete"=>"Supprimer",
     "delete_confirm"=>"Êtes-vous sûr de vouloir supprimer ce critère ?",
     "display"=>"Détails",
