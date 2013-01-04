@@ -215,7 +215,7 @@ class Evaluation_Controller extends DataPage_Controller {
         $this->template->content->deleteUrl = "axIndicator/delete/";
         $this->template->content->reorderUrl = "axIndicator/reorder/".$evaluationId;
         $this->template->content->confirmDeletion = "indicator.delete_confirm";
-        $this->template->content->itemAlreadyCreated = "indicator.already_created";
+        $this->template->content->alreadyEditing = "indicator.already_editing";
         $this->template->content->showContent = true;
 
         $this->setPageInfo('INDICATORS');
