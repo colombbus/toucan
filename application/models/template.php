@@ -225,7 +225,7 @@ abstract class Template_Model extends Toucan_Model {
         foreach($this->questions as $question) {
             if (!$question->isSeparator()) {
                 $variable = $question->variable;
-                $result[$variable->id] = array('name' => $variable->name, 'numerical'=>$variable->numerical, 'simple'=> ($variable->question->type_id != QuestionType_Model::MULTIPLE_CHOICE));
+                $result[$variable->id] = array('name' => $variable->name, 'numerical'=>$variable->numerical, 'simple'=> !$variable->isMultiple());
             }
         }
         return $result;
