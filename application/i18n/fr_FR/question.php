@@ -21,7 +21,7 @@
 $lang=array(
     "add"=>"Ajouter une question",
     "add_separator"=>"Ajouter un séparateur",
-    "already_created"=>"Vous avez déjà une nouvelle question en cours d'édition",
+    "already_editing"=>"Vous avez déjà une question en cours d'édition",
     "choice"=>"Réponse n°",
     "choices"=>"Réponses possibles :",
     "delete"=>"Supprimer la question",
