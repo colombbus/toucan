@@ -629,7 +629,7 @@ class Indicator_Model extends Toucan_Model implements Ajax_Model {
     protected function getPopulationIds() {
         $criteria = $this->individuals->as_array();
         $session = $this->session;
-        $copies = $session->where('copies.state_id',CopyState_Model::PUBLISHED)->formCopies;
+        $copies = $session->in('copies.state_id',CopyState_Model::getPublishedStates())->formCopies;
         $result = array();
         if (count($criteria)>0) {
             switch ($this->population_operator) {
