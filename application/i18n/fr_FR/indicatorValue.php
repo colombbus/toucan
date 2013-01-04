@@ -20,7 +20,7 @@
 
 $lang=array(
     "add"=>"Ajouter une valeur",
-    "already_created"=>"Vous avez déjà une nouvelle valeur en cours d'édition",
+    "already_editing"=>"Vous avez déjà une valeur en cours d'édition",
     "color"=>"Couleur :",
     "delete"=>"Supprimer",
     "delete_confirm"=>"Êtes-vous sûr de vouloir supprimer cette valeur ?",
