@@ -113,7 +113,7 @@ class Survey_Controller extends FormSession_Controller {
         $this->template->content->deleteUrl = "axSurveyIndicator/delete/";
         $this->template->content->reorderUrl = "axSurveyIndicator/reorder/".$surveyId;
         $this->template->content->confirmDeletion = "indicator.delete_confirm";
-        $this->template->content->itemAlreadyCreated = "indicator.already_created";
+        $this->template->content->alreadyEditing = "indicator.already_editing";
         $this->template->content->showContent = true;
 
         $this->setPageInfo('INDICATORS');
