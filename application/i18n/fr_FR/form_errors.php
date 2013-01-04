@@ -127,9 +127,19 @@ $lang = array
     (
         'default' => "Données invalides",
     ),
-    'selection_id' => Array
+    'selection_id_simple' => Array
     (
         'numerical' => "Ce test ne peut pas être utilisé car la variable peut prendre des valeurs non numériques",
+        'multiple' => "Ce test ne peut pas être appliqué car la variable peut prendre plusieurs valeurs simultannément",
+    ),
+    'selection_id_simple_numerical' => Array
+    (
+        'multiple' => "Ce test ne peut pas être appliqué car la variable peut prendre plusieurs valeurs simultannément",
+    ),
+    'selection_id_multiple' => Array
+    (
+        'numerical' => "Ce test ne peut pas être utilisé car la variable peut prendre des valeurs non numériques",
+        'simple' => "Ce test ne peut pas être appliqué car la variable ne peut prendre qu'une seule valeur",
     ),
     'sex' => Array
     (
