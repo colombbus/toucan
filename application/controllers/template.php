@@ -274,7 +274,7 @@ class Template_Controller extends DataPage_Controller {
         $this->template->content->templateId = $templateId;
         $this->template->content->confirmDeletion = "question.delete_confirm";
         $this->template->content->confirmSeparatorDeletion = "question.delete_separator_confirm";
-        $this->template->content->itemAlreadyCreated = "question.already_created";
+        $this->template->content->alreadyEditing = "question.already_editing";
         $this->template->content->hideItems = "question.hide_all";
         $this->template->content->showItems = "question.show_all";
 
@@ -356,7 +356,7 @@ class Template_Controller extends DataPage_Controller {
         $this->template->content->deleteUrl = "axTemplateIndicator/delete/";
         $this->template->content->reorderUrl = "axTemplateIndicator/reorder/".$templateId;
         $this->template->content->confirmDeletion = "indicator.delete_confirm";
-        $this->template->content->itemAlreadyCreated = "indicator.already_created";
+        $this->template->content->alreadyEditing = "indicator.already_editing";
         $this->template->content->showContent = true;
 
         $this->setPageInfo('INDICATORS');
