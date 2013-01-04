@@ -20,6 +20,7 @@
 
 $lang=array(
     "add"=>"Ajouter un seuil",
+    "already_editing"=>"Vous avez déjà un seuil en cours d'édition",
     "color"=>"Couleur :",
     "delete"=>"Supprimer",
     "delete_confirm"=>"Êtes-vous sûr de vouloir supprimer ce seuil ?",
