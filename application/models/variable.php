@@ -61,5 +61,11 @@ class Variable_Model extends ORM {
         $this->numerical = $variable->numerical;
         $this->save();
     }
+    
+    public function isMultiple() {
+        if (!$this->loaded)
+            return false;
+        return ($this->question->type_id == QuestionType_Model::MULTIPLE_CHOICE);
+    }
 }
 ?>
