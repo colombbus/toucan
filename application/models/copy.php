@@ -389,7 +389,7 @@ abstract class Copy_Model extends Toucan_Model {
         if (!isset($this->state_id)) {
             return false;
         }
-        return (($this->state_id != CopyState_Model::GOING_ON) && ($this->state_id != CopyState_Model::AUTO_SAVED));
+        return in_array($this->state_id, CopyState_Model::getPublishedStates());
     }
 
 }
