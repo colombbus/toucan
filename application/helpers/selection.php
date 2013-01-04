@@ -21,45 +21,73 @@
 class selection_Core {
     public static function equal($value1, $value2) {
         if (is_array($value1)) {
-            return in_array($value2, $value1);
-        } else {
-            return ($value1 == $value2);
+            return false;
         }
+        return ($value1 == $value2);
     }
 
     public static function different($value1, $value2) {
         if (is_array($value1)) {
-            return !in_array($value2, $value1);
-        } else {
-            return ($value1 != $value2);
+            return false;
         }
+        return ($value1 != $value2);
     }
 
     public static function set($value) {
+        if (is_array($value)) {
+            return count($value)>0;
+        }
         return (isset($value));
     }
 
     public static function un_set($value) {
-        return (!isset($value));
+        return (!isset($value)||(is_array($value)&&(count($value)==0)));
     }
 
     public static function inferior($value1, $value2) {
+        if (is_array($value1)) {
+            return false;
+        }
         return ($value1 < $value2);
     }
 
     public static function superior($value1, $value2) {
+        if (is_array($value1)) {
+            return false;
+        }
         return ($value1 > $value2);
-
     }
 
     public static function inferior_or_equal($value1, $value2) {
+        if (is_array($value1)) {
+            return false;
+        }
         return ($value1 <= $value2);
-
     }
 
     public static function superior_or_equal($value1, $value2) {
+        if (is_array($value1)) {
+            return false;
+        }
         return ($value1 >= $value2);
     }
 
+    public static function contains($value1, $value2) {
+        if (is_array($value1)) {
+            return in_array($value2, $value1);
+        }
+        return false;
+    }
+
+    public static function not_contains($value1, $value2) {
+        if (!isset($value1))
+            return true;
+        if (is_array($value1)) {
+            return !in_array($value2, $value1);
+        }
+        return false;
+    }
+
+    
 }
 ?>
