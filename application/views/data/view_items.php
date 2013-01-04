@@ -48,6 +48,7 @@
 ?>
     var editId;
     var newItem = false;
+    var editionItem = false;
 
 <?php
         if (isset($noItems)) {
@@ -63,8 +64,8 @@
 ?>
 
     function addItem(url) {
-        if (newItem)
-            window.alert('<?php echo addslashes(Kohana::lang($itemAlreadyCreated));?>');
+        if (newItem|editionItem)
+            window.alert('<?php echo addslashes(Kohana::lang($alreadyEditing));?>');
         else {
             if (url == undefined)
                 url = '<?php echo html::url($addUrl)?>';
@@ -91,6 +92,7 @@
                 insertion: 'bottom'
             });
         } else {
+            editionItem = false;
             new Ajax.Updater(elementName, '<?php echo html::url($editUrl)?>/'+id , {
                 method: 'post',
                 parameters:$(formName).serialize(true),
@@ -105,9 +107,14 @@
         if (isset($editUrl)) {
 ?>
     function editItem(id) {
-        elementName = "item_"+id;
-        editId = id;
-        new Ajax.Updater(elementName, '<?php echo html::url($editUrl)?>/'+id, { method: 'get',  evalScripts: true});
+        if (newItem|editionItem)
+            window.alert('<?php echo addslashes(Kohana::lang($alreadyEditing));?>');
+        else {
+            editionItem = true;
+            elementName = "item_"+id;
+            editId = id;
+            new Ajax.Updater(elementName, '<?php echo html::url($editUrl)?>/'+id, { method: 'get',  evalScripts: true});
+        }
     }
 <?php
         }
@@ -134,6 +141,7 @@
             $(elementName).remove();
             newItem = false;
         } else {
+            editionItem = false;
             new Ajax.Updater(elementName, '<?php echo html::url($displayUrl)?>/'+id, { method: 'get',  onSuccess: function(transport) {}, evalScripts: true});
         }
     }
