@@ -45,7 +45,7 @@ $lang=array(
     "owner"=>"Créé par :",
     "preview_description"=>"Aperçu du rapport d'entretien :",
     "previous_copy"=>"&lt;&lt;\xc2\xa0Rapport précédent",
-    "save"=>"Publier",
+    "save"=>"Terminer",
     "set_state_saved" => "Mettre l'état à 'enregistré'",
     "set_state_marked" => "Mettre l'état à 'signalé'",
     "set_state_managed" => "Mettre l'état à 'traité'",
@@ -53,6 +53,6 @@ $lang=array(
     "state"=>"Etat : ",
     "state_updated"=>"Le rapport est maintenant «\xc2\xa0%s\xc2\xa0»",
     "summary"=>"Rapport global\xc2\xa0:",
-    "temporary_save"=>"Sauvegarder sans publier",
+    "temporary_save"=>"Enregistrer provisoirement",
 );
 ?>
