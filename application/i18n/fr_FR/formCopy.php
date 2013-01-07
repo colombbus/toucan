@@ -37,13 +37,13 @@ $lang=array(
     "preview_description"=>"Aperçu du questionnaire :",
     "previous_copy"=>"<<\xc2\xa0Exemplaire précédent",
     "required_text"=>"réponse obligatoire",
-    "save"=>"Publier",
+    "save"=>"Terminer",
     "set_state_saved" => "Mettre l'état à 'enregistré'",
     "set_state_marked" => "Mettre l'état à 'signalé'",
     "set_state_managed" => "Mettre l'état à 'traité'",
     "show_description"=>"Consultation d'un questionnaire",
     "state"=>"Etat : ",
     "state_updated"=>"L'exemplaire est maintenant «\xc2\xa0%s\xc2\xa0»",
-    "temporary_save"=>"Sauvegarder sans publier",
+    "temporary_save"=>"Enregistrer provisoirement",
 );
 ?>
