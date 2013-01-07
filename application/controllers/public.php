@@ -100,7 +100,7 @@ class Public_Controller extends DataPage_Controller {
         $description = $formSession->description;
         
         if (strlen(trim($description))>0) {
-            $this->template->description = $description;
+            $this->template->description = str_replace("\n", "<br/>", htmlspecialchars($description,ENT_QUOTES, "UTF-8"));
         } else {
             $this->template->description = Kohana::lang('public.form_description');
         }
