@@ -263,14 +263,6 @@ abstract class Session_Controller extends DataPage_Controller {
         // Set form language 
         if (isset($this->data->language))
             language::setCurrentLanguage($this->data->language);
-
-        $this->template->title = $this->data->name;
-        $description = $this->data->description;
-        if (strlen(trim($description))>0) {
-            $this->template->description = $description;
-        } else {
-            $this->template->description = Kohana::lang('public.form_description');
-        }
         $this->template->setStep("form");
         $this->dataName = $this->copyName;
         $parameters = array('session_id'=>$this->data->id, 'public_access'=>true);
@@ -536,7 +528,7 @@ abstract class Session_Controller extends DataPage_Controller {
             $this->template->title = $session->name;
             $description = $session->description;
             if (strlen(trim($description))>0) {
-                $this->template->description = $description;
+                $this->template->description = str_replace("\n", "<br/>", htmlspecialchars($description,ENT_QUOTES, "UTF-8"));
             } else {
                 $this->template->description = Kohana::lang('public.form_description');
             }
