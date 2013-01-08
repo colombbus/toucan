@@ -4,3 +4,16 @@ application/config/database.php
 application/logs/*
 _install.php
 nbproject/
+media/public/avatar/*
+!media/public/avatar/index.html
+media/public/graphics/*
+!media/public/graphics/index.html
+media/public/interviews/*
+!media/public/interviews/index.html
+media/public/logo/*
+!media/public/logo/index.html
+media/public/templates/*
+!media/public/templates/default
+!media/public/templates/default/*
+media/public/upload/*
+!media/public/upload/index.html
