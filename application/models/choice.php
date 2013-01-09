@@ -87,6 +87,13 @@ class Choice_Model extends Toucan_Model {
         $this->question_id = $question->id;
         $this->save();
     }
+    
+    public function getValue($forceTextValue = false) {
+        $value = $this->value;
+        if ($forceTextValue||(strlen(trim($value))==0))
+            return $this->text;
+        return $value;
+    }
 
 }
 ?>

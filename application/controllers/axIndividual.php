@@ -25,7 +25,8 @@ class AxIndividual_Controller extends Ajax_Controller {
     protected $controllerName = "axIndividual";
 
     public function create($indicatorId) {
-        parent::create($indicatorId, array('indicator_id'=>$indicatorId));
+        parent::create($indicatorId, array('indicator_id'=>$indicatorId),"individual/new_individual");
+        $this->view->valuesUrl = $this->controllerName."/getValues/";
     }
 
     public function show($id, $new = false) {
@@ -33,5 +34,31 @@ class AxIndividual_Controller extends Ajax_Controller {
         $this->view->isDraggable = false;
     }
 
+    public function edit($id) {
+        parent::edit($id, "individual/edit_individual");
+        $this->view->valuesUrl = $this->controllerName."/getValues/";
+    }
+
+    public function getValues($variableId) {
+        $variable = ORM::factory("variable", $variableId);
+        $this->auto_render = false;
+        if (isset($variable)&&$variable->loaded) {
+            $question = $variable->question;
+            if (isset($question)&&$question->isViewableBy($this->user)) {
+                if (($question->type_id == QuestionType_Model::MULTIPLE_CHOICE) || ($question->type_id == QuestionType_Model::CHOICE)) {
+                    $choices = $question->choices;
+                    $possibleValues = array();
+                    foreach ($choices as $choice) {
+                        $possibleValues[] = $choice->getValue();
+                    }
+                    $this->view=new View("individual/values");
+                    $this->view->label = Kohana::lang('individual.choose_value');
+                    $this->view->possibleValues = $possibleValues;
+                    $this->auto_render = true;
+                }
+            }
+        }
+    }
+    
 }
 ?>

@@ -76,9 +76,7 @@ class Answer_Model extends ORM {
             switch ($this->question->type_id) {
                 case QuestionType_Model::CHOICE :
                 case QuestionType_Model::MULTIPLE_CHOICE :
-                    $value = $this->choice->value;
-                    if ($forceTextValue||(strlen(trim($value))==0))
-                        return $this->choice->text;
+                    $value = $this->choice->getValue($forceTextValue);
                     return $value;
                     break;
                 default:

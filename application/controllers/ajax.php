@@ -86,7 +86,7 @@ abstract class Ajax_Controller extends Toucan_Controller {
         $this->view->dragUpdateRequired = $this->view->isDraggable;
     }
 
-    public function create($parentId, $parameters=null) {
+    public function create($parentId, $parameters=null, $viewName = "data/new_item") {
         // CREATE ITEM
         $newItem = ORM::factory($this->dataName);
 
@@ -131,7 +131,7 @@ abstract class Ajax_Controller extends Toucan_Controller {
         // TEMPLATE
         $item = array();
         $item['content'] = $creationData;
-        $this->view=new View("data/new_item");
+        $this->view=new View($viewName);
         $this->view->formId = "form_create_".$this->dataName;
         $this->view->item = $item;
         $this->view->errors = $formErrors;
@@ -142,7 +142,7 @@ abstract class Ajax_Controller extends Toucan_Controller {
         }
     }
 
-    public function edit($id) {
+    public function edit($id, $viewName = "data/edit_item") {
         // LOAD DATA
         $this->loadData($id);
         $this->ensureAccess(access::MAY_EDIT);
@@ -163,7 +163,7 @@ abstract class Ajax_Controller extends Toucan_Controller {
         }
 
         // TEMPLATE
-        $this->view=new View("data/edit_item");
+        $this->view=new View($viewName);
         $this->view->formId = "form_edit_$this->dataName";;
 
         // DATA

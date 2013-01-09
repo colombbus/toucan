@@ -1,5 +1,5 @@
-<?php defined('SYSPATH') or die('No direct access allowed.');
- /**
+<?php defined('SYSPATH') or die('No direct script access.');
+/**
  * Toucan is a web application to perform evaluation and follow-up of
  * activities.
  * Copyright (C) 2010 Colombbus (http://www.colombbus.org)
@@ -17,22 +17,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
-$lang=array(
-    "add"=>"Ajouter un critère",
-    "already_editing"=>"Vous avez déjà un critère en cours d'édition",
-    "choose_value"=>"Entrez une valeur ou choisissez-la dans la liste ci-dessous :",
-    "delete"=>"Supprimer",
-    "delete_confirm"=>"Êtes-vous sûr de vouloir supprimer ce critère ?",
-    "display"=>"Détails",
-    "edit"=>"Modifier",
-    "hide_all"=>"afficher tous les détails",
-    "no_item"=>"aucun critère",
-    "selection"=>"Test :",
-    "show_all"=>"cacher tous les détails",
-    "summary"=>"Variable «\xc2\xa0%s\xc2\xa0» %s",
-    "summary_with_value"=>"Variable «\xc2\xa0%s\xc2\xa0» %s %s",
-    "value"=>"Valeur :",
-    "variable"=>"Variable :",
-);
+?>
+<?php
+    include APPPATH."/views/data/edit_item.php";
+    include APPPATH."/views/individual/inc_values.php";
 ?>
