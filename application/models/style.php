@@ -89,7 +89,7 @@ class Style_Model extends Toucan_Model {
             ->pre_filter('trim')
             ->add_rules('name', 'required', array($this, 'uniqueName'), 'length[1,127]')
             ->add_rules('description', 'length[0,500]')
-            ->add_rules('directory', 'required', array($this, 'uniqueDirectory'), 'length[1,127]', 'valid::alpha_numeric')
+            ->add_rules('directory', 'required', array($this, 'uniqueDirectory'), 'length[1,127]', 'valid::alpha_dash')
             ->add_rules('view_id', 'valid::numeric')
             ->add_rules('default_structure', 'in_array[0,1]')
             ->add_rules('edit_id', 'valid::numeric');
