@@ -163,6 +163,10 @@ $lang = array
         'empty_choices' => "Vous devez sélectionner au moins un choix",
     ),
     'unknown_choice' => 'Choix incorrect',
+    'upload' => Array
+    (
+        'default' => "Fichier non autorisé",
+    ),
     'username' => Array
     (
         'alpha_dash' => "Seuls les lettres, chiffres et caractères '_' et '#' sont autorisés",
