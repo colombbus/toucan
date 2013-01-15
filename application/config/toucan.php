@@ -29,6 +29,7 @@
     $config['formSession_per_page'] = 20;
     $config['interviewSession_per_page'] = 20;
     $config['file_per_page'] = 20;
+    $config['styleFile_per_page'] = 20;
     $config['formCopy_per_page'] = 20;
     $config['interviewCopy_per_page'] = 20;
     $config['style_per_page'] = 20;
