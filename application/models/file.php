@@ -20,12 +20,12 @@
 
 class File_Model extends Toucan_Model {
 
-    protected $has_and_belongs_to_many = array('styles');
-    protected $ignored_columns = array('style_id', 'contents', 'oldName', 'upload', 'overwrite');
-    protected $editableExtensions = array('tpl', 'css');
-    protected $allowedExtensions = array('tpl', 'css', 'jpg', 'png', 'jpeg', 'gif', 'bmp');
+    protected $ignored_columns = array('contents', 'oldName', 'upload', 'overwrite');
     protected $oldName = null;
-    
+    protected $allowedExtensions = null;
+    protected $editableExtensions = null;
+    protected $table_name = "files";
+
     public function delete() {
         if ($this->loaded) {
             @unlink($this->getFile());
@@ -137,7 +137,7 @@ class File_Model extends Toucan_Model {
     
     public function getEditableData($access, & $user) {
         $editionData[] = array ('type' => 'text','name' => 'name','label' => 'file.name','required'=>'1', 'value' => $this->name);
-        if (in_array($this->getExtension(),$this->editableExtensions)) {
+        if (isset($this->editableExtensions) && in_array($this->getExtension(),$this->editableExtensions)) {
             // file is editeable : provide contents for edition
             $editionData[] = array ('type' => 'file_contents','name' => 'contents','label' => 'file.contents','value' => $this->getFileContents());
         }
@@ -175,10 +175,6 @@ class File_Model extends Toucan_Model {
                 // save contents
                 $this->setFileContents($array['contents']);
             }
-            if (isset ($array['style_id'])) {
-                $style = ORM::factory('style', $array['style_id']);
-                $this->add($style);
-            }
             if ($save) {
                 $this->save();
             }
@@ -201,35 +197,33 @@ class File_Model extends Toucan_Model {
             ->add_rules('overwrite','in_array[0,1]')
             ->add_rules('directory', 'required');
         $fileValidation = Validation::factory($_FILES)
-            ->add_rules('upload', 'upload::valid', array($this, 'extensionAllowed'), 'upload::size[1M]');
-        if (parent::validate($this->validation, false)&&parent::validate($fileValidation, false)) {
-            $overwrite = false;
-            $fileName = $_FILES['upload']['name'];
-            if (!$this->uniqueName($fileName)) {
-                // file already exists
-                if (!isset($array['overwrite'])||$array['overwrite']==0) {
-                    // No overwrite allowed: we have to find a new name
-                    do {
-                        $fileName = $this->copyName($fileName);
+            ->add_rules('upload', 'upload::valid', array($this, 'extensionAllowed'), 'upload::size[2M]');
+        if (parent::validate($this->validation, false)) {
+            if (parent::validate($fileValidation, false)) {
+                $fileName = $_FILES['upload']['name'];
+                if (!$this->uniqueName($fileName)) {
+                    // file already exists
+                    if (!isset($array['overwrite'])||$array['overwrite']==0) {
+                        // No overwrite allowed: we have to find a new name
+                        do {
+                            $fileName = $this->copyName($fileName);
+                        }
+                        while (!$this->uniqueName($fileName));
                     }
-                    while (!$this->uniqueName($fileName));
-                } else {
-                    // overwrite
-                    $overwrite = true;
                 }
-            }
-            $this->name = $fileName;
-            upload::save('upload', $fileName, $this->getAbsoluteDirectory(), Kohana::config('toucan.public_file_mode'));
-            if (!$overwrite) {
-                if (isset ($array['style_id'])) {
-                    $style = ORM::factory('style', $array['style_id']);
-                    $this->add($style);
-                }
+                $this->name = $fileName;
+                upload::save('upload', $fileName, $this->getAbsoluteDirectory(), Kohana::config('toucan.public_file_mode'));
                 if ($save) {
                     $this->save();
                 }
+                return true;
+            } else {
+                $fileErrors = $fileValidation->errors();
+                foreach ($fileErrors as $key=>$value)
+                if ($fileValidation) {
+                    $this->validation->add_error($key,$value);
+                }
             }
-            return true;
         }
         return false;
     }
@@ -242,6 +236,8 @@ class File_Model extends Toucan_Model {
     }
 
     public function extensionAllowed($name) {
+        if (!isset($this->allowedExtensions))
+            return true;
         if (is_array($name)) {
             $name = $name['name'];
         }
