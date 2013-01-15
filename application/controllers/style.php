@@ -128,7 +128,7 @@ class Style_Controller extends DataPage_Controller {
 
         $access = access::REGISTERED;
         
-        $fileIds= $this->data->files->primary_key_array();
+        $fileIds= $this->data->stylefiles->primary_key_array();
         $fields = array('name_header'=>'name');
         $action = "style/editFile/$styleId/";
 
@@ -136,8 +136,8 @@ class Style_Controller extends DataPage_Controller {
         $icons[] = array('src'=>Kohana::config('toucan.images_directory').'/edit.png', 'action'=>'style/editFile/'.$styleId.'/', 'text'=>'style.edit_file');
         $icons[] = array('src'=>Kohana::config('toucan.images_directory').'/delete.png', 'action'=>'style/deleteFile/'.$styleId.'/', 'text'=>'style.delete_file', 'confirm'=>'style.delete_file_confirm');
 
-        $this->template->content->listUrl = List_Controller::initList($this->user, $access,"file",$action, $fields, $fileIds, false, $icons);
-        $this->template->content->dataName = "file";
+        $this->template->content->listUrl = List_Controller::initList($this->user, $access,"styleFile",$action, $fields, $fileIds, false, $icons);
+        $this->template->content->dataName = "styleFile";
         $this->template->content->listIcons = 2;
 
         $filter = ListFilter::instance();
@@ -185,7 +185,7 @@ class Style_Controller extends DataPage_Controller {
         $parameters['style_id'] = $styleId;
         $parameters['directory'] = $this->data->getDirectory();
         $parameters['url_next'] = "style/files/$styleId";
-        $this->dataName = "file";
+        $this->dataName = "styleFile";
         parent::create($parameters);
         
         // PAGE INFOS
@@ -206,9 +206,8 @@ class Style_Controller extends DataPage_Controller {
         
         $parameters = array();
         $parameters['url_next'] = "style/files/$styleId";
-        $this->dataName = "file";
+        $this->dataName = "styleFile";
 		parent::edit($fileId,'data/edit', $parameters);
-        
         // PAGE INFOS
         $this->setPageInfo('EDIT_FILE');
     }
@@ -221,7 +220,7 @@ class Style_Controller extends DataPage_Controller {
         $this->controlAccess('FILES');
         
         // CREATE ITEM
-        $item = ORM::factory('file');
+        $item = ORM::factory('styleFile');
 
         // MANAGE FORM
         $formErrors= array();
