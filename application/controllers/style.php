@@ -136,8 +136,8 @@ class Style_Controller extends DataPage_Controller {
         $icons[] = array('src'=>Kohana::config('toucan.images_directory').'/edit.png', 'action'=>'style/editFile/'.$styleId.'/', 'text'=>'style.edit_file');
         $icons[] = array('src'=>Kohana::config('toucan.images_directory').'/delete.png', 'action'=>'style/deleteFile/'.$styleId.'/', 'text'=>'style.delete_file', 'confirm'=>'style.delete_file_confirm');
 
-        $this->template->content->listUrl = List_Controller::initList($this->user, $access,"styleFile",$action, $fields, $fileIds, false, $icons);
-        $this->template->content->dataName = "styleFile";
+        $this->template->content->listUrl = List_Controller::initList($this->user, $access,"stylefile",$action, $fields, $fileIds, false, $icons);
+        $this->template->content->dataName = "stylefile";
         $this->template->content->listIcons = 2;
 
         $filter = ListFilter::instance();
@@ -185,7 +185,7 @@ class Style_Controller extends DataPage_Controller {
         $parameters['style_id'] = $styleId;
         $parameters['directory'] = $this->data->getDirectory();
         $parameters['url_next'] = "style/files/$styleId";
-        $this->dataName = "styleFile";
+        $this->dataName = "stylefile";
         parent::create($parameters);
         
         // PAGE INFOS
@@ -206,7 +206,7 @@ class Style_Controller extends DataPage_Controller {
         
         $parameters = array();
         $parameters['url_next'] = "style/files/$styleId";
-        $this->dataName = "styleFile";
+        $this->dataName = "stylefile";
 		parent::edit($fileId,'data/edit', $parameters);
         // PAGE INFOS
         $this->setPageInfo('EDIT_FILE');
@@ -220,7 +220,7 @@ class Style_Controller extends DataPage_Controller {
         $this->controlAccess('FILES');
         
         // CREATE ITEM
-        $item = ORM::factory('styleFile');
+        $item = ORM::factory('stylefile');
 
         // MANAGE FORM
         $formErrors= array();
