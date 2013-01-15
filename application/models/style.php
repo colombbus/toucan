@@ -213,7 +213,6 @@ class Style_Model extends Toucan_Model {
     }
     
     protected function checkDirectory() {
-        //die(var_dump(umask()));
         if (!file_exists($this->getAbsoluteDirectory())) {
             $oldumask = umask(0);
             mkdir($this->getAbsoluteDirectory(), Kohana::config('toucan.public_directory_mode'));
@@ -267,7 +266,7 @@ class Style_Model extends Toucan_Model {
 
         // add in db the physically present files that are not already in db
         foreach ($presentFiles as $file) {
-            $newFile = ORM::factory('styleFile');
+            $newFile = ORM::factory('stylefile');
             $newFile->name = $file;
             $newFile->directory = $this->getDirectory();
             $newFile->save();
@@ -277,7 +276,7 @@ class Style_Model extends Toucan_Model {
     }
 
     public function deleteFile($fileId) {
-        $file = ORM::factory('styleFile', $fileId);
+        $file = ORM::factory('stylefile', $fileId);
         if ($this->has($file)) {
             $this->remove($file);
             $file->delete();
@@ -293,6 +292,7 @@ class Style_Model extends Toucan_Model {
             $this->default_structure = 1;
         }
     }
+    
     
 }
 ?>
