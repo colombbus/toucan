@@ -23,7 +23,7 @@ class Style_Model extends Toucan_Model {
     protected $belongs_to = array('owner'=>'user');
     protected $has_one = array('view' => 'group', 'edit' => 'group');
     protected $has_many = array('formSessions');
-    protected $has_and_belongs_to_many = array('files');
+    protected $has_and_belongs_to_many = array('files_styles'=>'stylefiles');
     protected $ignored_columns = array('default_structure');
     protected $oldDirectory = null;
 
@@ -154,7 +154,7 @@ class Style_Model extends Toucan_Model {
             }
             
             // second: delete all files
-            $files = $this->files;
+            $files = $this->stylefiles;
             foreach ($files as $file) {
                 $this->remove($file);
                 $file->delete();
@@ -254,7 +254,7 @@ class Style_Model extends Toucan_Model {
         
         // delete database files that are not physically present
         $directory = $this->getDirectory();
-        foreach ($this->files as $file) {
+        foreach ($this->stylefiles as $file) {
             $key = array_search($file->name, $presentFiles);
             if ($key !== FALSE && strcmp($file->directory, $directory) == 0) {
                 // file present in physical
@@ -267,7 +267,7 @@ class Style_Model extends Toucan_Model {
 
         // add in db the physically present files that are not already in db
         foreach ($presentFiles as $file) {
-            $newFile = ORM::factory('file');
+            $newFile = ORM::factory('styleFile');
             $newFile->name = $file;
             $newFile->directory = $this->getDirectory();
             $newFile->save();
@@ -277,7 +277,7 @@ class Style_Model extends Toucan_Model {
     }
 
     public function deleteFile($fileId) {
-        $file = ORM::factory('file', $fileId);
+        $file = ORM::factory('styleFile', $fileId);
         if ($this->has($file)) {
             $this->remove($file);
             $file->delete();
