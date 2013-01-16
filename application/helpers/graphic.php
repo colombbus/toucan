@@ -68,7 +68,10 @@ class graphic_Core {
     public static function diagram(& $values, & $labels, & $info, & $fileName) {
         try {
             require_once Kohana::find_file('vendor','jpgraph/jpgraph_line');
-
+            
+			// sort values and labels accordingly (useful when ploting numeric labels)
+            array_multisort($labels, $values);
+            
             $graph = self::initGraph($info, $labels);
 
             // Create the linear plot
