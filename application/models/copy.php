@@ -238,14 +238,16 @@ abstract class Copy_Model extends Toucan_Model {
         return true;
     }
 
-    protected function getQuestions($sessionId = null, &$user = null) {
+    protected function getQuestions($sessionId = null, &$user = null, $includePrivate = null) {
         if (isset($sessionId)) {
             $session = ORM::factory($this->sessionName, $sessionId);
         } else {
             $session = $this->session;
         }
         $template = $session->template;
-        return $template->getQuestions($session->isEditableBy($user));
+        if (!isset($includePrivate))
+            $includePrivate = $session->isEditableBy($user);
+        return $template->getQuestions($includePrivate);
     }
 
     protected function getAnswers($questionId) {
@@ -334,8 +336,9 @@ abstract class Copy_Model extends Toucan_Model {
         return null;
     }
 
-    public function export($separator, $boundary, $answerSeparator,& $escaped) {
-        $questions = $this->getQuestions();
+    public function export($separator, $boundary, $answerSeparator,& $escaped, $includePrivate) {
+        $fakeUser = null;
+        $questions = $this->getQuestions(null, $fakeUser, $includePrivate);
         if (isset($this->summary_id)) {
             $buffer = $boundary.text::escape($this->summary->value, $escaped).$boundary.$separator;
         } else {
