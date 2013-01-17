@@ -345,10 +345,18 @@ abstract class Session_Model extends Toucan_Model {
             $this->exportParameters['add_headers'] = 1;
         else
             $this->exportParameters['add_headers'] = 0;
+        if (isset ($array['add_state']))
+            $this->exportParameters['add_state'] = 1;
+        else
+            $this->exportParameters['add_state'] = 0;
         if (isset ($array['unpublished']))
             $this->exportParameters['unpublished'] = 1;
         else
             $this->exportParameters['unpublished'] = 0;
+        if (isset ($array['private']))
+            $this->exportParameters['private'] = 1;
+        else
+            $this->exportParameters['private'] = 0;
         if (isset ($array['field_separator']))
             $this->exportParameters['field_separator'] = $array['field_separator'];
         else
@@ -387,12 +395,15 @@ abstract class Session_Model extends Toucan_Model {
             $this->exportParameters['end_date'] = '';
     }
 
-    public function getExportEditableParameters() {
+    public function getExportEditableParameters(& $user) {
         $editableData = array();
         $editableData[] = array ('type' => 'check','name' => 'add_author','label' => 'session.export_add_author', 'checked'=>$this->exportParameters['add_author']);
         $editableData[] = array ('type' => 'check','name' => 'add_date','label' => 'session.export_add_date', 'checked'=>$this->exportParameters['add_date']);
         $editableData[] = array ('type' => 'check','name' => 'add_headers','label' => 'session.export_add_headers', 'checked'=>$this->exportParameters['add_headers']);
+        $editableData[] = array ('type' => 'check','name' => 'add_state','label' => 'session.export_add_state', 'checked'=>$this->exportParameters['add_state']);
         $editableData[] = array ('type' => 'check','name' => 'unpublished','label' => 'session.export_unpublished', 'checked'=>$this->exportParameters['unpublished']);
+        if ($this->hasPrivateQuestions($user))
+            $editableData[] = array ('type' => 'check','name' => 'private','label' => 'session.export_private', 'checked'=>$this->exportParameters['private']);
         $editableData[] = array ('type' => 'text','name' => 'field_separator','label' => 'session.export_field_separator', 'value'=>$this->exportParameters['field_separator']);
         $editableData[] = array ('type' => 'text','name' => 'copy_separator','label' => 'session.export_copy_separator', 'value' => $this->exportParameters['copy_separator']);
         $editableData[] = array ('type' => 'text','name' => 'field_boundary','label' => 'session.export_field_boundary', 'value' => $this->exportParameters['field_boundary']);
