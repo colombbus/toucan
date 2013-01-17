@@ -633,7 +633,7 @@ abstract class Session_Controller extends DataPage_Controller {
         $this->template->content->errors = $formErrors;
 
         // DATA
-        $this->template->content->data = $this->data->getExportEditableParameters();
+        $this->template->content->data = $this->data->getExportEditableParameters($this->user);
 
         $conditional = array();
         $conditional[] = array('trigger'=>'date', 'triggered'=>'start_date');
@@ -657,9 +657,11 @@ abstract class Session_Controller extends DataPage_Controller {
                 $this->data->where('created<=', $parameters['end_date']);
         }
         if (!$parameters['unpublished'])
-            $this->data->where('copies.state_id',CopyState_Model::PUBLISHED);
+            $this->data->in('copies.state_id',CopyState_Model::getPublishedStates());
         else
-            $this->data->in('copies.state_id', array(CopyState_Model::PUBLISHED, CopyState_Model::GOING_ON));
+            $this->data->in('copies.state_id', CopyState_Model::getAllStates());
+        /*if ($parameters['private'])
+            $this->data->where('copies.state_id',CopyState_Model::PUBLISHED);*/
         $buffer = "";
         $copies = $this->data->getCopies();
         $separator = stripslashes($parameters['field_separator']);
@@ -681,7 +683,7 @@ abstract class Session_Controller extends DataPage_Controller {
                 $row.=$boundary.text::escape(Kohana::lang($this->sessionName.".created"), $escaped).$boundary.$separator;
             }
             $template = $this->data->template;
-            $questions = $template->questions;
+            $questions = $template->getQuestions($parameters['private']);
             if ($template->questionAdvanced()) {
                 // Put variables instead of question texts
                 foreach ($questions as $question) {
@@ -697,7 +699,7 @@ abstract class Session_Controller extends DataPage_Controller {
                 }
             }
             $row = substr($row, 0, strlen($row)-1);
-            if ($parameters['unpublished']) {
+            if ($parameters['add_state']) {
                 $row.=$separator.$boundary.text::escape(Kohana::lang($this->sessionName.".copy_state"), $escaped).$boundary;
             }
             $row.=$rowSeparator;
@@ -715,8 +717,8 @@ abstract class Session_Controller extends DataPage_Controller {
                 $row.=$boundary.text::escape($copy->owner->fullName, $escaped).$boundary.$separator;
             if ($parameters['add_date'])
                 $row.=$boundary.text::escape($copy->translated_created, $escaped).$boundary.$separator;
-            $row.=$copy->export($separator, $boundary, $answerSeparator, $escaped);
-            if ($parameters['unpublished']) {
+            $row.=$copy->export($separator, $boundary, $answerSeparator, $escaped, $parameters['private']);
+            if ($parameters['add_state']) {
                 $row.=$separator.$boundary.text::escape($copy->state->getTranslatedName(), $escaped).$boundary;
             }
             $row.=$rowSeparator;
