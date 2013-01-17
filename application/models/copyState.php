@@ -55,5 +55,11 @@ class CopyState_Model extends ORM {
     public static function getPublishedStates() {
         return array(self::PUBLISHED,self::MARKED,self::MANAGED);
     }
+
+    public static function getAllStates() {
+        return array(self::GOING_ON, self::PUBLISHED,self::MARKED,self::MANAGED);
+    }
+
+    
 }
 ?>
