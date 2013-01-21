@@ -25,8 +25,9 @@ class CopyState_Model extends ORM {
 
     const GOING_ON = 1;
     const PUBLISHED = 2;
-    const MANAGED = 4;
-    const MARKED = 5;
+    const PROCESSING = 4;
+    const MANAGED = 5;
+    const MARKED = 6;
     const AUTO_SAVED = 10;
 
     public function getTranslatedName() {
@@ -53,11 +54,11 @@ class CopyState_Model extends ORM {
     }
 
     public static function getPublishedStates() {
-        return array(self::PUBLISHED,self::MARKED,self::MANAGED);
+        return array(self::PUBLISHED,self::PROCESSING,self::MANAGED,self::MARKED);
     }
 
     public static function getAllStates() {
-        return array(self::GOING_ON, self::PUBLISHED,self::MARKED,self::MANAGED);
+        return array(self::GOING_ON, self::PUBLISHED,self::PROCESSING,self::MANAGED,self::MARKED);
     }
 
     

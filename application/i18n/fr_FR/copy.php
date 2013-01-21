@@ -23,6 +23,7 @@ $lang=array(
     "colons"=>" : ",
     "not_editable"=>"Cet exemplaire ne peut plus être modifié car la session est terminée",
     "not_editable_2"=>"Cet exemplaire ne peut plus être modifié car l'évaluation est terminée",
+    "processing"=>"en traitement",
     "public"=>"<\xc2\xa0public\xc2\xa0>",
     "public_with_ip"=>"<\xc2\xa0%s\xc2\xa0>",
     "published"=>"enregistré",

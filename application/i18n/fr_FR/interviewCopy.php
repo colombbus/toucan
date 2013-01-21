@@ -49,6 +49,7 @@ $lang=array(
     "set_state_saved" => "Mettre l'état à 'enregistré'",
     "set_state_marked" => "Mettre l'état à 'signalé'",
     "set_state_managed" => "Mettre l'état à 'traité'",
+    "set_state_processing" => "Mettre l'état à 'en traitement'",
     "show_description"=>"Consultation d'un rapport d'entretien",
     "state"=>"Etat : ",
     "state_updated"=>"Le rapport est maintenant «\xc2\xa0%s\xc2\xa0»",

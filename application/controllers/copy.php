@@ -167,8 +167,9 @@ abstract class Copy_Controller extends DataPage_Controller {
                     $actions[] = array('type' => 'button_confirm','text' => 'button.delete','confirm' => $this->dataName.'.delete_text','url' => $this->dataName.'/delete/'.$copy->id);
                     if ($copy->isPublished()) {
                         $quickActions[] = array('image' => Kohana::config('toucan.images_directory').'/page_white.png','text' => Kohana::lang($this->dataName.'.set_state_saved'),'url' => $this->dataName.'/setState/'.$copy->id.'/'.CopyState_Model::PUBLISHED);
-                        $quickActions[] = array('image' => Kohana::config('toucan.images_directory').'/page_white_star.png','text' => Kohana::lang($this->dataName.'.set_state_marked'),'url' => $this->dataName.'/setState/'.$copy->id.'/'.CopyState_Model::MARKED);
+                        $quickActions[] = array('image' => Kohana::config('toucan.images_directory').'/page_white_gear.png','text' => Kohana::lang($this->dataName.'.set_state_processing'),'url' => $this->dataName.'/setState/'.$copy->id.'/'.CopyState_Model::PROCESSING);
                         $quickActions[] = array('image' => Kohana::config('toucan.images_directory').'/page_white_tick.png','text' => Kohana::lang($this->dataName.'.set_state_managed'),'url' => $this->dataName.'/setState/'.$copy->id.'/'.CopyState_Model::MANAGED);
+                        $quickActions[] = array('image' => Kohana::config('toucan.images_directory').'/page_white_star.png','text' => Kohana::lang($this->dataName.'.set_state_marked'),'url' => $this->dataName.'/setState/'.$copy->id.'/'.CopyState_Model::MARKED);
                     }
                 }
                 break;
