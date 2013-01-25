@@ -208,7 +208,7 @@ class FormCopy_Model extends Copy_Model {
     }
 
     public function getEditableData($access, & $user, $name="", $description="") {
-        $questions = $this->getQuestions();
+        $questions = $this->getQuestions(null, $user);
         if (!$this->valuesSetFromPost) {
             // Read values from database
             $this->values = array();
