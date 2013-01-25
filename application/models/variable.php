@@ -54,6 +54,21 @@ class Variable_Model extends ORM {
             // TO BE IMPLEMENTED
         }
     }
+    
+    public function getChoiceIds(& $copy) {
+        if ($this->question->id>0) {
+            $answers = ORM::factory('answer')->where('copy_id', $copy->id)->where('question_id', $this->question->id)->find_all();
+            if (!$answers->valid()) {
+                return null;
+            }
+            $ids = array();
+            foreach($answers as $answer) {
+                $ids[] = $answer->choice_id;
+            }
+            return $ids;
+        }
+        return null;
+    }
 
     public function copy($variable, $question) {
         $this->name = $variable->name;
