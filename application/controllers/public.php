@@ -157,6 +157,9 @@ class Public_Controller extends DataPage_Controller {
             $parameters['form_password'] = $password;
         }
         $this->create($parameters,'copy/edit');
+        $errors = $this->template->content->errors;
+        if (sizeof($errors)>0)
+            $this->template->error = Kohana::lang('public.form_errors');
         $this->template->content->goingOnState = CopyState_Model::GOING_ON;
     }
 
