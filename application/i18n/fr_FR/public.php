@@ -21,6 +21,7 @@
 $lang=array(
     "form_description"=>"Merci de bien vouloir répondre aux questions suivantes :",
     "form_title"=>"Questionnaire «\xc2\xa0%s\xc2\xa0»",
+    "form_errors"=>"Attention : votre questionnaire ne peut être enregistré car il contient des erreurs (signalées en rouge ci-dessous)",
     "password"=>"Mot de passe :",
     "password_description"=>"L'accès à ce questionnaire est protégé.",
     "save_successful"=>"Le questionnaire a bien été enregistré. Merci !",
