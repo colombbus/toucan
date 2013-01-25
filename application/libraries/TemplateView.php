@@ -21,12 +21,15 @@ class TemplateView_Core extends View {
 	
     protected $style = null;
     protected $step = null;
+    protected $wrappedElements = array("message","error");
+    
     
 	public function __construct($name = NULL, $data = NULL, $type = NULL) {
         parent::__construct($name, $data, $type);
         $this->__set("title", "");
         $this->__set("description", "");
         $this->__set("message", "");
+        $this->__set("error", "");
         $this->__set("content", "");
 	}
     
@@ -75,6 +78,8 @@ class TemplateView_Core extends View {
 
     
     public function __set($key, $value) {
+        if (in_array($key,$this->wrappedElements)&&is_string($value)&&strlen(trim($value))>0)
+            $value = "<div class='wrap'>".$value."</div>";
 		$this->kohana_local_data['{'.$key.'}'] = $value;
 	}
 
