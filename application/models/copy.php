@@ -307,8 +307,8 @@ abstract class Copy_Model extends Toucan_Model {
         } else if (!$this->loaded) {
             return false;
         }
-        
-        $questions = $this->getQuestions($sessionId);
+        $nullUser = null;
+        $questions = $this->getQuestions($sessionId, $nullUser, true);
         $this->values = array();
         foreach ($questions as $question) {
             if (isset($array['question_'.$question->id])) {
