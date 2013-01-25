@@ -21,6 +21,8 @@
 $lang=array(
     "diagram"=>"courbe",
     "error_diagram"=>"La courbe ne peut pas être calculée à partir des informations existantes",
+    "error_diagram"=>"La courbe ne peut pas être calculée à partir des informations existantes",
+    "error_histogram"=>"L'histogramme ne peut pas être calculé à partir des informations existantes",
     "error_pie_chart"=>"Le diagramme ne peut pas être calculé à partir des informations existantes",
     "histogram"=>"histogramme",
     "message_edited"=>"Graphique mis à jour",
