@@ -226,33 +226,60 @@ class Indicator_Model extends Toucan_Model implements Ajax_Model {
 		$population = ORM::factory('formCopy')->in('id',$populationIds)->find_all();
         $values = array();
         $variable = $this->variable;
-        foreach($population as $copy) {
-            $value = $variable->getValue($copy, $this->text_values);
-            if (is_array($value)) {
-                $values = array_merge($values, $value);
-            } else {
-                $values[] = $value;
-            }
-        }
-
+        $question = $variable->question;
         $valuesNumber = array();
         $labels = array();
-        $index = 0;
-        $indeces = array();
         $not_answered = 0;
 
-        foreach ($values as $value) {
-            if (isset($value)) {
-                if (isset($indeces[$value]))
-                    $valuesNumber[$indeces[$value]]++;
-                else {
-                    $indeces[$value] = $index;
-                    $valuesNumber[$index] = 1;
-                    $labels[$index] = $value;
-                    $index++;
+        if ($question->type_id == QuestionType_Model::CHOICE || $question->type_id == QuestionType_Model::MULTIPLE_CHOICE) {
+            // initialize data array
+            $choices = $question->choices;
+            foreach($choices as $choice) {
+                $values[$choice->id] = array('count'=>0, 'label'=>$choice->getValue($this->text_values));
+            }
+            foreach($population as $copy) {
+                $id = $variable->getChoiceIds($copy);
+                if (isset($id)) {
+                    if (is_array($id)) {
+                        foreach ($id as $single) {
+                            $values[$single]['count']++;
+                        }
+                    } else {
+                        $values[$id]['count']++;
+                    }
+                } else 
+                    $not_answered++;
+            }
+            foreach ($values as $value) {
+                $valuesNumber[] = $value['count'];
+                $labels[] = $value['label'];
+            }
+        } else {
+            foreach($population as $copy) {
+                $value = $variable->getValue($copy, $this->text_values);
+                if (is_array($value)) {
+                    $values = array_merge($values, $value);
+                } else {
+                    $values[] = $value;
                 }
-            } else {
-                $not_answered++;
+            }
+
+            $index = 0;
+            $indeces = array();
+
+            foreach ($values as $value) {
+                if (isset($value)) {
+                    if (isset($indeces[$value]))
+                        $valuesNumber[$indeces[$value]]++;
+                    else {
+                        $indeces[$value] = $index;
+                        $valuesNumber[$index] = 1;
+                        $labels[$index] = $value;
+                        $index++;
+                    }
+                } else {
+                    $not_answered++;
+                }
             }
         }
 
