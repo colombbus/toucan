@@ -124,9 +124,10 @@ abstract class Copy_Model extends Toucan_Model {
                 $userGroups = $user->getGroups();
                 if (strlen($userGroups)>0)
                     $userGroups = ",".$userGroups;
-                $query = "select distinct $this->table_name.id from $this->table_name, sessions where (sessions.id = $this->table_name.session_id) and (((sessions.view_id in ($publicGroup, $registeredGroup $userGroups) or sessions.owner_id=$user->id) and ($this->table_name.state_id IN (".CopyState_Model::PUBLISHED.", ".CopyState_Model::MANAGED.", ".CopyState_Model::MARKED."))) or ($this->table_name.owner_id = $user->id))";
+                $publicStates = implode(",", CopyState_Model::getPublishedStates());
+                $query = "select distinct $this->table_name.id from $this->table_name, sessions where (sessions.id = $this->table_name.session_id) and (((sessions.view_id in ($publicGroup, $registeredGroup $userGroups) or sessions.owner_id=$user->id) and ($this->table_name.state_id IN ($publicStates))) or ($this->table_name.owner_id = $user->id))";
             } else {
-                $query = "select distinct $this->table_name.id from $this->table_name, sessions where ((sessions.id = $this->table_name.session_id) and (sessions.view_id=$publicGroup) and ($this->table_name.state_id IN (".CopyState_Model::PUBLISHED.", ".CopyState_Model::MANAGED.", ".CopyState_Model::MARKED.")))";
+                $query = "select distinct $this->table_name.id from $this->table_name, sessions where ((sessions.id = $this->table_name.session_id) and (sessions.view_id=$publicGroup) and ($this->table_name.state_id IN ($publicStates)))";
             }
             // Add constraints
             if (isset($constraints)) {
@@ -155,9 +156,10 @@ abstract class Copy_Model extends Toucan_Model {
                 $userGroups = $user->getGroups();
                 if (strlen($userGroups)>0)
                     $userGroups = ",".$userGroups;
-                $query = "select distinct $this->table_name.* from $this->table_name, sessions where (sessions.id = $this->table_name.session_id) and (((sessions.view_id in ($publicGroup, $registeredGroup $userGroups) or sessions.owner_id=$user->id) and ($this->table_name.state_id IN (".CopyState_Model::PUBLISHED.", ".CopyState_Model::MANAGED.", ".CopyState_Model::MARKED."))) or ($this->table_name.owner_id = $user->id))";
+                $publicStates = implode(",", CopyState_Model::getPublishedStates());
+                $query = "select distinct $this->table_name.* from $this->table_name, sessions where (sessions.id = $this->table_name.session_id) and (((sessions.view_id in ($publicGroup, $registeredGroup $userGroups) or sessions.owner_id=$user->id) and ($this->table_name.state_id IN ($publicStates))) or ($this->table_name.owner_id = $user->id))";
             } else {
-                $query = "select distinct $this->table_name.* from $this->table_name, sessions where ((sessions.id = $this->table_name.session_id) and (sessions.view_id=$publicGroup) and ($this->table_name.state_id IN (".CopyState_Model::PUBLISHED.", ".CopyState_Model::MANAGED.", ".CopyState_Model::MARKED.")))";
+                $query = "select distinct $this->table_name.* from $this->table_name, sessions where ((sessions.id = $this->table_name.session_id) and (sessions.view_id=$publicGroup) and ($this->table_name.state_id IN ($publicStates)))";
             }
 
             // Add constraints
