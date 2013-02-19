@@ -39,7 +39,7 @@
 // define('MBTTF_DIR','/usr/share/fonts/truetype/');
 
 // En remote, décommenter la ligne suivante :
-define('TTF_DIR','/usr/share/fonts/truetype/ttf-dejavu/');
+define('TTF_DIR',APPPATH.'vendor/fonts/');
 
 //-------------------------------------------------------------------------
 // Cache directory specification for use with CSIM graphs that are
