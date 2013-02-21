@@ -323,6 +323,7 @@ class Evaluation_Controller extends DataPage_Controller {
                 break;
             case 'INDICATORS' :
                 if ($this->testAccess(access::MAY_EDIT)) {
+                    $actions_back[] = array('type' => 'button','text' => 'evaluation.categories','url' => 'indicatorGroup/showAll/'.$evaluation->id);
                     $actions[] = array('type' => 'button','text' => 'evaluation.add_indicator','url' => 'indicator/createStart/'.$evaluation->id);
                     $actions[] = array('type' => 'button','text' => 'evaluation.export','url' => 'evaluation/export/'.$evaluation->id);
                 }
