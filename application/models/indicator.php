@@ -23,6 +23,7 @@ class Indicator_Model extends Toucan_Model implements Ajax_Model {
     protected $belongs_to = array('evaluation','owner'=>'user','session'=>'formSession', 'template');
     protected $has_one = array('view' => 'group', 'edit' => 'group','contribute' => 'group', 'value'=>'indicatorValue', 'variable', 'calculation', 'graphic', 'evaluator'=>'user', 'cached_graphic'=>'file');
     protected $has_many = array('indicatorValues', 'individuals', 'limits');
+    protected $has_and_belongs_to_many = array('categories');
     protected $accessParent = 'generic_parent';
     protected $computationAlreadyPerformed = false;
     protected $controllerName = "indicator";
