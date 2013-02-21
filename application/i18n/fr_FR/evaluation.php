@@ -41,6 +41,7 @@ $lang=array(
     "going_on"=>"en cours",
     "indicators"=>"Indicateurs",
     "indicators_description"=>"Liste des indicateurs :",
+    "indicator_groups"=>"Catégories",
     "info"=>"Informations",
     "inherit"=>"Appliquer le même contrôle d'accès que pour l'activité",
     "interviews"=>"Entretiens",
