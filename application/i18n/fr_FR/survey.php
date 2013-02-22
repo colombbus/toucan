@@ -20,7 +20,10 @@
 
 $lang=array(
     "activity"=>"Activité",
+    "add_category"=>"Créer une nouvelle catégorie d'indicateurs",
     "add_indicator"=>"Créer un nouvel indicateur",
+    "categories"=>"Catégories",
+    "categories_description"=>"Liste des catégories d'indicateurs définies :",
     "closed"=>"L'enquête est terminée",
     "contributor"=>"Rempli par",
     "copies"=>"Exemplaires",
