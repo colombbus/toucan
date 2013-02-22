@@ -141,18 +141,7 @@ class Indicator_Model extends Toucan_Model implements Ajax_Model {
         $displayableData[] = array('type'=>'text', 'label'=>'indicator.name', 'value'=>$this->name);
         $displayableData[] = array('type'=>'long_text', 'label'=>'indicator.description', 'value'=>$this->description);
         $displayableData[] = array ('type' => 'separator');
-        switch ($this->type) {
-            case self::TYPE_MANUAL :
-                $typeText = Kohana::lang($this->controllerName.'.manual');
-                break;
-            case self::TYPE_AUTOMATIC_NUMERICAL :
-                $typeText = Kohana::lang($this->controllerName.'.automatic_numerical');
-                break;
-            case self::TYPE_AUTOMATIC_GRAPHIC :
-                $typeText = Kohana::lang($this->controllerName.'.automatic_graphic');
-                break;
-        }
-        $displayableData[] = array('type'=>'text', 'label'=>'indicator.type', 'value'=>$typeText);
+        $displayableData[] = array('type'=>'text', 'label'=>'indicator.type', 'value'=>$this->fullType);
         if ($this->type == self::TYPE_MANUAL) {
             $displayableData[] = array('type'=>'link', 'label'=>'indicator.values', 'value'=>Kohana::lang('indicator.see_values'), 'link'=>$this->controllerName."/values/$this->id" );
         } else if ($this->displaySessionLink) {
@@ -538,9 +527,84 @@ class Indicator_Model extends Toucan_Model implements Ajax_Model {
         return $result;
     }
 
+    
+    protected function buildVisibleItemsQuery(& $filter , & $user, $constraints = null) {
+        $query = array('from'=>array(), 'where'=>array());
+        $this->buildVisibleQuery($user, $query);
+        
+        // Manage constraint on category
+        if (isset ($constraints)&& isset($constraints['category_id'])) {
+            $query['from'][] = 'categories_indicators';
+            $query['where'][] = "(categories_indicators.category_id = ${constraints['category_id']}) and (categories_indicators.indicator_id = $this->table_name.id)";
+            unset($constraints['category_id']);
+        }
 
-    public function count(& $filter , & $user, $constraintId = null) {
-        // not implemented
+        // Build SQL query
+        $sqlQuery = "select distinct $this->table_name.* from ".implode(",",$query['from'])." where (".implode(") and (", $query['where']).") ";
+
+        // Add constraints
+        if (isset($constraints)) {
+            foreach ($constraints as $constraint => $value)
+                $sqlQuery.="and ($this->table_name.$constraint='$value') ";
+        }
+
+        // Add filters
+        if (isset($filter)) {
+            if ($query2 = $filter->getSQLWhere($this->table_name)) {
+                $sqlQuery .= "and $query2";
+            }
+            $sqlQuery.=$filter->getSQLOrder($this->table_name);
+        }
+        return $sqlQuery;
+    }
+    
+    protected function countVisibleItems(& $filter , & $user, $constraints = null) {
+        // deal with special case where there is a constraint on category_id
+        if (isset($user)&&$user->isAdmin()) {
+            if (isset ($constraints)  && isset($constraints['category_id'])) {
+                $category = ORM::factory('category', $constraints['category_id']);
+                unset($constraints['category_id']);
+                // Add constraints
+                foreach ($constraints as $constraint => $value)
+                    $category->where($constraint, $value);
+                if (isset($filter))
+                    $filter->add($category);
+                return $category->indicators->count();
+            }
+        }
+        return parent::countVisibleItems($filter, $user, $constraints);
+    }
+
+    protected function getVisibleItems($filter , $user, $offset = 0, $number = null, $constraints = null) {
+        // deal with special case where there is a constraint on category_id
+        if (isset($user)&&$user->isAdmin()) {
+            if (isset ($constraints) && isset($constraints['category_id'])) {
+                $category = ORM::factory('category', $constraints['category_id']);
+                unset($constraints['category_id']);
+                // Add constraints
+                foreach ($constraints as $constraint => $value)
+                    $category->where($constraint, $value);
+                if (isset($filter))
+                    $filter->add($category);
+                else
+                    $category->orderby('name', 'ASC'); // by default, order by name
+
+                if (isset($number))
+                    $category->limit($number, $offset);
+                return $category->indicators;
+            }
+        } 
+        return parent::getVisibleItems($filter, $user, $offset, $number, $constraints);
+    }
+
+
+    public function count(& $filter , & $user, $constraints = null) {
+       $parentId = $this->parentId;
+        if (isset($constraints)&&isset($constraints[$parentId])) {
+            // set parent_id to compute inherited access
+            $this->$parentId = $constraints[$parentId];
+        }
+        return $this->countVisibleItems($filter, $user, $constraints);
     }
 
     public function getItems(& $filter,& $user,$offset = 0, $number = null, $constraints = null) {
@@ -549,7 +613,7 @@ class Indicator_Model extends Toucan_Model implements Ajax_Model {
             $filter->setSorting("order");
         }
         $parentId = $this->parentId;
-        if (isset($constraints[$parentId])) {
+        if (isset($constraints)&&isset($constraints[$parentId])) {
             // set parent_id to compute inherited access
             $this->$parentId = $constraints[$parentId];
         }
@@ -601,6 +665,19 @@ class Indicator_Model extends Toucan_Model implements Ajax_Model {
             } else if ($this->session_id >0) {
                 // indicator linked to a survey
                 return ORM::factory("survey", $this->session_id);
+            }
+        }
+        if ($column == 'fullType') {
+            switch ($this->type) {
+                case self::TYPE_MANUAL :
+                    return Kohana::lang($this->controllerName.'.manual');
+                    break;
+                case self::TYPE_AUTOMATIC_NUMERICAL :
+                    return Kohana::lang($this->controllerName.'.automatic_numerical');
+                    break;
+                case self::TYPE_AUTOMATIC_GRAPHIC :
+                    return Kohana::lang($this->controllerName.'.automatic_graphic');
+                    break;
             }
         }
         if ($column == 'indicatorValues') {
@@ -928,6 +1005,37 @@ class Indicator_Model extends Toucan_Model implements Ajax_Model {
         return ($this->template_id > 0);
     }
     
-   
+    public function memberOf(& $category) {
+        if (!$this->loaded)
+            return false;
+        return ($this->has($category));
+    }
+
+    public function register(& $category, $value, $save) {
+        if (!$this->loaded)
+            return false;
+        $categories = $this->categories->primary_key_array();
+        if ($value) {
+            // register
+            if (!in_array($category->id, $categories)) {
+                $categories[] = $category->id;
+                $this->categories = $categories;
+                if ($save)
+                    $this->save();
+            }
+        } else {
+            // unregister
+            $key = array_search( $category->id, $categories);
+            if ($key !== FALSE) {
+                unset($categories[$key]);
+                $this->categories = $categories;
+                if ($save)
+                    $this->save();
+            }
+        }
+        return true;
+    }
+
+    
 }
 ?>
