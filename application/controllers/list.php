@@ -27,7 +27,7 @@ class List_Controller extends Toucan_Controller {
         $this->filter = ListFilter::instance();
     }
 
-    public static function initList(& $user, $access, $data, $action, $fields, $constraints = null, $members = false, $icons = null) {
+    public static function initList(& $user, $access, $data, $action, $fields, $constraints = null, $members = false, $icons = null, $set = null, $setId = null) {
         $prefix = self::getSessionPrefix($data);
         $session = Session::instance();
         $session->set_flash($prefix.'ACCESS',$access);
@@ -40,7 +40,16 @@ class List_Controller extends Toucan_Controller {
         if (isset($icons)) {
             $session->set_flash($prefix.'ICONS',$icons);
         }
-        
+        if ($members) {
+            $session->set_flash($prefix.'MEMBERS',1);
+            if (isset($set)) {
+                $session->set_flash($prefix.'SET',$set);
+            }
+            if (isset($setId)) {
+                $session->set_flash($prefix.'SET_ID',$setId);
+            }
+        }
+
         $model = ORM::Factory($data);
         $per_page = Kohana::config("toucan.".$data."_per_page");
         
@@ -50,10 +59,7 @@ class List_Controller extends Toucan_Controller {
         if (strcmp($lastList, url::current())==0) {
             // We are in the same list
             $pageNumber = $session->get($prefix.'PAGE',1);
-            if (!$members)
-                $count = $model->count($filter,$user,$constraints);
-            else
-                $count = $model->count($filter,$user);
+            $count = $model->count($filter, $user, $constraints);
             if (($pageNumber-1) * $per_page >= $count) {
                 // there are no more items to display with last page number: reset it
                 $pageNumber = 1;
@@ -64,19 +70,13 @@ class List_Controller extends Toucan_Controller {
             $filter->clear();
         }
         $session->set('LIST_URL',url::current());
-
         
-        if (!$members)
-            $count = $model->count($filter,$user,$constraints);
-        else
-            $count = $model->count($filter,$user);
+        $count = $model->count($filter,$user,$constraints);
+
         $session->set_flash($prefix.'COUNT',$count);
         
         $session->set_flash($prefix.'PER_PAGE',$per_page);
-        if ($members) {
-            $session->set_flash($prefix.'MEMBERS',1);
-        }
-        return "list/items/$data/".$pageNumber;
+        return "list/items/$data/$pageNumber";
     }
 
     public static function getSessionPrefix($data) {
@@ -110,10 +110,12 @@ class List_Controller extends Toucan_Controller {
 
         if ($members) {
             $template = 'data/members_content';
+            $set = $this->session->get($prefix.'SET', null);
+            $setId = $this->session->get($prefix.'SET_ID', null);
         } else {
             $template = 'data/list_content';
         }
-
+        
         // RECORD PAGE NUMBER
         $this->session->set($prefix.'PAGE',$page);
 
@@ -131,11 +133,9 @@ class List_Controller extends Toucan_Controller {
             $offset   = ($page - 1) * $per_page;
 
             if ($members) {
-                $group = ORM::factory('group',$constraints);
-                $items = $model->getItems($this->filter, $this->user, $offset, $per_page);
-            } else {
-                $items = $model->getItems($this->filter, $this->user, $offset, $per_page, $constraints);
+                $setObject = ORM::factory($set,$setId);
             }
+            $items = $model->getItems($this->filter, $this->user, $offset, $per_page, $constraints);
 
             $displayableItems = array();
             foreach ($items as $item) {
@@ -155,7 +155,7 @@ class List_Controller extends Toucan_Controller {
                 $newItem['link'] = $action.$item->id;
                 $newItem['id'] = $item->id;
                 if ($members) {
-                    $newItem['member'] = $item->memberOf($group);
+                    $newItem['member'] = $item->memberOf($setObject);
                 }
                 $displayableItems[] = $newItem;
             }
@@ -182,18 +182,30 @@ class List_Controller extends Toucan_Controller {
             die('error');
     }
 
-    public function register($groupId, $value, $userId) {
-        $this->dataName = "group";
-        $this->loadData($groupId);
-        $this->ensureAccess(access::OWNER);
-        $group = $this->data;
-        $user = ORM::factory('user',$userId);
-        if (!$user->loaded) {
-            $this->displayError('user unknown');
-        }
-        if (!$user->registerGroup($group, $value, true))
+    public function register($data, $value, $id) {
+        // RETRIEVE DATA FROM SESSION
+        $prefix = self::getSessionPrefix($data);
+        $members = $this->session->get($prefix.'MEMBERS', false);
+        if (!$members) {
             $this->displayError("error");
+        }
+        $set = $this->session->get($prefix.'SET', null);
+        $setId = $this->session->get($prefix.'SET_ID', null);
+
+        // KEEP SESSION DATA
         $this->session->keep_flash();
+
+        // CHECK ACCESS
+        $this->dataName = $set;
+        $this->loadData($setId);
+        $this->ensureAccess(access::MAY_EDIT);
+        $setObject = $this->data;
+        $item = ORM::factory($data,$id);
+        if (!$item->loaded) {
+            $this->displayError('item unknown');
+        }
+        if (!$item->register($setObject, $value, true))
+            $this->displayError("registration failed");
     }
 
     public function setSorting($name, $order=1) {
