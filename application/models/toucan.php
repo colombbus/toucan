@@ -30,8 +30,8 @@ abstract class Toucan_Model extends ORM {
     public abstract function getDisplayableData($access,& $user =null);
     public abstract function validateEdition(array & $array,& $user, $save = FALSE);
     public abstract function validateCreation(array & $array,& $user, $save = FALSE);
-    public abstract function count(& $filter , & $user, $constraintId = null);
-    public abstract function getItems(& $filter,& $user,$offset = 0, $number = null, $constraintId = null);
+    public abstract function count(& $filter , & $user, $constraints = null);
+    public abstract function getItems(& $filter,& $user,$offset = 0, $number = null, $constraints = null);
 
     protected function hasOwner() {
         return (array_key_exists('owner',$this->belongs_to));
@@ -374,23 +374,11 @@ abstract class Toucan_Model extends ORM {
     }
 
     protected function buildVisibleItemsQuery(& $filter , & $user, $constraints = null) {
-        if (isset($user)) {
-            $query = array('from'=>array(), 'where'=>array());
-        } else {
-            $query = array('from'=>array(), 'where'=>array());
-        }
+        $query = array('from'=>array(), 'where'=>array());
         $this->buildVisibleQuery($user, $query);
 
         // Build SQL query
-        $sqlQuery = "select distinct $this->table_name.* from ".$query['from'][0];
-
-        for ($i=1; $i<count($query['from']); $i++) {
-            $sqlQuery.=",".$query['from'][$i];
-        }
-        $sqlQuery.= " where (".$query['where'][0].") ";
-        for ($i=1; $i<count($query['where']); $i++) {
-            $sqlQuery.="and (".$query['where'][$i].") ";
-        }
+        $sqlQuery = "select distinct $this->table_name.* from ".implode(",",$query['from'])." where (".implode(") and (", $query['where']).") ";
 
         // Add constraints
         if (isset($constraints)) {
