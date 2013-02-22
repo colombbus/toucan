@@ -20,10 +20,13 @@
 
 $lang=array(
     "activity"=>"Activité",
+    "add_category"=>"Créer une nouvelle catégorie d'indicateurs",
     "add_form_session"=>"Créer une nouvelle session de questionnaire",
     "add_indicator"=>"Créer un nouvel indicateur",
     "add_interview_session"=>"Créer une nouvelle session d'entretien",
     "cancelled"=>"annulée",
+    "categories"=>"Catégories",
+    "categories_description"=>"Liste des catégories d'indicateurs définies :",
     "closed"=>"L'évaluation est terminée",
     "create"=>"Créer une évaluation",
     "create_description"=>"Création d'une nouvelle évaluation :",
@@ -41,7 +44,6 @@ $lang=array(
     "going_on"=>"en cours",
     "indicators"=>"Indicateurs",
     "indicators_description"=>"Liste des indicateurs :",
-    "indicator_groups"=>"Catégories",
     "info"=>"Informations",
     "inherit"=>"Appliquer le même contrôle d'accès que pour l'activité",
     "interviews"=>"Entretiens",
