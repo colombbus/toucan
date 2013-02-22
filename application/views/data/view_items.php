@@ -175,6 +175,10 @@
 <?php
     include "inc_description.php";
     require_once "inc_display.php";
+    if (isset($header)) {
+        echo $header;
+    }
+    
     if (isset($hideItems)&&isset($showItems)) {
         echo form::button(array ('type'=>'button', 'name'=>"button_hide"), Kohana::lang($hideItems),"onClick=\"hideAll()\" class=\"toucan_button\"");
         echo form::button(array ('type'=>'button', 'name'=>"button_show"), Kohana::lang($showItems),"onClick=\"showAll()\" class=\"toucan_button\"");
