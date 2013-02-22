@@ -38,6 +38,6 @@
             }
             echo "</tr>";
         }
-        echo "<tr><td colspan='$$colsNumber'>".$pagination."</td></tr>";
+        echo "<tr><td class='table_pagination' colspan='$colsNumber'>".$pagination."</td></tr>";
     }
 ?>
