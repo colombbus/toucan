@@ -35,6 +35,9 @@
     $config['style_per_page'] = 20;
     $config['survey_per_page'] = 20;
     $config['surveyCopy_per_page'] = 20;
+    $config['category_per_page'] = 20;
+    $config['surveyCategory_per_page'] = 20;
+    $config['indicator_per_page'] = 20;
     $config['avatar_directory']='media/public/avatar';
     $config['logo_directory']='media/public/avatar';
     $config['files_directory']='media/public';
