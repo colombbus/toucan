@@ -612,7 +612,6 @@ class Indicator_Controller extends DataPage_Controller {
             $path[] = array('text'=>sprintf(Kohana::lang($this->parentControllerName.".main_title"), $parent->name), 'link'=>$this->parentControllerName."/indicators/$parent->id");
         }
         $this->template->content->path = $path;
-
     }
 
     protected function setDescription($action) {
