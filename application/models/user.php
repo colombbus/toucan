@@ -567,7 +567,7 @@ class User_Model extends Auth_User_Model {
         return ($this->id == User_Model::PROTECTED_ID);
     }
 
-    public function registerGroup(& $group, $value, $save) {
+    public function register(& $group, $value, $save) {
         if (!$this->loaded)
             return false;
         $groups = $this->groups->primary_key_array();
