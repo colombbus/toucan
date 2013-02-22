@@ -33,7 +33,6 @@ abstract class Session_Model extends Toucan_Model {
     protected $parentId = "evaluation_id";
     protected $accessPrefix = "session";
     protected $templateIndicatorModel = null;
-    protected $valuesSet = false;
 
     abstract function mayBeEditedByPublic();
     abstract function getCopies();
