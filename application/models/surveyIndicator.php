@@ -65,7 +65,6 @@ class SurveyIndicator_Model extends Indicator_Model implements Ajax_Model {
 
     protected function getSessions() {
         return array($this->survey);
-        
     }
     
     
