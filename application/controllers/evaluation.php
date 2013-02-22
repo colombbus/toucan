@@ -45,6 +45,7 @@ class Evaluation_Controller extends DataPage_Controller {
             case 'EDIT' :
             case 'EXPORT' :
             case 'SET_STATE' :
+            case 'CATEGORIES' :
                 $this->ensureAccess(access::MAY_EDIT);
                 break;
             case 'DELETE' :
@@ -193,14 +194,35 @@ class Evaluation_Controller extends DataPage_Controller {
         $this->template->content->sortingOrder = $filter->getSortingOrderInt();
     }
 
-    public function indicators($evaluationId) {
+    public function indicators($evaluationId, $categoryId = null) {
         // LOAD DATA
         $this->loadData($evaluationId);
 
         // CONTROL ACCESS
         $this->controlAccess('INDICATORS');
-
-        $indicators = $this->data->getDisplayableIndicators($this->user);
+        
+        // Get categories if any
+        $categories = $this->data->getDisplayableCategories($this->user);
+        
+        if (count($categories)>0) {
+            // In case no category is provided, try to retrieve last category used from session
+            if (!isset($categoryId)) {
+                $categoryId = $this->session->get('LAST_CATEGORY_EVALUATION_'.$evaluationId, null);
+            }
+            if (isset($categoryId)) {
+                // check that $categoryId exists
+                if (!isset($categories[$categoryId]))
+                    $categoryId = null;
+            }
+            if (!isset($categoryId)) {
+                //  lastly, take first category available
+                $categoryId = key($categories);
+            }
+        } else {
+            $categoryId = null;
+        }
+     
+        $indicators = $this->data->getDisplayableIndicators($this->user, $categoryId);
 
         $this->template->content=new View('data/view_items');
 
@@ -218,8 +240,47 @@ class Evaluation_Controller extends DataPage_Controller {
         $this->template->content->alreadyEditing = "indicator.already_editing";
         $this->template->content->showContent = true;
 
+        if (count($categories)>0) {
+            $this->template->content->header = new View('indicator/categories');
+            $this->template->content->header->categories = $categories;
+            $this->template->content->header->selectedCategory = $categoryId;
+            $this->template->content->header->updateUrl = "evaluation/indicators/$evaluationId";
+            // save category in session
+            $this->session->set('LAST_CATEGORY_EVALUATION_'.$evaluationId, $categoryId);
+        }
+        
         $this->setPageInfo('INDICATORS');
     }
+    
+    public function categories($evaluationId) {
+
+        $this->loadData($evaluationId);
+
+        $this->controlAccess('CATEGORIES');
+
+        $fields = array('name'=>'name', 'description'=>'description');
+        $this->template->content=new View('data/list');
+        $this->template->content->listUrl = List_Controller::initList($this->user, access::ANYBODY,"category","category/show/", $fields, array('evaluation_id'=>$evaluationId));
+        $this->template->content->dataName = "category";
+
+        $this->setPageInfo('CATEGORIES');
+        $this->setHeaders('CATEGORIES');
+
+        // Set default sorting to field "name"
+        $filter = ListFilter::instance();
+        $filter->setDefaultSorting("name");
+        $this->template->content->sortingName = $filter->getSortingName();
+        $this->template->content->sortingOrder = $filter->getSortingOrderInt();
+
+        // SEARCH
+        $search = array();
+        $search[0] = array('text'=>'category.name', 'name'=>'name');
+        $search[1] = array('text'=>'category.description', 'name'=>'description');
+        $this->template->content->showSearch = $filter->fillSearchFields($search);
+        $this->template->content->search = $search;
+
+    }
+
 
     public function export($evaluationId) {
         // LOAD DATA
@@ -255,6 +316,10 @@ class Evaluation_Controller extends DataPage_Controller {
             case 'INTERVIEWS' :
                 $headers[0] = array('text'=>'session.name', 'name'=>'name');
                 $headers[1] = array('text'=>'session.state','name'=>'state_id');
+                break;
+            case 'CATEGORIES' :
+                $headers[0] = array('text'=>'category.name_header', 'name'=>'name');
+                $headers[1] = array('text'=>'category.description_header','name'=>'description');
                 break;
             case 'SHOW_ALL' :
                 $headers[0] = array('text'=>'evaluation.name', 'name'=>'name');
@@ -323,12 +388,17 @@ class Evaluation_Controller extends DataPage_Controller {
                 break;
             case 'INDICATORS' :
                 if ($this->testAccess(access::MAY_EDIT)) {
-                    $actions_back[] = array('type' => 'button','text' => 'evaluation.categories','url' => 'indicatorGroup/showAll/'.$evaluation->id);
+                    $actions_back[] = array('type' => 'button','text' => 'evaluation.categories','url' => 'evaluation/categories/'.$evaluation->id);
                     $actions[] = array('type' => 'button','text' => 'evaluation.add_indicator','url' => 'indicator/createStart/'.$evaluation->id);
                     $actions[] = array('type' => 'button','text' => 'evaluation.export','url' => 'evaluation/export/'.$evaluation->id);
                 }
                 break;
-
+            case 'CATEGORIES' :
+                $actions_back[] = array('type' => 'button','text' => 'evaluation.indicators','url' => 'evaluation/indicators/'.$evaluation->id);
+                if ($this->testAccess(access::MAY_EDIT)) {
+                    $actions[] = array('type' => 'button','url' => 'category/create/'.$evaluation->id,'text' => 'evaluation.add_category');
+                }
+                break;
         }
         $tabs = array();
         // TODO: moduler l'apparition des tabs en fonction du profil de l'utilisateur
@@ -357,6 +427,7 @@ class Evaluation_Controller extends DataPage_Controller {
                     $tabs[2]['current'] = 1;
                     break;
                 case 'INDICATORS':
+                case 'CATEGORIES':
                     $tabs[3]['current'] = 1;
                     break;
             }
