@@ -21,7 +21,7 @@
 class Evaluation_Model extends Toucan_Model {
 
     protected $belongs_to = array('owner' => 'user','activity');
-    protected $has_many = array('formSessions', 'interviewSessions', 'indicators');
+    protected $has_many = array('formSessions', 'interviewSessions', 'indicators', 'categories');
     protected $has_one = array('view' => 'group', 'edit' => 'group', 'state' =>'evaluationState');
     protected $accessParent = "activity";
     protected $accessHeirs = array('formSessions', 'interviewSessions', 'indicators');
@@ -87,10 +87,14 @@ class Evaluation_Model extends Toucan_Model {
 
     }
 
-    public function getDisplayableIndicators(& $user) {
+    public function getDisplayableIndicators(& $user, $categoryId = null) {
         $displayableIndicators = array();
         $nullValue = null;
-        $indicators = ORM::factory('indicator')->getItems($nullValue,$user,0, $nullValue, array('evaluation_id'=>$this->id));
+        $constraints = array('evaluation_id'=>$this->id);
+        if (isset($categoryId)) {
+            $constraints['category_id'] = $categoryId;
+        }
+        $indicators = ORM::factory('indicator')->getItems($nullValue,$user,0, $nullValue, $constraints);
         foreach ($indicators as $indicator) {
             $item = array();
             $item['title'] = $indicator->name;
@@ -113,6 +117,20 @@ class Evaluation_Model extends Toucan_Model {
         return $displayableIndicators;
     }
 
+    public function getDisplayableCategories(& $user) {
+        $nullValue = null;
+        $displayableCategories = array();
+        $categories = ORM::factory('category')->getItems($nullValue,$user,0, $nullValue, array('evaluation_id'=>$this->id,'active'=>1));
+        foreach ($categories as $category) {
+            $item = array();
+            $item['name'] = $category->name;
+            $item['description'] = $category->description;
+            $displayableCategories[$category->id] = $item;
+        }
+        return $displayableCategories;
+    }
+
+    
     protected function buildValidation(array & $array) {
         $this->validation = Validation::factory($array)
             ->pre_filter('trim')
