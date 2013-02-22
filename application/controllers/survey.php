@@ -48,6 +48,7 @@ class Survey_Controller extends FormSession_Controller {
                 $this->ensureAccess(access::MAY_VIEW);
                 break;
             case 'EXPORT_INDICATORS' :
+            case 'CATEGORIES' :
                 $this->ensureAccess(access::MAY_EDIT);
                 break;
             default :
@@ -89,7 +90,7 @@ class Survey_Controller extends FormSession_Controller {
         $this->template->content->sortingOrder = $filter->getSortingOrderInt();
     }
     
-    public function indicators($surveyId) {
+    public function indicators($surveyId, $categoryId = null) {
 
         // LOAD DATA
         $this->loadData($surveyId);
@@ -97,7 +98,28 @@ class Survey_Controller extends FormSession_Controller {
         // CONTROL ACCESS
         $this->controlAccess('INDICATORS');
 
-        $indicators = $this->data->getDisplayableIndicators($this->user);
+        // Get categories if any
+        $categories = $this->data->getDisplayableCategories($this->user);
+
+        if (count($categories)>0) {
+            // In case no category is provided, try to retrieve last category used from session
+            if (!isset($categoryId)) {
+                $categoryId = $this->session->get('LAST_CATEGORY_SURVEY_'.$surveyId, null);
+            }
+            if (isset($categoryId)) {
+                // check that $categoryId exists
+                if (!isset($categories[$categoryId]))
+                    $categoryId = null;
+            }
+            if (!isset($categoryId)) {
+                //  lastly, take first category available
+                $categoryId = key($categories);
+            }
+        } else {
+            $categoryId = null;
+        }
+        
+        $indicators = $this->data->getDisplayableIndicators($this->user, $categoryId);
 
         $this->template->content=new View('data/view_items');
 
@@ -116,7 +138,46 @@ class Survey_Controller extends FormSession_Controller {
         $this->template->content->alreadyEditing = "indicator.already_editing";
         $this->template->content->showContent = true;
 
+        if (count($categories)>0) {
+            $this->template->content->header = new View('indicator/categories');
+            $this->template->content->header->categories = $categories;
+            $this->template->content->header->selectedCategory = $categoryId;
+            $this->template->content->header->updateUrl = "survey/indicators/$surveyId";
+            // save category in session
+            $this->session->set('LAST_CATEGORY_EVALUATION_'.$surveyId, $categoryId);
+        }
+
+        
         $this->setPageInfo('INDICATORS');
+
+    }
+    
+    public function categories($surveyId) {
+
+        $this->loadData($surveyId);
+
+        $this->controlAccess('CATEGORIES');
+
+        $fields = array('name'=>'name', 'description'=>'description');
+        $this->template->content=new View('data/list');
+        $this->template->content->listUrl = List_Controller::initList($this->user, access::ANYBODY,"surveyCategory","surveyCategory/show/", $fields, array('session_id'=>$surveyId));
+        $this->template->content->dataName = "surveyCategory";
+
+        $this->setPageInfo('CATEGORIES');
+        $this->setHeaders('CATEGORIES');
+
+        // Set default sorting to field "name"
+        $filter = ListFilter::instance();
+        $filter->setDefaultSorting("name");
+        $this->template->content->sortingName = $filter->getSortingName();
+        $this->template->content->sortingOrder = $filter->getSortingOrderInt();
+
+        // SEARCH
+        $search = array();
+        $search[0] = array('text'=>'surveyCategory.name', 'name'=>'name');
+        $search[1] = array('text'=>'surveyCategory.description', 'name'=>'description');
+        $this->template->content->showSearch = $filter->fillSearchFields($search);
+        $this->template->content->search = $search;
 
     }
     
@@ -155,6 +216,11 @@ class Survey_Controller extends FormSession_Controller {
             if (!isset($this->context['published'])&&!isset($this->context['goingOn'])) {
                 $headers[2] = array('text'=>'evaluation.state','name'=>'state_id');
             }
+            $this->template->content->headers = $headers;
+        } else if ($action == 'CATEGORIES') {
+            $headers = array();
+            $headers[0] = array('text'=>'category.name_header', 'name'=>'name');
+            $headers[1] = array('text'=>'category.description_header','name'=>'description');
             $this->template->content->headers = $headers;
         } else
             parent::setHeaders($action);
@@ -233,6 +299,7 @@ class Survey_Controller extends FormSession_Controller {
                 $actions_back = array();
                 $tabs = array();
                 if ($this->testAccess(access::MAY_EDIT)) {
+                    $actions_back[] = array('type' => 'button','text' => 'survey.categories','url' => 'survey/categories/'.$survey->id);
                     $actions[] = array('type' => 'button','text' => 'survey.add_indicator','url' => 'surveyIndicator/createStart/'.$survey->id);
                     $actions[] = array('type' => 'button','text' => 'survey.export','url' => 'survey/exportIndicators/'.$survey->id);
                 }
@@ -265,6 +332,29 @@ class Survey_Controller extends FormSession_Controller {
                 break;
             case 'PREVIEW_STYLE' :
                 parent::setActions($action, $id);
+                break;
+            case 'CATEGORIES' :
+                $survey = $this->data;
+                $actions = array();
+                $actions_back = array();
+                $tabs = array();
+                
+                $actions_back[] = array('type' => 'button','text' => 'survey.indicators','url' => 'survey/indicators/'.$survey->id);
+                if ($this->testAccess(access::MAY_EDIT)) {
+                    $actions[] = array('type' => 'button','url' => 'surveyCategory/create/'.$survey->id,'text' => 'survey.add_category');
+                }
+                
+                $tabs[] = array('text'=>'survey.info', 'link' => 'survey/show/'.$survey->id, 'image'=>Kohana::config('toucan.images_directory')."/information.png");
+                if ($this->testAccess(access::MAY_EDIT)) {
+                    $tabs[] = array('text'=>'survey.questions', 'link' => 'survey/questions/'.$survey->id,'image'=>Kohana::config('toucan.images_directory')."/questions.png");
+                    $tabs[] = array('text'=>'survey.preview', 'link' => 'survey/preview/'.$survey->id,'image'=>Kohana::config('toucan.images_directory')."/preview.png");
+                }
+                $tabs[] = array('text'=>'survey.copies', 'link' => 'survey/copies/'.$survey->id, 'image'=>Kohana::config('toucan.images_directory')."/copies.png");
+                $tabs[] = array('text'=>'survey.indicators', 'link' => 'survey/indicators/'.$survey->id, 'image'=>Kohana::config('toucan.images_directory')."/indicator.png", 'current' => 1);
+
+                $this->template->content->actions = $actions;
+                $this->template->content->actions_back = $actions_back;
+                $this->template->content->tabs = $tabs;
                 break;
             default:
                 parent::setActions($action, $id);
