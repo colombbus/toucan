@@ -137,9 +137,9 @@ class Group_Controller extends DataPage_Controller {
         $this->template->content=new View('data/members');
 
         $fields = array('firstname'=>'firstname', 'name'=>'name', 'username'=>'username');
-        $this->template->content->registerUrl = 'list/register/'.$id.'/1';
-        $this->template->content->unregisterUrl = 'list/register/'.$id.'/0';
-        $this->template->content->listUrl = List_Controller::initList($this->user, access::REGISTERED,"user","", $fields, $id, true);
+        $this->template->content->registerUrl = 'list/register/user/1';
+        $this->template->content->unregisterUrl = 'list/register/user/0';
+        $this->template->content->listUrl = List_Controller::initList($this->user, access::REGISTERED,"user","", $fields, null, true, null, "group", $id);
         $this->template->content->dataName = "user";
 
         // Set default sorting to field "name"
