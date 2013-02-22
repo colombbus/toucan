@@ -26,6 +26,8 @@ class Survey_Model extends FormSession_Model {
     protected $accessPrefix ="survey";
     protected $actual_object_name = "session";
     protected $indicatorModel = 'surveyIndicator';
+    protected $has_many = array('formCopies','indicators', 'categories');
+
     
     public function delete() {
         if ($this->loaded) {
@@ -85,9 +87,9 @@ class Survey_Model extends FormSession_Model {
         rtf::sendDocument(sprintf(Kohana::lang('survey.export_document_name'), $this->name));
     }
 
-    public function getDisplayableIndicators(&$user) {
+    public function getDisplayableIndicators(&$user, $categoryId = null) {
         $displayableIndicators = array();
-        $indicators = $this->getIndicators($user);
+        $indicators = $this->getIndicators($user, $categoryId);
         foreach ($indicators as $indicator) {
             $item = array();
             $item['title'] = $indicator->name;
@@ -108,6 +110,19 @@ class Survey_Model extends FormSession_Model {
         return $displayableIndicators;
     }
     
+    public function getDisplayableCategories(& $user) {
+        $nullValue = null;
+        $displayableCategories = array();
+        $categories = ORM::factory('category')->getItems($nullValue,$user,0, $nullValue, array('session_id'=>$this->id,'active'=>1));
+        foreach ($categories as $category) {
+            $item = array();
+            $item['name'] = $category->name;
+            $item['description'] = $category->description;
+            $displayableCategories[$category->id] = $item;
+        }
+        return $displayableCategories;
+    }
+    
     public function exportIndicators(& $user) {
         $logo = null;
         if ($this->activity->logo_id>0)
@@ -120,11 +135,15 @@ class Survey_Model extends FormSession_Model {
         rtf::sendDocument(sprintf(Kohana::lang('survey.export_indicators_file_name'), $this->name));
     }
 
-    public function getIndicators(& $user) {
+    public function getIndicators(& $user, $categoryId = null) {
         $nullValue = null;
         $filter = Filter::instance();
         $filter->setSorting('order', 1);
-        return ORM::factory('surveyIndicator')->getItems($filter,$user,0, $nullValue, array('evaluation_id'=>'0', 'session_id'=>$this->id));
+        $constraints = array('evaluation_id'=>'0','session_id'=>$this->id);
+        if (isset($categoryId)) {
+            $constraints['category_id'] = $categoryId;
+        }
+        return ORM::factory('surveyIndicator')->getItems($filter,$user,0, $nullValue, $constraints);
     }
     
     public function hasForms() {
