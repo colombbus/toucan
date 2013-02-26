@@ -26,7 +26,7 @@ class Survey_Model extends FormSession_Model {
     protected $accessPrefix ="survey";
     protected $actual_object_name = "session";
     protected $indicatorModel = 'surveyIndicator';
-    protected $has_many = array('formCopies','indicators', 'categories');
+    protected $has_many = array('formCopies','indicators', 'surveyCategories');
 
     
     public function delete() {
@@ -110,14 +110,25 @@ class Survey_Model extends FormSession_Model {
         return $displayableIndicators;
     }
     
-    public function getDisplayableCategories(& $user) {
+    public function getCategories(& $user) {
         $nullValue = null;
+        return ORM::factory('surveyCategory')->getItems($nullValue,$user,0, $nullValue, array('session_id'=>$this->id,'active'=>1));        
+    }
+    
+    public function getDisplayableCategories(& $user) {
         $displayableCategories = array();
-        $categories = ORM::factory('category')->getItems($nullValue,$user,0, $nullValue, array('session_id'=>$this->id,'active'=>1));
+        $categories = $this->getCategories($user);
         foreach ($categories as $category) {
             $item = array();
+            $item['id'] = $category->id;
+            $item['title'] = $category->name;
             $item['name'] = $category->name;
             $item['description'] = $category->description;
+            $item['content'] = array();
+            if ($category->isRecapitulative())
+                $item['content'][] = array('type'=>'text', 'label'=>'category.is_recapitulative', 'value'=>'');
+            $item['color'] = $category->getColor();
+            $item['actions'] = $category->getItemActions($user);
             $displayableCategories[$category->id] = $item;
         }
         return $displayableCategories;
@@ -137,18 +148,23 @@ class Survey_Model extends FormSession_Model {
 
     public function getIndicators(& $user, $categoryId = null) {
         $nullValue = null;
-        $filter = Filter::instance();
-        $filter->setSorting('order', 1);
         $constraints = array('evaluation_id'=>'0','session_id'=>$this->id);
         if (isset($categoryId)) {
-            $constraints['category_id'] = $categoryId;
+            $category = ORM::factory('category', $categoryId);
+            if (isset($category)&&!$category->isRecapitulative())
+                $constraints['category_id'] = $categoryId;
         }
-        return ORM::factory('surveyIndicator')->getItems($filter,$user,0, $nullValue, $constraints);
+        return ORM::factory('surveyIndicator')->getItems($nullValue,$user,0, $nullValue, $constraints);
     }
     
     public function hasForms() {
         return true;
     }
+    
+    public function hasCategories(& $user) {
+        return ($this->loaded && $this->getCategories($user)->count()>0);
+    }
+
     
     public function copyIndicators(& $indicatorsIds,& $user, & $variables) {
         foreach($indicatorsIds as $indicatorId) {
