@@ -18,11 +18,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-class AxSurveyIndicator_Controller extends Ajax_Controller {
+class AxSurveyIndicator_Controller extends AxIndicator_Controller {
 
     protected $dataName = "surveyIndicator";
     protected $parentDataName = "survey";
     protected $controllerName = "axSurveyIndicator";
+    protected $categoryName = "surveyCategory";
 
     
 }
