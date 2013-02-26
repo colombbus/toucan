@@ -84,7 +84,6 @@ class Evaluation_Model extends Toucan_Model {
             $displayableData[] = array ('type' => 'text', 'label' => 'evaluation.creation_date', 'value'=> Utils::translateTimestamp($this->created));
         }
         return $displayableData;
-
     }
 
     public function getDisplayableIndicators(& $user, $categoryId = null) {
@@ -92,7 +91,9 @@ class Evaluation_Model extends Toucan_Model {
         $nullValue = null;
         $constraints = array('evaluation_id'=>$this->id);
         if (isset($categoryId)) {
-            $constraints['category_id'] = $categoryId;
+            $category = ORM::factory('category', $categoryId);
+            if (isset($category)&&!$category->isRecapitulative())
+                $constraints['category_id'] = $categoryId;
         }
         $indicators = ORM::factory('indicator')->getItems($nullValue,$user,0, $nullValue, $constraints);
         foreach ($indicators as $indicator) {
@@ -116,15 +117,26 @@ class Evaluation_Model extends Toucan_Model {
         }
         return $displayableIndicators;
     }
+    
+    public function getCategories(& $user) {
+        $nullValue = null;
+        return ORM::factory('category')->getItems($nullValue,$user,0, $nullValue, array('evaluation_id'=>$this->id,'active'=>1));
+    }
 
     public function getDisplayableCategories(& $user) {
-        $nullValue = null;
         $displayableCategories = array();
-        $categories = ORM::factory('category')->getItems($nullValue,$user,0, $nullValue, array('evaluation_id'=>$this->id,'active'=>1));
+        $categories = $this->getCategories($user);
         foreach ($categories as $category) {
             $item = array();
+            $item['id'] = $category->id;
+            $item['title'] = $category->name;
             $item['name'] = $category->name;
             $item['description'] = $category->description;
+            $item['content'] = array();
+            if ($category->isRecapitulative())
+                $item['content'][] = array('type'=>'text', 'label'=>'category.is_recapitulative', 'value'=>'');
+            $item['color'] = $category->getColor();
+            $item['actions'] = $category->getItemActions($user);
             $displayableCategories[$category->id] = $item;
         }
         return $displayableCategories;
@@ -292,6 +304,10 @@ class Evaluation_Model extends Toucan_Model {
 
     public function hasForms() {
         return ($this->loaded && $this->formSessions->count()>0);
+    }
+
+    public function hasCategories(& $user) {
+        return ($this->loaded && $this->getCategories($user)->count()>0);
     }
     
     public function copyIndicators(& $indicatorsIds,& $user, $sessionId = null, & $variables) {
