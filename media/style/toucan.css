@@ -178,6 +178,8 @@ td.edit_copy_private{padding-top:4px;padding-bottom:4px;background-color:#ddddff
 #possibleValuesLabel  {font-style:italic;color:#385D8A;margin-top:2px;}
 .category_selection   {width:100%;}
 #category_description {margin-top:10px;margin-bottom:10px;font-style:italic;}
+#category_link        {float:right;width:5%;text-align:right;}
+#category_link_list   {width:95%;}
 
 /* calendars */
 .calendar_trigger   {display:inline;margin-left:5px;cursor:pointer;}
