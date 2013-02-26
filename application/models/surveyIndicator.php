@@ -67,6 +67,5 @@ class SurveyIndicator_Model extends Indicator_Model implements Ajax_Model {
         return array($this->survey);
     }
     
-    
 }
 ?>
