@@ -26,6 +26,10 @@ class Category_Model extends Toucan_Model {
     protected $has_and_belongs_to_many = array('indicators');
     protected $accessParent = "generic_parent";
     protected $parentId = "evaluation_id";
+    protected $controllerName = "category";
+    const COLOR_RECAPITULATIVE = "FFEEFF";
+    const COLOR_DEFAULT = "FFFFFF";
+
     
     public function getCreationData($access, & $user, & $parameters = null) {
         $parentId = $this->parentId;
@@ -50,6 +54,8 @@ class Category_Model extends Toucan_Model {
         $editableData = array();
         $editableData[] = array ('type' => 'text','name' => 'name','label' => 'category.name','required'=>'1', 'value' => $this->name);
         $editableData[] = array ('type' => 'long_text','name' => 'description','label' => 'category.description','value' => $this->description);
+        $editableData[] = array ('type' => 'check','name' => 'recapitulative','label' => 'category.recapitulative','checked' => $this->isRecapitulative());
+            $editableData[] = array ('type' => 'separator');
         $editableData[] = array ('type' => 'check','name' => 'active','label' => 'category.active','checked' => $this->isActive());
         if ($owner|$admin) {
             $editableData[] = array ('type' => 'separator');
@@ -101,6 +107,13 @@ class Category_Model extends Toucan_Model {
         // NAME & DESCRIPTION
         $displayableData[] = array ('type' => 'text', 'label' => 'category.name', 'value'=> $this->name);
         $displayableData[] = array ('type' => 'long_text', 'label' => 'category.description', 'value'=> $this->description);
+        // RECAPITULATUVE
+        if ($this->isRecapitulative()) {
+            $value = Kohana::lang('category.yes');
+        } else {
+            $value = Kohana::lang('category.no');
+        }
+        $displayableData[] = array ('type' => 'text', 'label' => 'category.recapitulative', 'value'=> $value);
 
         // GROUPS
         if ($owner|$admin) {
@@ -139,7 +152,7 @@ class Category_Model extends Toucan_Model {
         }
         return $displayableData;
    }
-    
+   
     public function validateEdition(array & $array,& $user, $save = FALSE) {
         $this->checkBooleans($array, $user);
         $this->buildValidation($array);
@@ -164,15 +177,33 @@ class Category_Model extends Toucan_Model {
     }
     
     public function count(& $filter , & $user, $constraints = null) {
+        $parentId = $this->parentId;
+        if (isset($constraints) && isset($constraints[$parentId])) {
+            // Initialize inherited access control
+            $this->$parentId = $constraints[$parentId];
+        }
         return $this->countVisibleItems($filter , $user, $constraints);
     }
     
     public function getItems(& $filter,& $user,$offset = 0, $number = null, $constraints = null) {
+        $parentId = $this->parentId;
+        if (!isset ($filter)) {
+            $filter = Filter::instance();
+            $filter->setSorting("order");
+        }
+        if (isset($constraints) && isset($constraints[$parentId])) {
+            // Initialize inherited access control
+            $this->$parentId = $constraints[$parentId];
+        }
         return $this->getVisibleItems($filter , $user, $offset, $number, $constraints);
-       }
+    }
 
     public function isActive() {
         return $this->active;
+    }
+
+    public function isRecapitulative() {
+        return $this->recapitulative;
     }
 
     public function setActive($value, $save=false) {
@@ -197,6 +228,7 @@ class Category_Model extends Toucan_Model {
             ->add_rules('edit_id', 'valid::numeric')
             ->add_rules($this->parentId, 'required', 'valid::numeric')
             ->add_rules('active', 'in_array[0,1]')
+            ->add_rules('recapitulative', 'in_array[0,1]')
             ->add_rules('inherit', 'in_array[0,1]');
     }
 
@@ -221,10 +253,91 @@ class Category_Model extends Toucan_Model {
     protected function checkBooleans(& $array, &$user) {
         if (!isset($array['active']))
             $array['active']=0;
+        if (!isset($array['recapitulative']))
+            $array['recapitulative']=0;
         if ($user->isAdmin()||$this->isOwner($user)) {
             if (!isset($array['inherit']))
                 $array['inherit']=0;
         }
+    }
+    
+    public function __get($column) {
+        if ($column == 'generic_parent') {
+            if ($this->evaluation_id >0) {
+                // category linked to an evaluation
+                return $this->evaluation;
+            } else if ($this->session_id >0) {
+                // category linked to a survey
+                return ORM::factory("survey", $this->session_id);
+            }
+        }
+        return parent::__get($column);
+    }
+
+    public function getNextOrder() {
+        if (!$this->loaded)
+            return null;
+        $result = $this->db->query("SELECT max(`order`)+1 from categories_indicators WHERE category_id=$this->id");
+        $result->result(false,MYSQL_NUM);
+        if ($result[0][0] === null)
+            return 1;
+        else
+            return $result[0][0];
+    }
+    
+    public function updateOrders() {
+        if (!$this->loaded)
+            return null;
+        $next = $this->getNextOrder();
+        $result = $this->db->query("SELECT `indicator_id`, `order` from `categories_indicators` WHERE `category_id`=$this->id ORDER by `order` ASC");
+        $indicatorIds = array();
+        $current = 1;
+        foreach($result as $row) {
+            if (!isset($row->order)||$row->order == 0) {
+                $order = $next++;
+            } else {
+                $order = $current++;
+            }
+            $indicatorIds[$order] = $row->indicator_id;
+        }
+        ksort($indicatorIds);
+        $current = 1;
+        foreach($indicatorIds as $indicatorId) {
+            $result = $this->db->query("UPDATE `categories_indicators` SET `order`=$current WHERE `category_id`=$this->id AND `indicator_id`=$indicatorId");
+            $current++;
+        }
+    }
+    
+    public function setIndicators(& $ids) {
+        $this->indicators = $ids;
+        $this->save();
+        $current = 1;
+        foreach($ids as $id) {
+            $result = $this->db->query("UPDATE `categories_indicators` SET `order`=$current WHERE `category_id`=$this->id AND `indicator_id`=$id");
+            $current++;
+        }
+    }
+    
+    public function getColor() {
+        if ($this->loaded&&$this->isRecapitulative())
+            return self::COLOR_RECAPITULATIVE;
+        else
+            return self::COLOR_DEFAULT;
+    }
+    
+    public function getItemActions(& $user) {
+        $itemActions = array();
+        $itemActions[] = array('link'=>$this->controllerName."/show/", 'text'=>"category.details");
+        if ($this->isEditableBy($user)) {
+            if (!$this->isRecapitulative()) {
+                $itemActions[] = array('link'=>$this->controllerName."/members/", 'text'=>"category.members");
+            }
+        }
+        return $itemActions;
+    }
+    
+    public function getParent() {
+        return $this->generic_parent;
     }
 }
 ?>
