@@ -22,11 +22,13 @@ class Category_Controller extends DataPage_Controller {
 
     protected $dataName = "category";
     protected $parentControllerName = "evaluation";
+    protected $parentControllerMethod = "categories";
     protected $indicatorControllerName = "indicator";
+    protected $indicatorModel = "indicator";
     protected $parentName = "evaluation";
     protected $parentIdField = "evaluationId";
     protected $parentIdName = "evaluation_id";
-    protected $controllerName = "categories";
+    protected $controllerName = "category";
 
     protected function controlAccess($action) {
         switch ($action) {
@@ -87,21 +89,27 @@ class Category_Controller extends DataPage_Controller {
         $this->loadData($id);
         $parentIdName = $this->parentIdName;
         $parentId = $this->data->$parentIdName;
-        parent::delete($id, urlencode($this->parentName."/$this->controllerName/$parentId"));
+        parent::delete($id, urlencode($this->parentName."/$this->parentControllerMethod/$parentId"));
     }
 
     public function members($id) {
         $this->loadData($id);
-
         $this->controlAccess('MEMBERS');
 
+        if ($this->data->isRecapitulative()) {
+            // we should not be here
+            $this->setErrorMessage(Kohana::lang("category.error_recapitulative"));
+            url::redirect("$this->controllerName/show/$id");
+        }
+        
         $this->template->content=new View('data/list');
 
         $action = "$this->indicatorControllerName/show/";
         $fields = array('name'=>'name', 'type'=>'fullType');
         $parentId = $this->parentIdName;
-        $this->template->content->listUrl = List_Controller::initList($this->user, access::REGISTERED,"indicator",$action, $fields, array($parentId=>$this->data->$parentId, 'category_id'=>$this->data->id));
-        $this->template->content->dataName = "indicator";
+
+        $this->template->content->listUrl = List_Controller::initList($this->user, access::REGISTERED,$this->indicatorModel,$action, $fields, array($parentId=>$this->data->$parentId, 'category_id'=>$this->data->id));
+        $this->template->content->dataName = $this->indicatorModel;
 
         // Set default sorting to field "name"
         $filter = ListFilter::instance();
@@ -125,21 +133,26 @@ class Category_Controller extends DataPage_Controller {
     
     public function setMembers($id) {
         $this->loadData($id);
-
         $this->controlAccess('SET_MEMBERS');
+
+        if ($this->data->isRecapitulative()) {
+            // we should not be here
+            $this->setErrorMessage(Kohana::lang("category.error_recapitulative"));
+            url::redirect("$this->controllerName/show/$id");
+        }
 
         $this->template->content=new View('data/members');
 
-        $fields = array('name'=>'name', 'type'=>'fullType');
-        $this->template->content->registerUrl = 'list/register/indicator/1';
-        $this->template->content->unregisterUrl = 'list/register/indicator/0';
+        $fields = array('order'=>'order', 'name'=>'name', 'type'=>'fullType');
+        $this->template->content->registerUrl = "list/register/$this->indicatorModel/1";
+        $this->template->content->unregisterUrl = "list/register/$this->indicatorModel/0";
         $parentId = $this->parentIdName;
-        $this->template->content->listUrl = List_Controller::initList($this->user, access::REGISTERED,"indicator","", $fields, array($parentId=>$this->data->$parentId), true, null, "category", $id);
-        $this->template->content->dataName = "indicator";
+        $this->template->content->listUrl = List_Controller::initList($this->user, access::REGISTERED,$this->indicatorModel,"", $fields, array($parentId=>$this->data->$parentId), true, null, "category", $id);
+        $this->template->content->dataName = $this->indicatorModel;
 
         // Set default sorting to field "name"
         $filter = ListFilter::instance();
-        $filter->setDefaultSorting("name");
+        $filter->setDefaultSorting("order");
         $this->template->content->sortingName = $filter->getSortingName();
         $this->template->content->sortingOrder = $filter->getSortingOrderInt();
 
@@ -206,7 +219,8 @@ class Category_Controller extends DataPage_Controller {
         $tabs = array();
         if ($action != 'CREATE') {
             $tabs[] = array('text'=>'category.info', 'link' => "$this->controllerName/show/$category->id", 'image'=>Kohana::config('toucan.images_directory')."/information.png");
-            $tabs[] = array('text'=>'category.view_members', 'link' => "$this->controllerName/members/$category->id", 'image'=>Kohana::config('toucan.images_directory')."/application_cascade.png");
+            if (!$category->isRecapitulative())
+                $tabs[] = array('text'=>'category.view_members', 'link' => "$this->controllerName/members/$category->id", 'image'=>Kohana::config('toucan.images_directory')."/application_cascade.png");
             switch ($action) {
                 case 'SHOW' :
                 case 'OWNER' :
@@ -237,9 +251,13 @@ class Category_Controller extends DataPage_Controller {
                 $headers[2] = array('text'=>'user.username','name'=>'username');
                 break;
             case 'MEMBERS' :
-            case 'SET_MEMBERS' :
                 $headers[0] = array('text'=>'indicator.name_header', 'name'=>'name');
                 $headers[1] = array('text'=>'indicator.type_header','name'=>'type');
+                break;
+            case 'SET_MEMBERS' :
+                $headers[0] = array('text'=>'indicator.order', 'name'=>'order');
+                $headers[1] = array('text'=>'indicator.name_header', 'name'=>'name');
+                $headers[2] = array('text'=>'indicator.type_header','name'=>'type');
                 break;
         }
         $this->template->content->headers = $headers;
