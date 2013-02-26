@@ -20,7 +20,6 @@
 
 class SurveyCategory_Controller extends Category_Controller {
     
-
     protected $dataName = "surveyCategory";
     protected $parentControllerName = "survey";
     protected $parentName = "survey";
@@ -28,7 +27,8 @@ class SurveyCategory_Controller extends Category_Controller {
     protected $parentIdName = "session_id";
     protected $controllerName = "surveyCategory";
     protected $indicatorControllerName = "surveyIndicator";
-    
+    protected $indicatorModel = "surveyIndicator";
+
     protected function setPath($action) {
         $path = array();
         $parent = $this->getParent();
