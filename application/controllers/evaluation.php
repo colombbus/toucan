@@ -235,7 +235,10 @@ class Evaluation_Controller extends DataPage_Controller {
         $this->template->content->isDraggable = $this->testAccess(access::MAY_EDIT);
         $this->template->content->displayUrl = "indicator/show/";
         $this->template->content->deleteUrl = "axIndicator/delete/";
-        $this->template->content->reorderUrl = "axIndicator/reorder/".$evaluationId;
+        if (isset($categoryId)) 
+            $this->template->content->reorderUrl = "axIndicator/reorder/$categoryId/1";
+        else
+            $this->template->content->reorderUrl = "axIndicator/reorder/$evaluationId";
         $this->template->content->confirmDeletion = "indicator.delete_confirm";
         $this->template->content->alreadyEditing = "indicator.already_editing";
         $this->template->content->showContent = true;
@@ -245,6 +248,9 @@ class Evaluation_Controller extends DataPage_Controller {
             $this->template->content->header->categories = $categories;
             $this->template->content->header->selectedCategory = $categoryId;
             $this->template->content->header->updateUrl = "evaluation/indicators/$evaluationId";
+            if ($this->testAccess(access::MAY_EDIT)) {
+                $this->template->content->header->showUrl = "category/show/";
+            }
             // save category in session
             $this->session->set('LAST_CATEGORY_EVALUATION_'.$evaluationId, $categoryId);
         }
@@ -253,32 +259,29 @@ class Evaluation_Controller extends DataPage_Controller {
     }
     
     public function categories($evaluationId) {
-
         $this->loadData($evaluationId);
 
         $this->controlAccess('CATEGORIES');
 
-        $fields = array('name'=>'name', 'description'=>'description');
-        $this->template->content=new View('data/list');
-        $this->template->content->listUrl = List_Controller::initList($this->user, access::ANYBODY,"category","category/show/", $fields, array('evaluation_id'=>$evaluationId));
-        $this->template->content->dataName = "category";
+        $categories = $this->data->getDisplayableCategories($this->user);
+        
+        $this->template->content=new View('data/view_items');
+        
+        $this->template->content->items = $categories;
+        if (sizeof($categories)==0) {
+            $this->template->content->noItems = "category.no_item";
+        }
+
+        $this->template->content->mayEdit = $this->testAccess(access::MAY_EDIT);
+        $this->template->content->isDraggable = $this->testAccess(access::MAY_EDIT);
+        $this->template->content->displayUrl = "category/show/";
+        $this->template->content->deleteUrl = "axCategory/delete/";
+        $this->template->content->reorderUrl = "axCategory/reorder/$evaluationId";
+        $this->template->content->confirmDeletion = "category.delete_confirm";
+        $this->template->content->alreadyEditing = "category.already_editing";
+        $this->template->content->showContent = true;
 
         $this->setPageInfo('CATEGORIES');
-        $this->setHeaders('CATEGORIES');
-
-        // Set default sorting to field "name"
-        $filter = ListFilter::instance();
-        $filter->setDefaultSorting("name");
-        $this->template->content->sortingName = $filter->getSortingName();
-        $this->template->content->sortingOrder = $filter->getSortingOrderInt();
-
-        // SEARCH
-        $search = array();
-        $search[0] = array('text'=>'category.name', 'name'=>'name');
-        $search[1] = array('text'=>'category.description', 'name'=>'description');
-        $this->template->content->showSearch = $filter->fillSearchFields($search);
-        $this->template->content->search = $search;
-
     }
 
 
