@@ -22,17 +22,35 @@
       function changeCategory() {
             document.location='<?php echo html::url($updateUrl);?>/'+$F('category');
       }
+<?php
+    if (isset($showUrl)) {
+?>
+    function showCategory() {
+            document.location='<?php echo html::url($showUrl);?>/'+$F('category');
+      }
+<?php
+    }
+?>
 </script>
 <?php
     $values = array();
     $description = "";
     foreach ($categories as $id=>$category) {
-        $values[$id] = htmlspecialchars($category['name'],ENT_QUOTES, "UTF-8");
+        $values[$id] = htmlspecialchars($category['title'],ENT_QUOTES, "UTF-8");
         if ($id == $selectedCategory)
-            $description = htmlspecialchars($category['description'],ENT_QUOTES, "UTF-8");
+            $description = nl2br(htmlspecialchars($category['description'],ENT_QUOTES, "UTF-8"));
     }
     $definition = array('name'=>'category','onChange'=>'changeCategory()', 'class'=>'category_selection');
+    if (isset($showUrl)) {
+        echo "<div id='category_link'><a href='javascript:showCategory();'>".html::image(array('src' => Kohana::config('toucan.images_directory')."/category.png", 'title' => Kohana::lang("category.show")))."</a></div>";
+        echo "<div id='category_link_list'>";
+        
+    }
     echo form::dropdown($definition,$values,$selectedCategory);
+    if (isset($showUrl)) {
+        echo "</div>";
+        
+    }
     if (strlen(trim($description))>0)
         echo "<div id='category_description'>$description</div>";
 ?>
