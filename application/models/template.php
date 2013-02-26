@@ -419,6 +419,17 @@ abstract class Template_Model extends Toucan_Model {
         $this->where('private', 1);
         return (count($this->questions)>0);
     }
+    
+    public function hasCategories(& $user) {
+        // no categories for templates
+        return false;
+    }
+    
+    public function getCategories(& $user) {
+        // no categories for templates
+        return array();
+    }
+
 
 }
 ?>
