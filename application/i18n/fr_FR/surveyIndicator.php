@@ -27,6 +27,7 @@ $lang=array(
     "create_calculation"=>"Valeur numérique calculée",
     "create_calculation_title"=>"Nouvel indicateur",
     "create_calculation_description"=>"Valeur calculée :",
+    "create_categories_description"=>"Définition des catégories auxquelles l'indicateur est rattaché :",
     "create_graphic"=>"Indicateur graphique",
     "create_graphic_title"=>"Nouvel indicateur",
     "create_graphic_description"=>"Information sur le graphique calculé :",
