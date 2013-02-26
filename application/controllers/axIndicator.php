@@ -23,6 +23,33 @@ class AxIndicator_Controller extends Ajax_Controller {
     protected $dataName = "indicator";
     protected $parentDataName = "evaluation";
     protected $controllerName = "axIndicator";
+    protected $categoryName = "category";
 
+    public function reorder($id, $category = false) {
+        if ($category) {
+            $oldDataName = $this->dataName;
+            $this->dataName = $this->categoryName;
+            $this->loadData($id);
+            if (!$this->data->isRecapitulative()) {
+                // category is not recapitulative: we deal with specific category order
+                $this->ensureAccess(access::MAY_EDIT);
+                if (!isset($_POST['data'])) {
+                    $this->displayError('no data provided');
+                }
+                parse_str($_POST['data']);
+                $categoryObject = ORM::factory($this->categoryName, $id);
+                $categoryObject->setIndicators($items);
+                $this->auto_render = false;
+                return;
+            } else {
+                // category is recapitulative: manage general order
+                $this->dataName = $oldDataName;
+                $parent = $this->data->getParent();
+                $id = $parent->id;
+            }
+        }
+        parent::reorder($id);
+    }
+    
 }
 ?>
