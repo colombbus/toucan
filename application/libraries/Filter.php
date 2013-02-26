@@ -23,6 +23,7 @@ class Filter_Core {
     protected $session;
     protected $sortingName = null;
     protected $sortingOrder = null;
+    protected $sortingTable = null;
     protected $search = null;
 
     public function __construct() {
@@ -43,7 +44,12 @@ class Filter_Core {
         $this->sortingName = $name;
         $this->sortingOrder = $order;
     }
+    
+    public function setSortingTable($table) {
+        $this->sortingTable = $table;
+    }
 
+    
     public function setDefaultSorting($name, $order=1) {
         if (!isset($sortingName)) {
             $this->sortingName = $name;
@@ -80,6 +86,14 @@ class Filter_Core {
         }
     }
 
+    public function getSortingTable($defaultTable) {
+        if (isset($this->sortingTable))
+            return $this->sortingTable;
+        else
+            return $defaultTable;
+    }
+
+    
     public function getSearch() {
         if (isset($this->search))
             return $this->search;
@@ -111,8 +125,9 @@ class Filter_Core {
         return false;
     }
 
-    public function getSQLOrder($tablePrefix=false) {
-        if ($tablePrefix) {
+    public function getSQLOrder($tablePrefix=null) {
+        $tablePrefix = $this->getSortingTable($tablePrefix);
+        if (isset($tablePrefix)) {
             return " order by `".$tablePrefix."`.`".$this->getSortingName()."` ".$this->getSortingOrder();
         } else {
             return " order by `".$this->getSortingName()."` ".$this->getSortingOrder();
@@ -142,7 +157,11 @@ class Filter_Core {
     }
 
     public function add(& $data) {
-        $data->orderby(array($this->getSortingName() => $this->getSortingOrder()));
+        $prefix = $this->getSortingTable(null);
+        if (isset($prefix))
+            $data->orderby(array("$prefix.".$this->getSortingName() => $this->getSortingOrder()));
+        else
+            $data->orderby(array($this->getSortingName() => $this->getSortingOrder()));
         if ($search = $this->getSearch()) {
             $data->like($search);
         }
