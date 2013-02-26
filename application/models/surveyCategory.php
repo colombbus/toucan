@@ -22,6 +22,8 @@ class SurveyCategory_Model extends Category_Model {
 
     protected $accessParent = "survey";
     protected $parentId = "session_id";
+    protected $controllerName = "surveyCategory";
+
  
     public function __get($column) {
         if ($column == 'survey') {
