@@ -39,6 +39,7 @@ class Indicator_Controller extends DataPage_Controller {
             case 'EDIT_GRAPHIC' :
             case 'LIMITS' :
             case 'RESET' :
+            case 'CATEGORIES' :
                 $this->ensureAccess(access::MAY_EDIT);
                 break;
             case 'SHOW' :
@@ -391,6 +392,13 @@ class Indicator_Controller extends DataPage_Controller {
         $this->limits($id);
         $this->setPageInfo('CREATE_LIMITS');
     }
+
+    public function createCategories($id) {
+        $this->loadData($id);
+        $parent = $this->getParent();
+        $this->categories($id, $this->parentControllerName.'/indicators/'.$parent->id);
+        $this->setPageInfo('CREATE_CATEGORIES');
+    }
     
     public function created($id) {
         $this->loadData($id);
@@ -441,9 +449,100 @@ class Indicator_Controller extends DataPage_Controller {
         $this->setPageInfo('CREATE_START');
     }
     
-    public function selectForm($parentId) {
-        
+    public function categories($id, $url=null) {
+        $this->controlAccess('CATEGORIES');
+
+        $formErrors= array();
+        $error = false;
+
+        $this->loadData($id);
+
+        $indicator = $this->data;
+
+        if (($post = $this->input->post())&&isset($post['form_indicator_categories'])) { // form submitted
+            if ($indicator->validateCategorySelection($post,true)) { // categories could be validated and saved
+                $this->setMessage(Kohana::lang('indicator.message_edited'));
+                if (!isset($url))
+                    $url = $this->controllerName.'/show/'.$id;
+                url::redirect($url);
+            } else {
+                $formErrors = $indicator->getErrors("form_errors");
+                $error = true;
+            }
+        }
+
+        $this->template->content=new View('data/edit');
+        $this->template->content->formId = 'form_indicator_categories';
+        $data = $indicator->getCategoriesEditableData($this->user);
+
+        // Set previous values in case of an error
+        if (($error)&&(isset($post['category']))&&(is_array($post['category']))) {
+            $previous = $post['category'];
+            for($i=0;$i<count($data);$i++) {
+                if (in_array($data[$i]['value'], $previous))
+                    $data[$i]['checked'] = 1;
+                else
+                    $data[$i]['checked'] = 0;
+            }
+        }
+        $this->setPageInfo('CATEGORIES');
+        $this->template->content->data = $data;
+        $this->template->content->errors = $formErrors;
     }
+
+    
+    public function set($id) {
+        $this->loadData($id);
+        $this->controlAccess('SET');
+
+        // MANAGE FORM
+        $formErrors= array();
+        if (($post = $this->input->post())&&isset($post["form_set_indicator"])) {
+            if ($this->data->validateSet($post,$this->user, true)) {
+                // data could be validated and saved
+                $this->setMessage(Kohana::lang("indicator.message_set"));
+                $parentId = $this->parentIdName;
+                url::redirect($this->parentControllerName."/indicators/".$this->data->$parentId);
+            } else {
+                // errors when trying to validate data
+                $formErrors = $this->data->getErrors("form_errors");
+                // populate values in order to retrieve input data
+                $this->data->setValues($post);
+            }
+        }
+
+        // TEMPLATE
+        $this->template->content=new View('data/edit');
+        $this->template->content->formId="form_set_indicator";
+
+        $this->template->content->errors = $formErrors;
+
+        // DATA
+        $this->template->content->data = $this->data->getSetData();
+
+        $this->setPageInfo('SET');
+    }
+    
+    public function delete($id) {
+        // LOAD DATA
+        $this->loadData($id);
+
+        // CONTROL ACCESS
+        $this->controlAccess('DELETE');
+
+        // PARENT ID
+        $parentIdName = $this->parentIdName;
+        $parentId = $this->data->$parentIdName;
+        
+        // DELETION
+        $this->data->delete();
+        
+        $this->setMessage(Kohana::lang("$this->dataName.message_deleted"));
+        url::redirect($this->parentControllerName."/indicators/$parentId");        
+    }
+
+    
+    
     
     protected function setHeaders($action) {
         $headers = array();
@@ -479,13 +578,18 @@ class Indicator_Controller extends DataPage_Controller {
                 break;
             case 'CREATE_VALUES' :
                 $actions_back[] = array('type' => 'button','text' => 'indicatorValue.add','js' => 'addItem()');
-                $actions[] = array('type' => 'button','text' => 'button.terminate', 'url'=>$this->controllerName.'/created/'.$indicator->id);
+                if ($parent->hasCategories($this->user))
+                    $actions[] = array('type' => 'button','text' => 'button.step_forward', 'url'=>$this->controllerName.'/createCategories/'.$indicator->id);
+                else
+                    $actions[] = array('type' => 'button','text' => 'button.terminate', 'url'=>$this->controllerName.'/created/'.$indicator->id);
                 break;
             case 'CREATE_POPULATION' :
                 $actions_back[] = array('type' => 'button','text' => 'individual.add','js' => 'addItem()');
                 $actions_back[] = array('type' => 'button','text' => 'indicator.change_operator','url' => $this->controllerName.'/createPopulation/'.$indicator->id.'/1');
                 if ($this->context['type'] == Indicator_Model::TYPE_AUTOMATIC_NUMERICAL)
                     $actions[] = array('type' => 'button','text' => 'button.step_forward', 'url'=>$this->controllerName.'/createLimits/'.$indicator->id);
+                else if ($parent->hasCategories($this->user))
+                    $actions[] = array('type' => 'button','text' => 'button.step_forward', 'url'=>$this->controllerName.'/createCategories/'.$indicator->id);
                 else
                     $actions[] = array('type' => 'button','text' => 'button.terminate', 'url'=>$this->controllerName.'/created/'.$indicator->id);
                 break;
@@ -499,7 +603,13 @@ class Indicator_Controller extends DataPage_Controller {
                 break;
             case 'CREATE_LIMITS' :
                 $actions_back[] = array('type' => 'button','text' => 'limit.add','js' => 'addItem()');
-                $actions[] = array('type' => 'button','text' => 'button.terminate', 'url'=>$this->controllerName.'/created/'.$indicator->id);
+                if ($parent->hasCategories($this->user))
+                    $actions[] = array('type' => 'button','text' => 'button.step_forward', 'url'=>$this->controllerName.'/createCategories/'.$indicator->id);
+                else
+                    $actions[] = array('type' => 'button','text' => 'button.terminate', 'url'=>$this->controllerName.'/created/'.$indicator->id);
+                break;
+            case 'CREATE_CATEGORIES' :
+                $actions[] = array('type' => 'submit','text' => 'button.terminate');
                 break;
             case 'EDIT' :
                 $actions_back[] = array('type' => 'button','text' => 'button.cancel','url' => $this->controllerName.'/show/'.$indicator->id);
@@ -553,27 +663,38 @@ class Indicator_Controller extends DataPage_Controller {
             case 'OWNER':
                 $actions_back[] = array('type' => 'cancel','text' => 'button.cancel');
                 break;
+            case 'CATEGORIES':
+                $actions[] = array('type' => 'submit','text' => 'button.save');
+                break;
         }
         $tabs = array();
         if (isset ($indicator)&&substr($action, 0, 6) != 'CREATE') {
+            $categories = $parent->hasCategories($this->user);
             $tabs[0] = array('text'=>'indicator.info', 'link'=>$this->controllerName.'/show/'.$indicator->id,'image'=>Kohana::config("toucan.images_directory")."/information.png");
+            $index = 1;
             switch ($indicator->type) {
                 case Indicator_Model::TYPE_MANUAL :
-                        $tabs[1] = array('text'=>'indicator.values_header', 'link'=>$this->controllerName.'/values/'.$indicator->id, 'image'=>Kohana::config("toucan.images_directory")."/values.png");
+                    $tabs[$index++] = array('text'=>'indicator.values_header', 'link'=>$this->controllerName.'/values/'.$indicator->id, 'image'=>Kohana::config("toucan.images_directory")."/values.png");
                     if ($this->testAccess(Access::MAY_CONTRIBUTE)) {
-                        $tabs[2] = array('text'=>'indicator.set', 'link'=>$this->controllerName.'/set/'.$indicator->id, 'image'=>Kohana::config("toucan.images_directory")."/set.png");
+                        $tabs[$index++] = array('text'=>'indicator.set', 'link'=>$this->controllerName.'/set/'.$indicator->id, 'image'=>Kohana::config("toucan.images_directory")."/set.png");
                     }
+                    if ($categories && $this->testAccess(Access::MAY_EDIT))
+                        $tabs[$index++] = array('text'=>'indicator.categories', 'link'=>$this->controllerName.'/categories/'.$indicator->id,'image'=>Kohana::config("toucan.images_directory")."/categories.png");
                     break;
                 case Indicator_Model::TYPE_AUTOMATIC_NUMERICAL :
-                    $tabs[1] = array('text'=>'indicator.calculation', 'link'=>$this->controllerName.'/calculation/'.$indicator->id, 'image'=>Kohana::config("toucan.images_directory")."/calculation.png");
-                    $tabs[2] = array('text'=>'indicator.population', 'link'=>$this->controllerName.'/population/'.$indicator->id, 'image'=>Kohana::config("toucan.images_directory")."/population.png");
+                    $tabs[$index++] = array('text'=>'indicator.calculation', 'link'=>$this->controllerName.'/calculation/'.$indicator->id, 'image'=>Kohana::config("toucan.images_directory")."/calculation.png");
+                    $tabs[$index++] = array('text'=>'indicator.population', 'link'=>$this->controllerName.'/population/'.$indicator->id, 'image'=>Kohana::config("toucan.images_directory")."/population.png");
                     if ($this->testAccess(Access::MAY_EDIT)) {
-                        $tabs[3] = array('text'=>'indicator.limits', 'link'=>$this->controllerName.'/limits/'.$indicator->id,'image'=>Kohana::config("toucan.images_directory")."/limits.png");
+                        $tabs[$index++] = array('text'=>'indicator.limits', 'link'=>$this->controllerName.'/limits/'.$indicator->id,'image'=>Kohana::config("toucan.images_directory")."/limits.png");
+                        if ($categories)
+                            $tabs[$index++] = array('text'=>'indicator.categories', 'link'=>$this->controllerName.'/categories/'.$indicator->id,'image'=>Kohana::config("toucan.images_directory")."/categories.png");
                     }
                     break;
                 case Indicator_Model::TYPE_AUTOMATIC_GRAPHIC :
-                    $tabs[1] = array('text'=>'indicator.graphic', 'link'=>$this->controllerName.'/graphic/'.$indicator->id,'image'=>Kohana::config("toucan.images_directory")."/graphic.png");
-                    $tabs[2] = array('text'=>'indicator.population', 'link'=>$this->controllerName.'/population/'.$indicator->id,'image'=>Kohana::config("toucan.images_directory")."/population.png");
+                    $tabs[$index++] = array('text'=>'indicator.graphic', 'link'=>$this->controllerName.'/graphic/'.$indicator->id,'image'=>Kohana::config("toucan.images_directory")."/graphic.png");
+                    $tabs[$index++] = array('text'=>'indicator.population', 'link'=>$this->controllerName.'/population/'.$indicator->id,'image'=>Kohana::config("toucan.images_directory")."/population.png");
+                    if ($categories && $this->testAccess(Access::MAY_EDIT))
+                        $tabs[$index++] = array('text'=>'indicator.categories', 'link'=>$this->controllerName.'/categories/'.$indicator->id,'image'=>Kohana::config("toucan.images_directory")."/categories.png");
                     break;
             }
             switch ($action) {
@@ -596,6 +717,9 @@ class Indicator_Controller extends DataPage_Controller {
                 case 'LIMITS' :
                     $tabs[3]['current'] = 1;
                     break;
+                case 'CATEGORIES' :
+                    $tabs[$index-1]['current'] = 1;
+                    break;
             }
         } 
         $this->template->content->actions = $actions;
@@ -616,6 +740,7 @@ class Indicator_Controller extends DataPage_Controller {
 
     protected function setDescription($action) {
         parent::setDescription($action);
+        $parent = $this->getParent();
         if ($action != 'CREATE_VALUES'&&$action!='CREATE_START'&&$action!='CREATE'&&$action != 'CREATE_GRAPHIC'&&$action != 'CREATE_CALCULATION'&&$action != 'CREATE_POPULATION'&&$action != 'CREATE_LIMITS'){
             if (isset($this->data)&&($this->data->loaded)) {
                 $this->template->content->title = sprintf(Kohana::lang("indicator.main_title"), $this->data->name);
@@ -623,36 +748,42 @@ class Indicator_Controller extends DataPage_Controller {
             $activity = $this->getActivity();
             if (isset($activity)&&$activity->logo_id >0)
                 $this->template->content->title_logo = $activity->logo->path;
-        } else if ($action=='CREATE') {
-            switch ($this->context['type']) {
-                case Indicator_Model::TYPE_MANUAL:
-                    $this->template->content->title_steps = array('max'=>2, 'current'=>1);
-                    break;
-                case Indicator_Model::TYPE_AUTOMATIC_GRAPHIC:
-                    $this->template->content->title_steps = array('max'=>3, 'current'=>1);
-                    break;
-                case Indicator_Model::TYPE_AUTOMATIC_NUMERICAL:
-                    $this->template->content->title_steps = array('max'=>4, 'current'=>1);
-                    break;
+        } else {
+            if ($parent->hasCategories($this->user))
+                $categories = 1;
+            else
+                $categories = 0;
+            if ($action=='CREATE') {
+                switch ($this->context['type']) {
+                    case Indicator_Model::TYPE_MANUAL:
+                        $this->template->content->title_steps = array('max'=>2+$categories, 'current'=>1);
+                        break;
+                    case Indicator_Model::TYPE_AUTOMATIC_GRAPHIC:
+                        $this->template->content->title_steps = array('max'=>3+$categories, 'current'=>1);
+                        break;
+                    case Indicator_Model::TYPE_AUTOMATIC_NUMERICAL:
+                        $this->template->content->title_steps = array('max'=>4+$categories, 'current'=>1);
+                        break;
                 }
-        } else if ($action=='CREATE_VALUES') {
-            $this->template->content->title_steps = array('max'=>2, 'current'=>2);
-            $this->helpTopic="values";
-        } else if ($action=='CREATE_GRAPHIC') {
-            $this->template->content->title_steps = array('max'=>3, 'current'=>2);
-            $this->helpTopic="editGraphic";
-        } else if ($action=='CREATE_CALCULATION') {
-            $this->template->content->title_steps = array('max'=>4, 'current'=>2);
-            $this->helpTopic="editCalculation";
-        } else if ($action=='CREATE_POPULATION') {
-            if ($this->context['type'] == Indicator_Model::TYPE_AUTOMATIC_NUMERICAL)
-                $this->template->content->title_steps = array('max'=>4, 'current'=>3);
-            else 
-                $this->template->content->title_steps = array('max'=>3, 'current'=>3);
-            $this->helpTopic="population";
-        } else if ($action=='CREATE_LIMITS') {
-            $this->template->content->title_steps = array('max'=>4, 'current'=>4);
-            $this->helpTopic="limits";
+            } else if ($action=='CREATE_VALUES') {
+                $this->template->content->title_steps = array('max'=>2+$categories, 'current'=>2);
+                $this->helpTopic="values";
+            } else if ($action=='CREATE_GRAPHIC') {
+                $this->template->content->title_steps = array('max'=>3+$categories, 'current'=>2);
+                $this->helpTopic="editGraphic";
+            } else if ($action=='CREATE_CALCULATION') {
+                $this->template->content->title_steps = array('max'=>4+$categories, 'current'=>2);
+                $this->helpTopic="editCalculation";
+            } else if ($action=='CREATE_POPULATION') {
+                if ($this->context['type'] == Indicator_Model::TYPE_AUTOMATIC_NUMERICAL)
+                    $this->template->content->title_steps = array('max'=>4+$categories, 'current'=>3);
+                else 
+                    $this->template->content->title_steps = array('max'=>3+$categories, 'current'=>3);
+                $this->helpTopic="population";
+            } else if ($action=='CREATE_LIMITS') {
+                $this->template->content->title_steps = array('max'=>4+$categories, 'current'=>4);
+                $this->helpTopic="limits";
+            }
         }
         $this->template->content->title_icon = Kohana::config("toucan.images_directory")."/indicator.png";
         $this->template->content->pathType = "path_activity";
@@ -676,55 +807,6 @@ class Indicator_Controller extends DataPage_Controller {
         return null;
     }
 
-    public function set($id) {
-        $this->loadData($id);
-        $this->controlAccess('SET');
-
-        // MANAGE FORM
-        $formErrors= array();
-        if (($post = $this->input->post())&&isset($post["form_set_indicator"])) {
-            if ($this->data->validateSet($post,$this->user, true)) {
-                // data could be validated and saved
-                $this->setMessage(Kohana::lang("indicator.message_set"));
-                $parentId = $this->parentIdName;
-                url::redirect($this->parentControllerName."/indicators/".$this->data->$parentId);
-            } else {
-                // errors when trying to validate data
-                $formErrors = $this->data->getErrors("form_errors");
-                // populate values in order to retrieve input data
-                $this->data->setValues($post);
-            }
-        }
-
-        // TEMPLATE
-        $this->template->content=new View('data/edit');
-        $this->template->content->formId="form_set_indicator";
-
-        $this->template->content->errors = $formErrors;
-
-        // DATA
-        $this->template->content->data = $this->data->getSetData();
-
-        $this->setPageInfo('SET');
-    }
-    
-    public function delete($id) {
-        // LOAD DATA
-        $this->loadData($id);
-
-        // CONTROL ACCESS
-        $this->controlAccess('DELETE');
-
-        // PARENT ID
-        $parentIdName = $this->parentIdName;
-        $parentId = $this->data->$parentIdName;
-        
-        // DELETION
-        $this->data->delete();
-        
-        $this->setMessage(Kohana::lang("$this->dataName.message_deleted"));
-        url::redirect($this->parentControllerName."/indicators/$parentId");        
-    }
 
 }
 ?>
