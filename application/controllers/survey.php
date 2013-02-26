@@ -133,7 +133,10 @@ class Survey_Controller extends FormSession_Controller {
         $this->template->content->isDraggable = $this->testAccess(access::MAY_EDIT);
         $this->template->content->displayUrl = "surveyIndicator/show/";
         $this->template->content->deleteUrl = "axSurveyIndicator/delete/";
-        $this->template->content->reorderUrl = "axSurveyIndicator/reorder/".$surveyId;
+        if (isset($categoryId))
+            $this->template->content->reorderUrl = "axSurveyIndicator/reorder/$categoryId/1";
+        else
+            $this->template->content->reorderUrl = "axSurveyIndicator/reorder/$surveyId";
         $this->template->content->confirmDeletion = "indicator.delete_confirm";
         $this->template->content->alreadyEditing = "indicator.already_editing";
         $this->template->content->showContent = true;
@@ -143,6 +146,9 @@ class Survey_Controller extends FormSession_Controller {
             $this->template->content->header->categories = $categories;
             $this->template->content->header->selectedCategory = $categoryId;
             $this->template->content->header->updateUrl = "survey/indicators/$surveyId";
+            if ($this->testAccess(access::MAY_EDIT)) {
+                $this->template->content->header->showUrl = "surveyCategory/show/";
+            }
             // save category in session
             $this->session->set('LAST_CATEGORY_EVALUATION_'.$surveyId, $categoryId);
         }
@@ -153,32 +159,29 @@ class Survey_Controller extends FormSession_Controller {
     }
     
     public function categories($surveyId) {
-
         $this->loadData($surveyId);
 
         $this->controlAccess('CATEGORIES');
 
-        $fields = array('name'=>'name', 'description'=>'description');
-        $this->template->content=new View('data/list');
-        $this->template->content->listUrl = List_Controller::initList($this->user, access::ANYBODY,"surveyCategory","surveyCategory/show/", $fields, array('session_id'=>$surveyId));
-        $this->template->content->dataName = "surveyCategory";
+        $categories = $this->data->getDisplayableCategories($this->user);
+        
+        $this->template->content=new View('data/view_items');
+        
+        $this->template->content->items = $categories;
+        if (sizeof($categories)==0) {
+            $this->template->content->noItems = "category.no_item";
+        }
+
+        $this->template->content->mayEdit = $this->testAccess(access::MAY_EDIT);
+        $this->template->content->isDraggable = $this->testAccess(access::MAY_EDIT);
+        $this->template->content->displayUrl = "surveyCategory/show/";
+        $this->template->content->deleteUrl = "axSurveyCategory/delete/";
+        $this->template->content->reorderUrl = "axSurveyCategory/reorder/$surveyId";
+        $this->template->content->confirmDeletion = "surveyCategory.delete_confirm";
+        $this->template->content->alreadyEditing = "surveyCategory.already_editing";
+        $this->template->content->showContent = true;
 
         $this->setPageInfo('CATEGORIES');
-        $this->setHeaders('CATEGORIES');
-
-        // Set default sorting to field "name"
-        $filter = ListFilter::instance();
-        $filter->setDefaultSorting("name");
-        $this->template->content->sortingName = $filter->getSortingName();
-        $this->template->content->sortingOrder = $filter->getSortingOrderInt();
-
-        // SEARCH
-        $search = array();
-        $search[0] = array('text'=>'surveyCategory.name', 'name'=>'name');
-        $search[1] = array('text'=>'surveyCategory.description', 'name'=>'description');
-        $this->template->content->showSearch = $filter->fillSearchFields($search);
-        $this->template->content->search = $search;
-
     }
     
     public function exportIndicators($surveyId) {
