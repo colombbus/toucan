@@ -170,11 +170,42 @@
 <?php
     }
 ?>
+
+<?php
+    if (isset($noItems)) {
+?>
+        var updateRequired = false;
+<?php
+    } else {
+?>
+        var updateRequired = true;
+<?php
+    }
+?>
+    
+<?php
+        if (isset($updateUrl)) {
+?>
+    function updateItems() {
+        if (updateRequired) {
+            new Ajax.Updater("items", '<?php echo html::url($updateUrl)?>', { method: 'get',  evalScripts: true, insertion: 'bottom', onComplete: function(response){ updateItems();}});
+        } else {
+            $("loading").hide();
+        }
+    }
+    document.observe("dom:loaded", function() {
+        updateItems();
+    });
+<?php
+        }
+?>
+
+
 </script>
 
 <?php
-    include "inc_description.php";
-    require_once "inc_display.php";
+    include APPPATH."/views/data/inc_description.php";
+    //require_once "inc_display.php";
     if (isset($header)) {
         echo $header;
     }
@@ -187,17 +218,10 @@
     echo "<ul id='items'>\n";
     if (isset($noItems)) {
         echo Kohana::lang($noItems);
+        echo "</ul>\n";
     } else {
-        foreach ($items as $item) {
-            echo "<li class='item' id='item_".$item['id']."' ";
-            if (isset($item['color']))
-                echo "style='background-color:#".$item['color'].";'";
-            echo ">";
-            include "view_item.php";
-            echo "</li>";
-        }
+        echo "</ul><div id='loading'>Chargement...</div>";
     }
-    echo "</ul>\n";
-    include "inc_information.php";
-    include "inc_actions.php";
+    include APPPATH."/views/data/inc_information.php";
+    include APPPATH."/views/data/inc_actions.php";
 ?>

@@ -221,16 +221,21 @@ class Evaluation_Controller extends DataPage_Controller {
         } else {
             $categoryId = null;
         }
-     
-        $indicators = $this->data->getDisplayableIndicators($this->user, $categoryId);
+        
+        $indicatorIds = $this->data->getIndicatorIds($this->user, $categoryId);
+        
+        $indicatorsCount = count($indicatorIds);
+        
+        $this->template->content=new View('indicator/view_items');
 
-        $this->template->content=new View('data/view_items');
-
-        $this->template->content->items = $indicators;
-        if (sizeof($indicators)==0) {
+        if ($indicatorsCount==0) {
             $this->template->content->noItems = "indicator.no_item";
+        } else {
+            $this->template->content->updateUrl= "axIndicator/update/".$evaluationId;
+            $this->session->set_flash("UPDATE_evaluation_{$evaluationId}_ids",$indicatorIds);
+            $this->session->set_flash("UPDATE_evaluation_{$evaluationId}_current",0);
         }
-
+     
         $this->template->content->mayEdit = $this->testAccess(access::MAY_EDIT);
         $this->template->content->isDraggable = $this->testAccess(access::MAY_EDIT);
         $this->template->content->displayUrl = "indicator/show/";

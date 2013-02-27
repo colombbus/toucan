@@ -51,5 +51,24 @@ class AxIndicator_Controller extends Ajax_Controller {
         parent::reorder($id);
     }
     
+    public function update($id) {
+        $this->dataName = $this->parentDataName;
+        $this->loadData($id);
+        $this->ensureAccess(access::MAY_VIEW);
+        $sessionPrefix = "UPDATE_{$this->parentDataName}_{$id}";
+        $indicatorIds = $this->session->get($sessionPrefix."_ids",array());
+        $indicatorCurrent = $this->session->get($sessionPrefix."_current",0);
+        $this->view=new View("indicator/update_items");
+        if ($indicatorCurrent>=count($indicatorIds)) {
+            $this->view->noItems = true;
+        } else {
+            $updateCount = Kohana::config("toucan.items_per_update");
+            $indicators = $this->data->getDisplayableIndicators($this->user, $indicatorIds, $indicatorCurrent, $updateCount);
+            $this->view->items = $indicators;
+            $this->session->set_flash($sessionPrefix."_current",$indicatorCurrent+$updateCount);
+            $this->session->keep_flash();
+        }
+    }
+    
 }
 ?>

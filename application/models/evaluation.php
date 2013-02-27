@@ -86,7 +86,7 @@ class Evaluation_Model extends Toucan_Model {
         return $displayableData;
     }
 
-    public function getDisplayableIndicators(& $user, $categoryId = null) {
+    /*public function getDisplayableIndicators(& $user, $categoryId = null) {
         $displayableIndicators = array();
         $nullValue = null;
         $constraints = array('evaluation_id'=>$this->id);
@@ -116,6 +116,45 @@ class Evaluation_Model extends Toucan_Model {
             $displayableIndicators[] = $item;
         }
         return $displayableIndicators;
+    }*/
+    
+    public function getDisplayableIndicators(& $user, $ids, $pos, $count) {
+        $displayableIndicators = array();
+        $indicators = ORM::factory('indicator')->limit($count, $pos)->in('id', $ids)->find_all($count, $pos);
+
+        foreach ($indicators as $indicator) {
+            if ($indicator->isViewableBy($user)) {
+                $item = array();
+                $item['title'] = $indicator->name;
+                $item['order'] = $indicator->order;
+                $item['id'] = $indicator->id;
+                try {
+                    $item['content'] = $indicator->getValue(access::MAY_VIEW);
+                } catch (Exception $e) {
+                    $display = array();
+                    $display[] = array('type'=>'text', 'label'=>'indicator.error', 'value'=>Kohana::lang($e->getMessage()));
+                    $item['content'] = $display;
+                }
+                $item['actions'] = $indicator->getItemActions($user);
+                $color = $indicator->getColor();
+                if (isset($color)) {
+                    $item['color'] = $color->code;
+                }
+                $displayableIndicators[] = $item;
+            }
+        }
+        return $displayableIndicators;
+    }
+    
+    public function getIndicatorIds(& $user, $categoryId = null) {
+        $nullValue = null;
+        $constraints = array('evaluation_id'=>$this->id);
+        if (isset($categoryId)) {
+            $category = ORM::factory('category', $categoryId);
+            if (isset($category)&&!$category->isRecapitulative())
+                $constraints['category_id'] = $categoryId;
+        }
+        return ORM::factory('indicator')->getItems($nullValue,$user,0, $nullValue, $constraints)->primary_key_array();
     }
     
     public function getCategories(& $user) {
