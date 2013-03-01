@@ -20,13 +20,23 @@
 ?>
 <script type="text/javascript">
       function changeCategory() {
-            document.location='<?php echo html::url($updateUrl);?>/'+$F('category');
+          try {
+              abortFetch();
+          }
+          catch (error)
+          {}
+          document.location='<?php echo html::url($updateUrl);?>/'+$F('category');
       }
 <?php
     if (isset($showUrl)) {
 ?>
     function showCategory() {
-            document.location='<?php echo html::url($showUrl);?>/'+$F('category');
+          try {
+              abortFetch();
+          }
+          catch (error)
+          {}
+          document.location='<?php echo html::url($showUrl);?>/'+$F('category');
       }
 <?php
     }
