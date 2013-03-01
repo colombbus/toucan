@@ -264,6 +264,7 @@ li.item td.display_value {background-color:transparent;color:#385d8a;}
 ul.question_choices {padding-left:0px;margin-left:0px;color:#385d8a;}
 ul.question_choices li {margin-left:10px;margin-top:0px;margin-bottom:10px;margin-right:10px;border:solid 1px #9FBDD9;padding:5px;list-style:none;background-color:#DDE8FF}
 .choice_action      {text-align:right;}
+#loading            {margin-top:10px;margin-bottom:40px;padding:5px;border:1px solid #E2E2E1;background-color:#F2F2F2; text-align:center;}
 
 /* item selection */
 a.item              {text-decoration:none;display:block;padding:10px;background-color:#DDE8FF;color: black;margin-bottom:10px;cursor:pointer;color:#385D8A;font-weight:bold;border:1px solid #4A7EBB;}
