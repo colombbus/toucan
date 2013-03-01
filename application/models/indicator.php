@@ -562,14 +562,15 @@ class Indicator_Model extends Toucan_Model implements Ajax_Model {
         // deal with special case where there is a constraint on category_id
         if (isset($user)&&$user->isAdmin()) {
             if (isset ($constraints)  && isset($constraints['category_id'])) {
-                $category = ORM::factory('category', $constraints['category_id']);
-                unset($constraints['category_id']);
+                $indicators = ORM::factory('indicator');
+                $indicators->join('categories_indicators', 'categories_indicators.indicator_id', 'indicators.id', 'INNER');
                 // Add constraints
                 foreach ($constraints as $constraint => $value)
-                    $category->where($constraint, $value);
-                if (isset($filter))
-                    $filter->add($category);
-                return $category->indicators->count();
+                    $indicators->where($constraint, $value);
+                if (isset($filter)) {
+                    $filter->add($indicators);
+                } 
+                return $indicators->count_all();
             }
         }
         return parent::countVisibleItems($filter, $user, $constraints);
@@ -579,18 +580,17 @@ class Indicator_Model extends Toucan_Model implements Ajax_Model {
         // deal with special case where there is a constraint on category_id
         if (isset($user)&&$user->isAdmin()) {
             if (isset ($constraints) && isset($constraints['category_id'])) {
-                $category = ORM::factory('category', $constraints['category_id']);
-                $category->join('categories_indicators', 'categories_indicators.indicator_id', 'indicators.id');
-                unset($constraints['category_id']);
+                $indicators = ORM::factory('indicator');
+                $indicators->join('categories_indicators', 'categories_indicators.indicator_id', 'indicators.id', 'INNER');
                 // Add constraints
                 foreach ($constraints as $constraint => $value)
-                    $category->where($constraint, $value);
+                    $indicators->where($constraint, $value);
                 if (isset($filter)) {
-                    $filter->add($category);
+                    $filter->add($indicators);
                 } 
                 if (isset($number))
-                    $category->limit($number, $offset);
-                return $category->groupby('indicators.id')->indicators;
+                    $indicators->limit($number, $offset);
+                return $indicators->find_all();
             }
         } 
         return parent::getVisibleItems($filter, $user, $offset, $number, $constraints);
