@@ -87,7 +87,7 @@ class Survey_Model extends FormSession_Model {
         rtf::sendDocument(sprintf(Kohana::lang('survey.export_document_name'), $this->name));
     }
 
-    public function getDisplayableIndicators(&$user, $categoryId = null) {
+/*    public function getDisplayableIndicators(&$user, $categoryId = null) {
         $displayableIndicators = array();
         $indicators = $this->getIndicators($user, $categoryId);
         foreach ($indicators as $indicator) {
@@ -109,6 +109,40 @@ class Survey_Model extends FormSession_Model {
         }
         return $displayableIndicators;
     }
+
+ */
+    
+    public function getDisplayableIndicators(& $user, $ids, $pos, $count) {
+        $displayableIndicators = array();
+        
+        $sliceIds = array_slice($ids, $pos, $count);
+        $indicators = ORM::factory('indicator')->in('id', $sliceIds)->find_all();
+
+        $indices = array_flip($sliceIds);
+
+        foreach ($indicators as $indicator) {
+            if ($indicator->isViewableBy($user)) {
+                $item = array();
+                $item['title'] = $indicator->name;
+                $item['order'] = $indicator->order;
+                $item['id'] = $indicator->id;
+                try {
+                    $item['content'] = $indicator->getValue(access::MAY_VIEW);
+                } catch (Exception $e) {
+                    $item['content'] = array(array('type'=>'text', 'label'=>'indicator.error', 'value'=>Kohana::lang($e->getMessage())));
+                }
+                $item['actions'] = $indicator->getItemActions($user);
+                $color = $indicator->getColor();
+                if (isset($color)) {
+                    $item['color'] = $color->code;
+                }
+               $displayableIndicators[$indices[$indicator->id]] = $item;
+             }
+        }
+        ksort($displayableIndicators);
+        return $displayableIndicators;
+    }
+
     
     public function getCategories(& $user) {
         $nullValue = null;
@@ -140,7 +174,7 @@ class Survey_Model extends FormSession_Model {
             $logo = $this->activity->logo->path;
         rtf::initDocument(sprintf(Kohana::lang('survey.export_indicators_title'), $this->activity->name), sprintf(Kohana::lang('survey.export_indicators_subtitle'), $this->name), $logo);
         $indicators = $this->getIndicators($user);
-        foreach ($this->indicators as $indicator) {
+        foreach ($indicators as $indicator) {
             $indicator->export();
         }
         rtf::sendDocument(sprintf(Kohana::lang('survey.export_indicators_file_name'), $this->name));
@@ -155,6 +189,10 @@ class Survey_Model extends FormSession_Model {
                 $constraints['category_id'] = $categoryId;
         }
         return ORM::factory('surveyIndicator')->getItems($nullValue,$user,0, $nullValue, $constraints);
+    }
+    
+     public function getIndicatorIds(& $user, $categoryId = null) {
+        return $this->getIndicators($user, $categoryId)->primary_key_array();
     }
     
     public function hasForms() {
