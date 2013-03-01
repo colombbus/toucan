@@ -51,18 +51,23 @@ class AxIndicator_Controller extends Ajax_Controller {
         parent::reorder($id);
     }
     
-    public function update($id) {
+    public function fetch($id, $categoryId = null) {
         $this->dataName = $this->parentDataName;
         $this->loadData($id);
         $this->ensureAccess(access::MAY_VIEW);
-        $sessionPrefix = "UPDATE_{$this->parentDataName}_{$id}";
+        if (isset($categoryId))
+            $sessionPrefix = "FETCH_{$this->parentDataName}_{$id}_{$categoryId}";
+        else
+            $sessionPrefix = "FETCH_{$this->parentDataName}_{$id}";
         $indicatorIds = $this->session->get($sessionPrefix."_ids",array());
         $indicatorCurrent = $this->session->get($sessionPrefix."_current",0);
-        $this->view=new View("indicator/update_items");
+        $this->view=new View("indicator/fetch_items");
+        $this->view->isDraggable = $this->session->get($sessionPrefix."_draggable",false);
+        $this->view->showContent = true;
         if ($indicatorCurrent>=count($indicatorIds)) {
             $this->view->noItems = true;
         } else {
-            $updateCount = Kohana::config("toucan.items_per_update");
+            $updateCount = Kohana::config("toucan.items_per_fetch");
             $indicators = $this->data->getDisplayableIndicators($this->user, $indicatorIds, $indicatorCurrent, $updateCount);
             $this->view->items = $indicators;
             $this->session->set_flash($sessionPrefix."_current",$indicatorCurrent+$updateCount);
