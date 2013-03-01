@@ -161,43 +161,72 @@
 <?php
     }
 ?>
+
+<?php
+    if (isset($noItems)) {
+?>
+        var fetchRequired = false;
+<?php
+    } else {
+?>
+        var fetchRequired = true;
+<?php
+    }
+?>
+        
+<?php
+        if (isset($fetchUrl)) {
+?>
+    var fetchingRequest;
+    var fetchingRequest;
+
+    function fetchItems() {
+        if (fetchRequired) {
+            fetchingRequest = new Ajax.Updater("items", '<?php echo html::url($fetchUrl)?>', { method: 'get',  evalScripts: true, insertion: 'bottom', onSuccess: function(response){ fetchItems();}});
+        } else {
+            allItemsFetched();
+        }
+    }
+
+
+    function allItemsFetched() {
+        $("loading").hide();
+        $("actions").show();
 <?php
     if (isset($isDraggable) && $isDraggable) {
+?>
+        createSortable();
+<?php
+    }
+?>
+    }
+    
+    function abortFetch() {
+        fetchRequired = false;
+        if (typeof(fetchingRequest)!='undefined') {
+            try {
+                fetchingRequest.transport.abort();
+            }
+            catch (error)
+            {}
+        }
+    }
+    
+    document.observe("dom:loaded", function() {
+        $("actions").hide();
+        fetchItems();
+    });
+<?php
+        }
+?>
+<?php
+    if (isset($isDraggable) && $isDraggable && !isset($fetchUrl)) {
 ?>
     document.observe("dom:loaded", function() {
         createSortable();
     });
 <?php
     }
-?>
-
-<?php
-    if (isset($noItems)) {
-?>
-        var updateRequired = false;
-<?php
-    } else {
-?>
-        var updateRequired = true;
-<?php
-    }
-?>
-    
-<?php
-        if (isset($updateUrl)) {
-?>
-    function updateItems() {
-        if (updateRequired) {
-            new Ajax.Updater("items", '<?php echo html::url($updateUrl)?>', { method: 'get',  evalScripts: true, insertion: 'bottom', onComplete: function(response){ updateItems();}});
-        } else {
-            $("loading").hide();
-        }
-    }
-    document.observe("dom:loaded", function() {
-        updateItems();
-    });
-<?php
-        }
 ?>
 
 
