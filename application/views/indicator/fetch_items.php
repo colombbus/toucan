@@ -24,7 +24,7 @@
     if (isset($noItems)) {
 ?>
 <script type="text/javascript">
-    updateRequired = false;
+    fetchRequired = false;
 </script>
 <?php
     } else {
