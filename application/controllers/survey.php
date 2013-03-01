@@ -119,14 +119,19 @@ class Survey_Controller extends FormSession_Controller {
             $categoryId = null;
         }
         
-        $indicators = $this->data->getDisplayableIndicators($this->user, $categoryId);
+        $indicatorIds = $this->data->getIndicatorIds($this->user, $categoryId);
+        
+        $indicatorsCount = count($indicatorIds);
+        
+        $this->template->content=new View('indicator/view_items');
 
-        $this->template->content=new View('data/view_items');
-
-        $this->template->content->items = $indicators;
-
-        if (sizeof($indicators)==0) {
+        if ($indicatorsCount==0) {
             $this->template->content->noItems = "indicator.no_item";
+        } else {
+            $this->template->content->fetchUrl= "axSurveyIndicator/fetch/".$surveyId;
+            $this->session->set_flash("FETCH_survey_{$surveyId}_ids",$indicatorIds);
+            $this->session->set_flash("FETCH_survey_{$surveyId}_current",0);
+            $this->session->set_flash("FETCH_survey_{$surveyId}_draggable",$this->testAccess(access::MAY_EDIT));
         }
 
         $this->template->content->mayEdit = $this->testAccess(access::MAY_EDIT);
