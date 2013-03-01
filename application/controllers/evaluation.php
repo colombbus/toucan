@@ -1,4 +1,4 @@
-<?php defined('SYSPATH') or die('No direct script access.');
+ <?php defined('SYSPATH') or die('No direct script access.');
 /**
  * Toucan is a web application to perform evaluation and follow-up of
  * activities.
@@ -231,9 +231,17 @@ class Evaluation_Controller extends DataPage_Controller {
         if ($indicatorsCount==0) {
             $this->template->content->noItems = "indicator.no_item";
         } else {
-            $this->template->content->updateUrl= "axIndicator/update/".$evaluationId;
-            $this->session->set_flash("UPDATE_evaluation_{$evaluationId}_ids",$indicatorIds);
-            $this->session->set_flash("UPDATE_evaluation_{$evaluationId}_current",0);
+            if (isset($categoryId)) {
+                $this->template->content->fetchUrl= "axIndicator/fetch/$evaluationId/$categoryId";
+                $sessionPrefix = "FETCH_evaluation_{$evaluationId}_{$categoryId}";
+            } else {
+                $this->template->content->fetchUrl= "axIndicator/fetch/$evaluationId";
+                $sessionPrefix = "FETCH_evaluation_{$evaluationId}";
+            }
+            
+            $this->session->set_flash($sessionPrefix."_ids",$indicatorIds);
+            $this->session->set_flash($sessionPrefix."_current",0);
+            $this->session->set_flash($sessionPrefix."_draggable",$this->testAccess(access::MAY_EDIT));
         }
      
         $this->template->content->mayEdit = $this->testAccess(access::MAY_EDIT);
