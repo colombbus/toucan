@@ -120,8 +120,12 @@ class Evaluation_Model extends Toucan_Model {
     
     public function getDisplayableIndicators(& $user, $ids, $pos, $count) {
         $displayableIndicators = array();
-        $indicators = ORM::factory('indicator')->limit($count, $pos)->in('id', $ids)->find_all($count, $pos);
-
+        
+        $sliceIds = array_slice($ids, $pos, $count);
+        $indicators = ORM::factory('indicator')->in('id', $sliceIds)->find_all();
+        
+        $indices = array_flip($sliceIds);
+        
         foreach ($indicators as $indicator) {
             if ($indicator->isViewableBy($user)) {
                 $item = array();
@@ -140,9 +144,10 @@ class Evaluation_Model extends Toucan_Model {
                 if (isset($color)) {
                     $item['color'] = $color->code;
                 }
-                $displayableIndicators[] = $item;
+                $displayableIndicators[$indices[$indicator->id]] = $item;
             }
         }
+        ksort($displayableIndicators);
         return $displayableIndicators;
     }
     
