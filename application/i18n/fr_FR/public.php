@@ -24,6 +24,8 @@ $lang=array(
     "form_errors"=>"Attention : votre questionnaire ne peut être enregistré car il contient des erreurs (signalées en rouge ci-dessous)",
     "password"=>"Mot de passe :",
     "password_description"=>"L'accès à ce questionnaire est protégé.",
+    "indicators_password_description"=>"L'accès à ces informations est protégé.",
+    "indicators_description"=>"Liste des indicateurs",
     "save_successful"=>"Le questionnaire a bien été enregistré. Merci !",
 );
 ?>
