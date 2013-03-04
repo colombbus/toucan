@@ -34,7 +34,6 @@ class Indicator_Model extends Toucan_Model implements Ajax_Model {
     protected $displaySessionLink = true;
     protected $ignored_columns = array('generic_parent', 'indicator_model');
 
- 
     const TYPE_MANUAL = 1;
     const TYPE_AUTOMATIC_NUMERICAL = 2;
     const TYPE_AUTOMATIC_GRAPHIC = 3;
@@ -173,7 +172,7 @@ class Indicator_Model extends Toucan_Model implements Ajax_Model {
         return $displayableData;
     }
     
-    public function getDisplayableItemData(&$user) {
+    public function getDisplayableItemData(&$user, $includeActions = true) {
         $item = null;
         if ($this->isViewableBy($user)) {
             $item = array();
@@ -187,7 +186,8 @@ class Indicator_Model extends Toucan_Model implements Ajax_Model {
                 $display[] = array('type'=>'text', 'label'=>'indicator.error', 'value'=>Kohana::lang($e->getMessage()));
                 $item['content'] = $display;
             }
-            $item['actions'] = $this->getItemActions($user);
+            if ($includeActions)
+                $item['actions'] = $this->getItemActions($user);
             $color = $this->getColor();
             if (isset($color)) {
                 $item['color'] = $color->code;
@@ -1041,7 +1041,7 @@ class Indicator_Model extends Toucan_Model implements Ajax_Model {
             $category = ORM::factory('category', $categoryId);
             $constraints = array();
             if ($next) {
-                $categoryOrder = $category->getOrder($this->id);
+                $categoryOrder = $category->getIndicatorOrder($this->id);
                 if (isset($categoryOrder))
                     $constraints = array($newIndicator->id=>$categoryOrder+1);
             }
@@ -1084,7 +1084,7 @@ class Indicator_Model extends Toucan_Model implements Ajax_Model {
                 $this->categories = $categories;
                 if ($save) {
                     $this->save();
-                    $category->updateOrders($constraints);
+                    $category->updateIndicatorOrders($constraints);
                 }
             }
         } else {
@@ -1095,7 +1095,7 @@ class Indicator_Model extends Toucan_Model implements Ajax_Model {
                 $this->categories = $categories;
                 if ($save) {
                     $this->save();
-                    $category->updateOrders($constraints);
+                    $category->updateIndicatorOrders($constraints);
                 }
             }
         }
@@ -1104,7 +1104,7 @@ class Indicator_Model extends Toucan_Model implements Ajax_Model {
     
     public function getCategoriesEditableData(& $user) {
         $editableData = array();
-        $categories = $this->generic_parent->getCategories($user);
+        $categories = $this->generic_parent->getCategories($user, false);
         $indicatorCategories = $this->categories->primary_key_array();
         foreach ($categories as $category) {
             $editableData[] = array ('type' => 'check','name' => 'category[]', 'value' => $category->id, 'translated_label' => $category->name, 'checked' => in_array($category->id,$indicatorCategories));
@@ -1129,7 +1129,7 @@ class Indicator_Model extends Toucan_Model implements Ajax_Model {
         // 2nd set groups
         $this->categories = $ids;
         foreach ($this->categories as $category) {
-            $category->updateOrders();
+            $category->updateIndicatorOrders();
         }
         if ($save)
             $this->save();
