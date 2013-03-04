@@ -1,0 +1,30 @@
+/**
+ * Toucan is a web application to perform evaluation and follow-up of
+ * activities.
+ * Copyright (C) 2010 Colombbus (http://www.colombbus.org)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+
+#description        {display:block;}
+li.item           {margin-left:0px;list-style:none;border:1px solid #4A7EBB;padding:10px;margin-bottom:10px;background-color:#DDE8FF;color: black;font-size:1em;}
+li.item td.edition_label {background-color:transparent;color:#385d8a;}
+li.item td.edition_entry {background-color:transparent;}
+li.item td.display_label {background-color:transparent;color:#385d8a;}
+li.item td.display_value {background-color:transparent;color:#385d8a;}
+#items            {padding-left:0px;margin-left:0px;list-style:none;}
+.item_title         {clear:right;font-weight:bold;padding-bottom:5px;padding-top:5px;color:#385d8a;}
+#loading            {margin-top:10px;margin-bottom:40px;padding:5px;border:1px solid #E2E2E1;background-color:#F2F2F2; text-align:center;}
+#loading span:before {content: "";display:inline-block;width:16px;height:16px;margin-right:10px;background-image:url('loader.gif');}
