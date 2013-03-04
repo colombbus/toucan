@@ -172,6 +172,30 @@ class Indicator_Model extends Toucan_Model implements Ajax_Model {
 
         return $displayableData;
     }
+    
+    public function getDisplayableItemData(&$user) {
+        $item = null;
+        if ($this->isViewableBy($user)) {
+            $item = array();
+            $item['title'] = $this->name;
+            $item['order'] = $this->order;
+            $item['id'] = $this->id;
+            try {
+                $item['content'] = $this->getValue(access::MAY_VIEW);
+            } catch (Exception $e) {
+                $display = array();
+                $display[] = array('type'=>'text', 'label'=>'indicator.error', 'value'=>Kohana::lang($e->getMessage()));
+                $item['content'] = $display;
+            }
+            $item['actions'] = $this->getItemActions($user);
+            $color = $this->getColor();
+            if (isset($color)) {
+                $item['color'] = $color->code;
+            }
+        }
+        return $item;
+    }
+            
 
     protected function computeValue() {
         if ($this->computationAlreadyPerformed) {
@@ -203,7 +227,9 @@ class Indicator_Model extends Toucan_Model implements Ajax_Model {
             $value = calculation::$methodName($values);
             $this->cached_value = $value;
             $this->save();
-            return $value;
+            // reload fields from database to get rounded value from mysql
+            $this->reload();
+            return $this->cached_value;
         } else {
             return null;
         }
@@ -727,6 +753,9 @@ class Indicator_Model extends Toucan_Model implements Ajax_Model {
             $itemActions[] = array('function'=>"displayItem", 'text'=>"indicator.display_graphic");
         }
         $itemActions[] = array('link'=>$this->controllerName."/show/", 'text'=>"indicator.details");
+        if ($this->generic_parent->isEditableBy($user)) {
+            $itemActions[] = array('function'=>"duplicateItem", 'text'=>"indicator.duplicate");
+        }
         if ($this->isEditableBy($user)) {
             $itemActions[] = array('function'=>"deleteItem", 'text'=>"indicator.delete");
         }
@@ -989,7 +1018,6 @@ class Indicator_Model extends Toucan_Model implements Ajax_Model {
         // save the new item
         $newIndicator->save();
         
-        
         // deal with values, individuals and limits
         foreach ($this->limits as $limit) {
             $limit->copyTo($newIndicator);
@@ -1000,7 +1028,39 @@ class Indicator_Model extends Toucan_Model implements Ajax_Model {
         foreach ($this->individuals as $individual) {
             $individual->copyTo($newIndicator, $variables);
         }
-        
+        return $newIndicator;
+    }
+    
+    public function duplicate(& $user, $categoryId = null, $next = false) {
+        $parentIdField = $this->parentId;
+        $parameters = array('session_id'=>$this->session_id, 'name'=>  sprintf(Kohana::lang('indicator.duplicate_name'), $this->name));
+        $newIndicator = $this->copyTo($this->$parentIdField, $user, $parameters);
+        $category = null;
+        if (isset($categoryId)) {
+            // indicator should be linked to the category
+            $category = ORM::factory('category', $categoryId);
+            $constraints = array();
+            if ($next) {
+                $categoryOrder = $category->getOrder($this->id);
+                if (isset($categoryOrder))
+                    $constraints = array($newIndicator->id=>$categoryOrder+1);
+            }
+            $newIndicator->register($category, true, true, $constraints);
+        }
+        if ($next) {
+            // new indicator should be located right after this one
+            $parent = $this->generic_parent;
+            $indicatorsToBeModified = $parent->where(array('order >' => $this->order))->where(array('order <' => $newIndicator->order))->indicators;
+            $newOrder = $this->order+2;
+            foreach ($indicatorsToBeModified as $indicator) {
+                $indicator->order = $newOrder;
+                $indicator->save();
+                $newOrder++;
+            }
+            $newIndicator->order = $this->order+1;
+            $newIndicator->save();
+        }
+        return $newIndicator;
     }
     
     public function belongsToTemplate() {
@@ -1013,7 +1073,7 @@ class Indicator_Model extends Toucan_Model implements Ajax_Model {
         return ($this->has($category));
     }
 
-    public function register(& $category, $value, $save) {
+    public function register(& $category, $value, $save, $constraints = array()) {
         if (!$this->loaded)
             return false;
         $categories = $this->categories->primary_key_array();
@@ -1024,7 +1084,7 @@ class Indicator_Model extends Toucan_Model implements Ajax_Model {
                 $this->categories = $categories;
                 if ($save) {
                     $this->save();
-                    $category->updateOrders();
+                    $category->updateOrders($constraints);
                 }
             }
         } else {
@@ -1035,7 +1095,7 @@ class Indicator_Model extends Toucan_Model implements Ajax_Model {
                 $this->categories = $categories;
                 if ($save) {
                     $this->save();
-                    $category->updateOrders();
+                    $category->updateOrders($constraints);
                 }
             }
         }
