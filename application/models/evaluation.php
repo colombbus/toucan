@@ -118,7 +118,7 @@ class Evaluation_Model extends Toucan_Model {
         return $displayableIndicators;
     }*/
     
-    public function getDisplayableIndicators(& $user, $ids, $pos, $count) {
+    public function getDisplayableIndicators(& $user, $ids, $pos, $count, $includeActions = true) {
         $displayableIndicators = array();
         
         $sliceIds = array_slice($ids, $pos, $count);
@@ -127,7 +127,7 @@ class Evaluation_Model extends Toucan_Model {
         $indices = array_flip($sliceIds);
         
         foreach ($indicators as $indicator) {
-            $item = $indicator->getDisplayableItemData($user);
+            $item = $indicator->getDisplayableItemData($user, $includeActions);
             if (isset($item)) {
                 $displayableIndicators[$indices[$indicator->id]] = $item;
             }
@@ -144,14 +144,24 @@ class Evaluation_Model extends Toucan_Model {
             if (isset($category)&&!$category->isRecapitulative())
                 $constraints['category_id'] = $categoryId;
         }
-        return ORM::factory('indicator')->getItems($nullValue,$user,0, $nullValue, $constraints)->primary_key_array();
+        $indicators = ORM::factory('indicator')->getItems($nullValue,$user,0, $nullValue, $constraints);
+        if (isset($indicators)&& count($indicators)>0)
+            return $indicators->primary_key_array();
+        else
+            return array();
     }
     
-    public function getCategories(& $user) {
+
+    public function getCategories(& $user, $includeRecapitulative = true) {
         $nullValue = null;
-        return ORM::factory('category')->getItems($nullValue,$user,0, $nullValue, array('evaluation_id'=>$this->id,'active'=>1));
+        if (!$includeRecapitulative)
+            $constraints = array('evaluation_id'=>$this->id,'active'=>1, 'recapitulative'=>0);
+        else
+            $constraints = array('evaluation_id'=>$this->id,'active'=>1);
+        return ORM::factory('category')->getItems($nullValue,$user,0, $nullValue, $constraints);
     }
 
+    
     public function getDisplayableCategories(& $user) {
         $displayableCategories = array();
         $categories = $this->getCategories($user);
@@ -362,5 +372,10 @@ class Evaluation_Model extends Toucan_Model {
         return array();
     }
 
+    public function indicatorsUpdated() {
+        $indicatorsNotUpdated = $this->db->query("SELECT id from indicators WHERE evaluation_id = '$this->id' AND type != '".Indicator_Model::TYPE_MANUAL."' AND cached_value IS NULL AND cached_graphic_id IS NULL");
+        return ($indicatorsNotUpdated->count() == 0);
+    }
+    
 }
 ?>
