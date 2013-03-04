@@ -23,14 +23,16 @@ class Public_Controller extends DataPage_Controller {
     protected $context = array();
     protected $sessionName = "formSession";
     protected $copyName = "formCopy";
+    protected $categoryName = "category";
+    protected $indicatorController = "axIndicator";
     
     public function __construct() {
         parent::__construct();
     }
 
-    protected function loadTemplate(& $session) {
-        if ($session->style_id>0) {
-            $style = $session->style;
+    protected function loadTemplate(& $item) {
+        if ($item->style_id>0) {
+            $style = $item->style;
             $this->template = new TemplateView($style->getViewFile());
             $this->template->setStyle($style);
             $this->template->title = 'Toucan';
@@ -179,5 +181,86 @@ class Public_Controller extends DataPage_Controller {
         $this->template->setStep("end");
     }
 
+    public function indicators($id) {
+        $category = ORM::factory($this->categoryName, $id);
+        if (!isset($category)||!$category->loaded) {
+            $this->displayError('category_unknown');
+        }
+        if (!$category->isPublished()) {
+            $this->displayError('private_category');
+        }
+        $this->loadTemplate($category);
+        $this->template->content= "";
+        $this->template->title = $category->name;
+        $description = $category->description;
+        if (strlen(trim($description))>0) {
+            $this->template->description = $description;
+        } else {
+            $this->template->description = Kohana::lang('public.indicators_description');
+        }
+        $this->template->setStep("indicators");
+
+        $errors = array();
+        $passwordEntered = false;
+        if (($post = $this->input->post())&&isset($post["indicators_public_password"])) {
+            if (!isset($post['indicators_password'])) {
+                $this->displayError('error');
+            }
+            if (($category->password_flag==0)||($category->password == $post['indicators_password'])) {
+                // test ok
+                $passwordEntered = true;
+            } else {
+                // wrong password
+                $errors['indicators_password'] = Kohana::lang('form_errors.wrong_password');
+            }
+        }
+        if (($category->password_flag == 1)&&(!$passwordEntered)) {
+            // protected indicators
+            $passData = array();
+            $passData[] = array('type'=>'password', 'name'=>'indicators_password', 'label'=>'public.password');
+            $this->template->content=new View('data/edit');
+            $this->template->content->formId = "indicators_public_password";
+            $this->template->content->data = $passData;
+            $this->template->content->errors = $errors;
+            $this->template->message = Kohana::lang('public.indicators_password_description');
+            $this->template->setStep("password");
+            $this->setPageInfo('PASSWORD');
+        } else {
+            $parent = $category->getParent();
+            $indicatorIds = $parent->getIndicatorIds($this->user, $id);
+            $indicatorsCount = count($indicatorIds);
+        
+            $this->template->content=new View('indicator/view_items');
+
+            if ($indicatorsCount==0) {
+                $this->template->content->noItems = "indicator.no_item";
+            } else {
+                $this->template->content->fetchUrl= $this->indicatorController."/fetch/{$parent->id}/$id";
+            }
+            $sessionPrefix = "FETCH_evaluation_{$parent->id}_{$id}";
+            $this->session->set_flash($sessionPrefix."_ids",$indicatorIds);
+            $this->session->set_flash($sessionPrefix."_current",0);
+            $this->session->set_flash($sessionPrefix."_draggable",false);
+            $this->session->set_flash($sessionPrefix."_public",true);
+            if ($parent->indicatorsUpdated()) {
+                $this->session->set_flash($sessionPrefix."_fetch_all",1);
+            }
+            $this->template->content->mayEdit = false;
+            $this->template->content->isDraggable = false;
+            $this->template->content->showContent = true;
+
+            /*if (count($categories)>0) {
+                $this->template->content->header = new View('indicator/categories');
+                $this->template->content->header->categories = $categories;
+                $this->template->content->header->selectedCategory = $categoryId;
+                $this->template->content->header->updateUrl = "evaluation/indicators/$evaluationId";
+                if ($this->testAccess(access::MAY_EDIT)) {
+                    $this->template->content->header->showUrl = "category/show/";
+                }*/
+        }
+    }
+
+    
+    
 }
 ?>
