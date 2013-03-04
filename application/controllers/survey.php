@@ -138,10 +138,13 @@ class Survey_Controller extends FormSession_Controller {
         $this->template->content->isDraggable = $this->testAccess(access::MAY_EDIT);
         $this->template->content->displayUrl = "surveyIndicator/show/";
         $this->template->content->deleteUrl = "axSurveyIndicator/delete/";
-        if (isset($categoryId))
+        if (isset($categoryId)) {
             $this->template->content->reorderUrl = "axSurveyIndicator/reorder/$categoryId/1";
-        else
+            $this->template->content->duplicateUrl = "axSurveyIndicator/duplicate/$surveyId/$categoryId";
+        } else {
             $this->template->content->reorderUrl = "axSurveyIndicator/reorder/$surveyId";
+            $this->template->content->duplicateUrl = "axSurveyIndicator/duplicate/$surveyId/0";
+        }
         $this->template->content->confirmDeletion = "indicator.delete_confirm";
         $this->template->content->alreadyEditing = "indicator.already_editing";
         $this->template->content->showContent = true;
