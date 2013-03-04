@@ -52,37 +52,32 @@ class Category_Model extends Toucan_Model {
         $admin = ($access == access::ADMIN);
         $owner = ($access == access::OWNER);
         $editableData = array();
+        $editableData[] = array ('type' => 'check','name' => 'active','label' => 'category.active','checked' => $this->isActive());
+        $editableData[] = array ('type' => 'separator');
         $editableData[] = array ('type' => 'text','name' => 'name','label' => 'category.name','required'=>'1', 'value' => $this->name);
         $editableData[] = array ('type' => 'long_text','name' => 'description','label' => 'category.description','value' => $this->description);
         $editableData[] = array ('type' => 'check','name' => 'recapitulative','label' => 'category.recapitulative','checked' => $this->isRecapitulative());
-            $editableData[] = array ('type' => 'separator');
-        $editableData[] = array ('type' => 'check','name' => 'active','label' => 'category.active','checked' => $this->isActive());
         if ($owner|$admin) {
             $editableData[] = array ('type' => 'separator');
             $this->addEditableGroups($editableData, "category");
-            /*if ($this->mayBeEditedByPublic()) {
-                $editGroups = end($editableData);
-                $currentIndex = sizeOf($editableData)-1;
-                $editableData[$currentIndex] = array ('type' => 'check','name' => 'public_access','label' => $this->sessionName.'.public_access','required'=>'1', 'checked'=>($this->contribute_id==1));
-                $editGroups['hidden'] = ($this->contribute_id==1);
-                $editableData[] = $editGroups;
-                $editableData[] = array ('type' => 'check','name' => 'password_flag','label' => $this->sessionName.'.password_flag','checked'=>$this->password_flag,'hidden'=>($this->contribute_id!=1));
-                $editableData[] = array ('type' => 'text','name' => 'password','label' => $this->sessionName.'.password','value'=>$this->password, 'disabled'=>!$this->password_flag, 'hidden'=>($this->contribute_id!=1));
-                $styles = ORM::factory("style");
-                $filter = null;
-                if ($styles->count($filter, $user)>0) {
-                    $styles = $styles->getVisibleItems($filter, $user);
-                    $templates = array();
-                    $templates[0] = Kohana::lang('session.defaultStyle');
-                    foreach ($styles as $item) {
-                        $templates[$item->id] = $item->name;
-                    }
-                    $editableData[] = array ('type' => 'select','name' => 'style_id','label' => 'session.style','values' => $templates, 'value'=>$this->style_id, 'hidden'=>($this->contribute_id!=1));
-                } else {
-                    $editableData[] = array ('type' => 'hidden','name' => 'style_id','value'=>$this->style_id);
+            $editableData[] = array ('type' => 'separator');
+            $editableData[] = array ('type' => 'check','name' => 'published','label' => 'category.published', 'checked'=>($this->published==1));
+            $editableData[] = array ('type' => 'check','name' => 'password_flag','label' => 'category.password_flag','checked'=>$this->password_flag,'hidden'=>($this->published!=1));
+            $editableData[] = array ('type' => 'text','name' => 'password','label' => 'category.password','value'=>$this->password, 'disabled'=>($this->password_flag!=1), 'hidden'=>($this->published!=1));
+            $styles = ORM::factory("style");
+            $filter = null;
+            if ($styles->count($filter, $user)>0) {
+                $styles = $styles->getVisibleItems($filter, $user);
+                $templates = array();
+                $templates[0] = Kohana::lang('session.defaultStyle');
+                foreach ($styles as $item) {
+                    $templates[$item->id] = $item->name;
                 }
-                $editableData[] = array ('type' => 'select','name' => 'language','label' => $this->sessionName.'.language','values'=>language::getAvailableLanguages(), 'value'=>$this->language, 'hidden'=>($this->contribute_id!=1));
-            } */
+                $editableData[] = array ('type' => 'select','name' => 'style_id','label' => 'category.style','values' => $templates, 'value'=>$this->style_id, 'hidden'=>($this->published!=1));
+            } else {
+                $editableData[] = array ('type' => 'hidden','name' => 'style_id','value'=>$this->style_id);
+            }
+            $editableData[] = array ('type' => 'select','name' => 'language','label' => 'category.language','values'=>language::getAvailableLanguages(), 'value'=>$this->language, 'hidden'=>($this->published!=1));
         }
         if ($this->loaded) {
             $parentId = $this->parentId;
@@ -122,25 +117,25 @@ class Category_Model extends Toucan_Model {
         }
 
         // PUBLIC URL
-        /*if ($this->mayBeEditedByPublic()&&($this->contribute_id == 1)) {
+        if ($this->isPublished()) {
             $link = $this->getPublicUrl();
             $displayableData[] = array ('type' => 'separator');
-            $displayableData[] = array ('type' => 'link', 'label' => $this->sessionName.'.url', 'value'=> html::url($link), 'link'=>$link);
+            $displayableData[] = array ('type' => 'link', 'label' => 'category.url', 'value'=> html::url($link), 'link'=>$link);
             if ($this->password_flag) {
-                $displayableData[] = array ('type' => 'text', 'label' => $this->sessionName.'.password', 'value'=> $this->password);
+                $displayableData[] = array ('type' => 'text', 'label' => 'category.password', 'value'=> $this->password);
             }
             if ($this->style_id>0) {
                 if (DataAccess::testAccess($this->style, $user, access::MAY_VIEW))
-                    $displayableData[] = array ('type' => 'link', 'label' => 'session.style', 'value'=> $this->style->name, 'link'=>'style/show/'.$this->style_id);
+                    $displayableData[] = array ('type' => 'link', 'label' => 'category.style', 'value'=> $this->style->name, 'link'=>'style/show/'.$this->style_id);
                 else
-                    $displayableData[] = array ('type' => 'text', 'label' => 'session.style', 'value'=> $this->style->name);
+                    $displayableData[] = array ('type' => 'text', 'label' => 'category.style', 'value'=> $this->style->name);
             } else {
-                $displayableData[] = array ('type' => 'text', 'label' => 'session.style', 'value'=> Kohana::lang('session.defaultStyle'));
+                $displayableData[] = array ('type' => 'text', 'label' => 'category.style', 'value'=> Kohana::lang('category.defaultStyle'));
             }
             $languages = language::getAvailableLanguages();
             if (isset($this->language) && isset($languages[$this->language]))
-                $displayableData[] = array ('type' => 'text', 'label' => $this->sessionName.'.language', 'value'=> $languages[$this->language]);
-        }*/
+                $displayableData[] = array ('type' => 'text', 'label' => 'category.language', 'value'=> $languages[$this->language]);
+        }
         
         // ADMIN INFO
         if ($admin|$owner) {
@@ -168,6 +163,7 @@ class Category_Model extends Toucan_Model {
         $this->buildValidation($array);
         if (parent::validate($this->validation, false)) {
             $this->setOwner($user, false);
+            $this->order = $this->getNextOrder();
             $this->created = time();
             if ($save)
                 $this->save();
@@ -229,7 +225,19 @@ class Category_Model extends Toucan_Model {
             ->add_rules($this->parentId, 'required', 'valid::numeric')
             ->add_rules('active', 'in_array[0,1]')
             ->add_rules('recapitulative', 'in_array[0,1]')
-            ->add_rules('inherit', 'in_array[0,1]');
+            ->add_rules('inherit', 'in_array[0,1]')
+            ->add_rules('published', 'in_array[0,1]')
+            ->add_rules('password_flag', 'in_array[0,1]')
+            ->add_rules('style_id', 'valid::numeric')
+            ->add_rules('language', 'valid::alpha_numeric', 'length[0,2]');
+        
+        if (isset($array['password_flag'])) {
+            if ($array['password_flag'])
+                $this->validation->add_rules('password', 'required','length[5,50]');
+            else
+                $this->password = "";
+        }
+
     }
 
     public function uniqueNameByParent(Validation $valid) {
@@ -258,6 +266,10 @@ class Category_Model extends Toucan_Model {
         if ($user->isAdmin()||$this->isOwner($user)) {
             if (!isset($array['inherit']))
                 $array['inherit']=0;
+            if (!isset($array['password_flag']))
+                $array['password_flag']=0;
+            if (!isset($array['published']))
+                $array['published']=0;
         }
     }
     
@@ -274,7 +286,7 @@ class Category_Model extends Toucan_Model {
         return parent::__get($column);
     }
     
-    public function getOrder($indicatorId) {
+    public function getIndicatorOrder($indicatorId) {
         if (!$this->loaded)
             return null;
         $result = $this->db->query("SELECT `order` from categories_indicators WHERE category_id=$this->id AND indicator_id=$indicatorId");
@@ -285,7 +297,7 @@ class Category_Model extends Toucan_Model {
             return $result[0][0];
     }
 
-    public function getNextOrder() {
+    public function getNextIndicatorOrder() {
         if (!$this->loaded)
             return null;
         $result = $this->db->query("SELECT max(`order`)+1 from categories_indicators WHERE category_id=$this->id");
@@ -295,11 +307,22 @@ class Category_Model extends Toucan_Model {
         else
             return $result[0][0];
     }
+
+    public function getNextOrder() {
+        $parentId = $this->parentId;
+        $result = $this->db->query("SELECT max(`order`)+1 from categories WHERE $parentId = '".$this->$parentId."'");
+        $result->result(false,MYSQL_NUM);
+        if ($result[0][0] === null)
+            return 1;
+        else
+            return $result[0][0];
+    }
+
     
-    public function updateOrders($constraints = array()) {
+    public function updateIndicatorOrders($constraints = array()) {
         if (!$this->loaded)
             return null;
-        $next = $this->getNextOrder();
+        $next = $this->getNextIndicatorOrder();
         $result = $this->db->query("SELECT `indicator_id`, `order` from `categories_indicators` WHERE `category_id`=$this->id ORDER by `order` ASC");
         $indicatorIds = array();
         $current = 1;
@@ -361,6 +384,16 @@ class Category_Model extends Toucan_Model {
     
     public function getParent() {
         return $this->generic_parent;
+    }
+    
+    public function isPublished() {
+        return $this->published;
+    }
+    
+    public function getPublicUrl() {
+        if ($this->isPublished()) {
+            return "public/indicators/".$this->id;
+        }
     }
 }
 ?>
