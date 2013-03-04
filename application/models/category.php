@@ -273,6 +273,17 @@ class Category_Model extends Toucan_Model {
         }
         return parent::__get($column);
     }
+    
+    public function getOrder($indicatorId) {
+        if (!$this->loaded)
+            return null;
+        $result = $this->db->query("SELECT `order` from categories_indicators WHERE category_id=$this->id AND indicator_id=$indicatorId");
+        $result->result(false,MYSQL_NUM);
+        if ($result[0][0] === null)
+            return null;
+        else
+            return $result[0][0];
+    }
 
     public function getNextOrder() {
         if (!$this->loaded)
@@ -285,7 +296,7 @@ class Category_Model extends Toucan_Model {
             return $result[0][0];
     }
     
-    public function updateOrders() {
+    public function updateOrders($constraints = array()) {
         if (!$this->loaded)
             return null;
         $next = $this->getNextOrder();
@@ -293,13 +304,25 @@ class Category_Model extends Toucan_Model {
         $indicatorIds = array();
         $current = 1;
         foreach($result as $row) {
-            if (!isset($row->order)||$row->order == 0) {
-                $order = $next++;
-            } else {
-                $order = $current++;
+            if (!isset($constraints[$row->indicator_id])) {
+                // order is not constrainted: we set it according to other elements
+                if (!isset($row->order)||$row->order == 0) {
+                    $order = $next++;
+                } else {
+                    $order = $current++;
+                }
+                $indicatorIds[$order] = $row->indicator_id;
             }
-            $indicatorIds[$order] = $row->indicator_id;
         }
+        // Handle constraints
+        foreach($constraints as $id=>$order) {
+            for ($newOrder = $next; $newOrder>$order; $newOrder--) {
+                $indicatorIds[$newOrder] = $indicatorIds[$newOrder-1];
+            }
+            $indicatorIds[$order] = $id;
+            $next++;
+        }
+        
         ksort($indicatorIds);
         $current = 1;
         foreach($indicatorIds as $indicatorId) {
