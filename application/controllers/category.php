@@ -175,6 +175,13 @@ class Category_Controller extends DataPage_Controller {
         $conditional[] = array('trigger'=>'inherit', 'triggered'=>'inherit_edit');
         $conditional[] = array('trigger'=>'inherit', 'triggered'=>'view_id','reverse'=>true);
         $conditional[] = array('trigger'=>'inherit', 'triggered'=>'edit_id','reverse'=>true);
+        $conditional[] = array('trigger'=>'published', 'triggered'=>'contribute_id','reverse'=>true);
+        $conditional[] = array('trigger'=>'published', 'triggered'=>'password_flag');
+        $conditional[] = array('trigger'=>'published', 'triggered'=>'password');
+        $conditional[] = array('trigger'=>'published', 'triggered'=>'style_id');
+        $conditional[] = array('trigger'=>'published', 'triggered'=>'language');
+        $conditional[] = array('trigger'=>'password_flag','triggered'=>'password', 'enable'=>true);
+
         $this->template->content->conditional = $conditional;
     }
 
