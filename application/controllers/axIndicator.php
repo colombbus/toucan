@@ -61,14 +61,20 @@ class AxIndicator_Controller extends Ajax_Controller {
             $sessionPrefix = "FETCH_{$this->parentDataName}_{$id}";
         $indicatorIds = $this->session->get($sessionPrefix."_ids",array());
         $indicatorCurrent = $this->session->get($sessionPrefix."_current",0);
+        $fetchAll = $this->session->get($sessionPrefix."_fetch_all",0);
+        $public = $this->session->get($sessionPrefix."_public",0);
         $this->view=new View("indicator/fetch_items");
         $this->view->isDraggable = $this->session->get($sessionPrefix."_draggable",false);
         $this->view->showContent = true;
-        if ($indicatorCurrent>=count($indicatorIds)) {
+        $indicatorsCount = count($indicatorIds);
+        if ($indicatorCurrent>=$indicatorsCount) {
             $this->view->noItems = true;
         } else {
             $updateCount = Kohana::config("toucan.items_per_fetch");
-            $indicators = $this->data->getDisplayableIndicators($this->user, $indicatorIds, $indicatorCurrent, $updateCount);
+            if ($fetchAll)
+                $updateCount = $indicatorsCount;
+            $includeActions = !$public;
+            $indicators = $this->data->getDisplayableIndicators($this->user, $indicatorIds, $indicatorCurrent, $updateCount, $includeActions);
             $this->view->items = $indicators;
             $this->session->set_flash($sessionPrefix."_current",$indicatorCurrent+$updateCount);
             $this->session->keep_flash();
