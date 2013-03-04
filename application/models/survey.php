@@ -112,7 +112,7 @@ class Survey_Model extends FormSession_Model {
 
  */
     
-    public function getDisplayableIndicators(& $user, $ids, $pos, $count) {
+    public function getDisplayableIndicators(& $user, $ids, $pos, $count, $includeActions = true) {
         $displayableIndicators = array();
         
         $sliceIds = array_slice($ids, $pos, $count);
@@ -121,7 +121,7 @@ class Survey_Model extends FormSession_Model {
         $indices = array_flip($sliceIds);
 
         foreach ($indicators as $indicator) {
-            $item = $indicator->getDisplayableItemData($user);
+            $item = $indicator->getDisplayableItemData($user, $includeActions);
             if (isset($item)) {
                 $displayableIndicators[$indices[$indicator->id]] = $item;
             }
@@ -131,9 +131,13 @@ class Survey_Model extends FormSession_Model {
     }
 
     
-    public function getCategories(& $user) {
+    public function getCategories(& $user, $includeRecapitulative = true) {
         $nullValue = null;
-        return ORM::factory('surveyCategory')->getItems($nullValue,$user,0, $nullValue, array('session_id'=>$this->id,'active'=>1));        
+        if (!$includeRecapitulative)
+            $constraints = array('session_id'=>$this->id,'active'=>1, 'recapitulative'=>0);
+        else
+            $constraints = array('session_id'=>$this->id,'active'=>1);
+        return ORM::factory('surveyCategory')->getItems($nullValue,$user,0, $nullValue, $constraints);        
     }
     
     public function getDisplayableCategories(& $user) {
@@ -214,6 +218,13 @@ class Survey_Model extends FormSession_Model {
             $constraints = array_merge($constraints, array('evaluation_id' => 0));
         return parent::getItems($filter, $user, $offset, $number, $constraints);
     }
+    
+    public function indicatorsUpdated() {
+        $indicatorsNotUpdated = $this->db->query("SELECT id from indicators WHERE session_id = '$this->id' AND type != '".Indicator_Model::TYPE_MANUAL."' AND cached_value IS NULL AND cached_graphic_id IS NULL");
+        return ($indicatorsNotUpdated->count() == 0);
+    }
+
+    
 }
 
 ?>
