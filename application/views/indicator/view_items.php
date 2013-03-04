@@ -133,6 +133,19 @@
 
 <?php
         }
+        if (isset ($duplicateUrl)) {
+?>
+
+    function duplicateItem(id) {
+        if (newItem|editionItem)
+            window.alert('<?php echo addslashes(Kohana::lang($alreadyEditing));?>');
+        else { 
+            new Ajax.Updater("item_"+id, '<?php echo html::url($duplicateUrl)?>/'+id, { method: 'get', evalScripts: true, insertion: 'after'});
+        }
+    }
+
+<?php
+        }
 ?>
 
     function cancelEdit(id) {
