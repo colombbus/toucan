@@ -36,5 +36,12 @@ class SurveyCategory_Model extends Category_Model {
     }
 
     
+    public function getPublicUrl() {
+        if ($this->isPublished()) {
+            return "publicSurvey/indicators/".$this->id;
+        }
+    }
+
+    
 }
 ?>
