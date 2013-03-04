@@ -128,10 +128,21 @@ class Survey_Controller extends FormSession_Controller {
         if ($indicatorsCount==0) {
             $this->template->content->noItems = "indicator.no_item";
         } else {
-            $this->template->content->fetchUrl= "axSurveyIndicator/fetch/".$surveyId;
-            $this->session->set_flash("FETCH_survey_{$surveyId}_ids",$indicatorIds);
-            $this->session->set_flash("FETCH_survey_{$surveyId}_current",0);
-            $this->session->set_flash("FETCH_survey_{$surveyId}_draggable",$this->testAccess(access::MAY_EDIT));
+            if (isset($categoryId)) {
+                $this->template->content->fetchUrl= "axSurveyIndicator/fetch/$surveyId/$categoryId";
+                $sessionPrefix = "FETCH_survey_{$surveyId}_{$categoryId}";
+            } else {
+                $this->template->content->fetchUrl= "axSurveyIndicator/fetch/$surveyId";
+                $sessionPrefix = "FETCH_survey_{$surveyId}";
+            }
+
+            $this->session->set_flash($sessionPrefix."_ids",$indicatorIds);
+            $this->session->set_flash($sessionPrefix."_current",0);
+            $this->session->set_flash($sessionPrefix."_draggable",$this->testAccess(access::MAY_EDIT));
+            if ($this->data->indicatorsUpdated()) {
+                $this->session->set_flash($sessionPrefix."_fetch_all",1);
+            }
+            
         }
 
         $this->template->content->mayEdit = $this->testAccess(access::MAY_EDIT);
@@ -158,7 +169,7 @@ class Survey_Controller extends FormSession_Controller {
                 $this->template->content->header->showUrl = "surveyCategory/show/";
             }
             // save category in session
-            $this->session->set('LAST_CATEGORY_EVALUATION_'.$surveyId, $categoryId);
+            $this->session->set('LAST_CATEGORY_SURVEY_'.$surveyId, $categoryId);
         }
 
         
