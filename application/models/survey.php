@@ -116,28 +116,15 @@ class Survey_Model extends FormSession_Model {
         $displayableIndicators = array();
         
         $sliceIds = array_slice($ids, $pos, $count);
-        $indicators = ORM::factory('indicator')->in('id', $sliceIds)->find_all();
+        $indicators = ORM::factory('surveyIndicator')->in('id', $sliceIds)->find_all();
 
         $indices = array_flip($sliceIds);
 
         foreach ($indicators as $indicator) {
-            if ($indicator->isViewableBy($user)) {
-                $item = array();
-                $item['title'] = $indicator->name;
-                $item['order'] = $indicator->order;
-                $item['id'] = $indicator->id;
-                try {
-                    $item['content'] = $indicator->getValue(access::MAY_VIEW);
-                } catch (Exception $e) {
-                    $item['content'] = array(array('type'=>'text', 'label'=>'indicator.error', 'value'=>Kohana::lang($e->getMessage())));
-                }
-                $item['actions'] = $indicator->getItemActions($user);
-                $color = $indicator->getColor();
-                if (isset($color)) {
-                    $item['color'] = $color->code;
-                }
-               $displayableIndicators[$indices[$indicator->id]] = $item;
-             }
+            $item = $indicator->getDisplayableItemData($user);
+            if (isset($item)) {
+                $displayableIndicators[$indices[$indicator->id]] = $item;
+            }
         }
         ksort($displayableIndicators);
         return $displayableIndicators;
