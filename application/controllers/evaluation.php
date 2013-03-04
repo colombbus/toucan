@@ -248,10 +248,13 @@ class Evaluation_Controller extends DataPage_Controller {
         $this->template->content->isDraggable = $this->testAccess(access::MAY_EDIT);
         $this->template->content->displayUrl = "indicator/show/";
         $this->template->content->deleteUrl = "axIndicator/delete/";
-        if (isset($categoryId)) 
+        if (isset($categoryId)) {
             $this->template->content->reorderUrl = "axIndicator/reorder/$categoryId/1";
-        else
+            $this->template->content->duplicateUrl = "axIndicator/duplicate/$evaluationId/$categoryId";
+        } else {
             $this->template->content->reorderUrl = "axIndicator/reorder/$evaluationId";
+            $this->template->content->duplicateUrl = "axIndicator/duplicate/$evaluationId/0";
+        }
         $this->template->content->confirmDeletion = "indicator.delete_confirm";
         $this->template->content->alreadyEditing = "indicator.already_editing";
         $this->template->content->showContent = true;
