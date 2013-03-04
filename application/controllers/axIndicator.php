@@ -75,5 +75,36 @@ class AxIndicator_Controller extends Ajax_Controller {
         }
     }
     
+    public function show($id, $new = false) {
+        $this->loadData($id);
+        $this->ensureAccess(access::MAY_VIEW);
+        $this->view=new View("data/view_item");
+        $this->view->newItem = $new;
+        $this->view->item = $this->data->getDisplayableItemData($this->user);
+        $this->view->isDraggable = $this->testAccess(access::MAY_EDIT);
+        $this->view->dragUpdateRequired = $this->view->isDraggable;
+        $this->view->showContent = true;
+    }
+
+    
+    public function duplicate($evaluationId, $categoryId, $id) {
+        $previousDataName = $this->dataName;
+        $this->dataName = $this->parentDataName;
+        $this->loadData($evaluationId);
+        $this->ensureAccess(access::MAY_EDIT);
+        $this->dataName = $previousDataName;
+        $this->loadData($id);
+        if ($categoryId > 0) {
+            $category = ORM::factory($this->categoryName, $categoryId);
+            if (!isset($category) || $category->isRecapitulative()) {
+                $categoryId = null;
+            }
+        } else {
+            $categoryId = null;
+        }
+        $newIndicator = $this->data->duplicate($this->user, $categoryId, true);
+        $this->show($newIndicator->id, true);
+    }
+    
 }
 ?>
