@@ -84,6 +84,7 @@ $lang=array(
     "limits"=>"Seuils",
     "limits_description"=>"Seuils de représentation :",
     "list"=>"Indicateurs",
+    "loading"=>"Chargement...",    
     "main_title"=>"Indicateur «\xc2\xa0%s\xc2\xa0»",
     "manual"=>"Fixé par les évaluateurs",
     "may_contribute"=>"Evaluateurs :",
