@@ -22,6 +22,8 @@ class PublicSurvey_Controller extends Public_Controller {
 
     protected $sessionName = "survey";
     protected $copyName = "surveyCopy";
+    protected $categoryName = "surveyCategory";
+    protected $indicatorController = "axSurveyIndicator";
     
 }
 ?>
