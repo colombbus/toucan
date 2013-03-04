@@ -238,10 +238,12 @@ class Evaluation_Controller extends DataPage_Controller {
                 $this->template->content->fetchUrl= "axIndicator/fetch/$evaluationId";
                 $sessionPrefix = "FETCH_evaluation_{$evaluationId}";
             }
-            
             $this->session->set_flash($sessionPrefix."_ids",$indicatorIds);
             $this->session->set_flash($sessionPrefix."_current",0);
             $this->session->set_flash($sessionPrefix."_draggable",$this->testAccess(access::MAY_EDIT));
+            if ($this->data->indicatorsUpdated()) {
+                $this->session->set_flash($sessionPrefix."_fetch_all",1);
+            }
         }
      
         $this->template->content->mayEdit = $this->testAccess(access::MAY_EDIT);
