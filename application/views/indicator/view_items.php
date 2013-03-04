@@ -191,7 +191,6 @@
         if (isset($fetchUrl)) {
 ?>
     var fetchingRequest;
-    var fetchingRequest;
 
     function fetchItems() {
         if (fetchRequired) {
@@ -226,8 +225,8 @@
     }
     
     document.observe("dom:loaded", function() {
-        $("actions").hide();
         fetchItems();
+        $("actions").hide();
     });
 <?php
         }
@@ -262,7 +261,7 @@
         echo Kohana::lang($noItems);
         echo "</ul>\n";
     } else {
-        echo "</ul><div id='loading'>Chargement...</div>";
+        echo "</ul><div id='loading'><span>".Kohana::lang('indicator.loading')."</span></div>";
     }
     include APPPATH."/views/data/inc_information.php";
     include APPPATH."/views/data/inc_actions.php";
