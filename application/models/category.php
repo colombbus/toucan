@@ -43,6 +43,7 @@ class Category_Model extends Toucan_Model {
                 $parent = $this->$accessParent;
                 $this->view_id = $parent->getDisplayGroupId();
                 $this->edit_id = $parent->getEditGroupId();
+                $this->language = language::getCurrentLanguage();
             }
         }
         return $this->getEditableData(access::OWNER, $user);
