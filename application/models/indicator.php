@@ -664,20 +664,24 @@ class Indicator_Model extends Toucan_Model implements Ajax_Model {
         else
             return $result[0][0];
     }
+    
+    protected function alreadyExists($parentId, $name) {
+        $escapedName = addslashes($name);
+        if ($this->loaded) {
+            $other = $this->db->query("SELECT id from ".$this->table_name." WHERE id != $this->id AND {$this->parentId} = '$parentId' AND name = '$escapedName'");
+        } else {
+            $other = $this->db->query("SELECT id from ".$this->table_name." WHERE {$this->parentId} = '$parentId' AND name = '$escapedName'");
+        }
+        return ($other->count() > 0);
+    }
 
     public function uniqueNameByParent(Validation $valid) {
         if (array_key_exists('name', $valid->errors()))
             return;
         $parentId = $this->parentId;
         if (isset ($valid->$parentId)) {
-            $escapedName = addslashes($valid->name);
             $idValue = $valid->$parentId;
-            if ($this->loaded) {
-                $other = $this->db->query("SELECT id from ".$this->table_name." WHERE id != $this->id AND $parentId = '$idValue' AND name = '$escapedName'");
-            } else {
-                $other = $this->db->query("SELECT id from ".$this->table_name." WHERE $parentId = '$idValue' AND name = '$escapedName'");
-            }
-            if ($other->count() > 0) {
+            if ($this->alreadyExists($idValue, $valid['name'])) {
                 $valid->add_error( 'name', 'uniqueName');
             }
         }
@@ -1041,7 +1045,12 @@ class Indicator_Model extends Toucan_Model implements Ajax_Model {
     
     public function duplicate(& $user, $categoryId = null, $next = false) {
         $parentIdField = $this->parentId;
-        $parameters = array('session_id'=>$this->session_id, 'name'=>  sprintf(Kohana::lang('indicator.duplicate_name'), $this->name));
+        $parent = $this->generic_parent;
+        $newName = $this->name;
+        do {
+            $newName = sprintf(Kohana::lang('indicator.duplicate_name'), $newName);
+        } while ($this->alreadyExists($parent->id, $newName));
+        $parameters = array('session_id'=>$this->session_id, 'name'=>  $newName);
         $newIndicator = $this->copyTo($this->$parentIdField, $user, $parameters);
         $category = null;
         if (isset($categoryId)) {
@@ -1057,7 +1066,6 @@ class Indicator_Model extends Toucan_Model implements Ajax_Model {
         }
         if ($next) {
             // new indicator should be located right after this one
-            $parent = $this->generic_parent;
             $indicatorsToBeModified = $parent->where(array('order >' => $this->order))->where(array('order <' => $newIndicator->order))->indicators;
             $newOrder = $this->order+2;
             foreach ($indicatorsToBeModified as $indicator) {
