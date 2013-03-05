@@ -25,6 +25,7 @@
 ?>
 <script type="text/javascript">
     fetchRequired = false;
+    allItemsFetched();
 </script>
 <?php
     } else {
@@ -36,5 +37,11 @@
             include APPPATH."/views/data/view_item.php";
             echo "</li>";
         }
+?>
+<script type="text/javascript">
+    fetchItems();
+</script>
+
+<?php
     }
 ?>

@@ -194,7 +194,7 @@
 
     function fetchItems() {
         if (fetchRequired) {
-            fetchingRequest = new Ajax.Updater("items", '<?php echo html::url($fetchUrl)?>', { method: 'get',  evalScripts: true, insertion: 'bottom', onSuccess: function(response){ fetchItems();}});
+            fetchingRequest = new Ajax.Updater("items", '<?php echo html::url($fetchUrl)?>', { method: 'get',  evalScripts: true, insertion: 'bottom'});
         } else {
             allItemsFetched();
         }
@@ -203,7 +203,8 @@
 
     function allItemsFetched() {
         $("loading").hide();
-        $("actions").show();
+        if ($("actions") != undefined)
+            $("actions").show();
 <?php
     if (isset($isDraggable) && $isDraggable) {
 ?>
@@ -226,7 +227,8 @@
     
     document.observe("dom:loaded", function() {
         fetchItems();
-        $("actions").hide();
+        if ($("actions") != undefined)
+            $("actions").hide();
     });
 <?php
         }
