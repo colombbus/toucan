@@ -112,7 +112,7 @@ class Survey_Model extends FormSession_Model {
 
  */
     
-    public function getDisplayableIndicators(& $user, $ids, $pos, $count, $includeActions = true) {
+    public function getDisplayableIndicators(& $user, $ids, $pos, $count, $publicAccess = false) {
         $displayableIndicators = array();
         
         $sliceIds = array_slice($ids, $pos, $count);
@@ -121,7 +121,7 @@ class Survey_Model extends FormSession_Model {
         $indices = array_flip($sliceIds);
 
         foreach ($indicators as $indicator) {
-            $item = $indicator->getDisplayableItemData($user, $includeActions);
+            $item = $indicator->getDisplayableItemData($user, $publicAccess);
             if (isset($item)) {
                 $displayableIndicators[$indices[$indicator->id]] = $item;
             }
@@ -183,8 +183,28 @@ class Survey_Model extends FormSession_Model {
     }
     
      public function getIndicatorIds(& $user, $categoryId = null) {
-        return $this->getIndicators($user, $categoryId)->primary_key_array();
+        $indicators = $this->getIndicators($user, $categoryId);
+        if (isset($indicators) && count($indicators)>0)
+            return $indicators->primary_key_array();
+        else
+            return array();
     }
+    
+    public function getPublicIndicatorIds(& $user, $categoryId = null) {
+        $nullValue = null;
+        $constraints = array('evaluation_id'=>'0','session_id'=>$this->id);
+        if (isset($categoryId)) {
+            $category = ORM::factory('category', $categoryId);
+            if (isset($category)&&!$category->isRecapitulative())
+                $constraints['category_id'] = $categoryId;
+        }
+        $indicators = ORM::factory('surveyIndicator')->getPublicItems($nullValue,$user,0, $nullValue, $constraints);
+        if (isset($indicators)&& count($indicators)>0)
+            return $indicators->primary_key_array();
+        else
+            return array();
+    }
+
     
     public function hasForms() {
         return true;
