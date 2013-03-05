@@ -280,8 +280,8 @@ class Individual_Model extends Toucan_Model implements Ajax_Model {
         if (isset($variables)&&isset($variables[$this->variable_id])) {
             $newIndividual->variable_id = $variables[$this->variable_id];
         } else {
-            // a problem occured
-            return null;
+            // no variables correspondance: keep same variable
+            $newIndividual->variable_id = $this->variable_id;
         }
         $newIndividual->save();
         return $newIndividual;
