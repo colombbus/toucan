@@ -225,9 +225,11 @@ class Category_Controller extends DataPage_Controller {
         }
         $tabs = array();
         if ($action != 'CREATE') {
+            $parent = $this->getParent();
             $tabs[] = array('text'=>'category.info', 'link' => "$this->controllerName/show/$category->id", 'image'=>Kohana::config('toucan.images_directory')."/information.png");
             if (!$category->isRecapitulative())
                 $tabs[] = array('text'=>'category.view_members', 'link' => "$this->controllerName/members/$category->id", 'image'=>Kohana::config('toucan.images_directory')."/application_cascade.png");
+            $tabs[] = array('text'=>'category.display', 'link' => "$this->parentControllerName/indicators/$parent->id/$category->id", 'image'=>Kohana::config('toucan.images_directory')."/indicator.png");
             switch ($action) {
                 case 'SHOW' :
                 case 'OWNER' :
