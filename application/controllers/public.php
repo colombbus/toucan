@@ -25,6 +25,7 @@ class Public_Controller extends DataPage_Controller {
     protected $copyName = "formCopy";
     protected $categoryName = "category";
     protected $indicatorController = "axIndicator";
+    protected $parentName = "evaluation";
     
     public function __construct() {
         parent::__construct();
@@ -189,9 +190,14 @@ class Public_Controller extends DataPage_Controller {
         if (!$category->isPublished()) {
             $this->displayError('private_category');
         }
+        // Set screen language 
+        if (isset($category->language))
+            language::setCurrentLanguage($category->language);
         $this->loadTemplate($category);
+        $parent = $category->getParent();
         $this->template->content= "";
-        $this->template->title = $category->name;
+        $this->template->title = $parent->name;
+        $this->template->subtitle = $category->name;
         $description = $category->description;
         if (strlen(trim($description))>0) {
             $this->template->description = $description;
@@ -226,8 +232,7 @@ class Public_Controller extends DataPage_Controller {
             $this->template->setStep("password");
             $this->setPageInfo('PASSWORD');
         } else {
-            $parent = $category->getParent();
-            $indicatorIds = $parent->getIndicatorIds($this->user, $id);
+            $indicatorIds = $parent->getPublicIndicatorIds($this->user, $id);
             $indicatorsCount = count($indicatorIds);
         
             $this->template->content=new View('indicator/view_items');
@@ -237,7 +242,7 @@ class Public_Controller extends DataPage_Controller {
             } else {
                 $this->template->content->fetchUrl= $this->indicatorController."/fetch/{$parent->id}/$id";
             }
-            $sessionPrefix = "FETCH_evaluation_{$parent->id}_{$id}";
+            $sessionPrefix = "FETCH_{$this->parentName}_{$parent->id}_{$id}";
             $this->session->set_flash($sessionPrefix."_ids",$indicatorIds);
             $this->session->set_flash($sessionPrefix."_current",0);
             $this->session->set_flash($sessionPrefix."_draggable",false);
