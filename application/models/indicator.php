@@ -172,9 +172,9 @@ class Indicator_Model extends Toucan_Model implements Ajax_Model {
         return $displayableData;
     }
     
-    public function getDisplayableItemData(&$user, $includeActions = true) {
+    public function getDisplayableItemData(&$user, $publicAccess = false) {
         $item = null;
-        if ($this->isViewableBy($user)) {
+        if ($publicAccess||$this->isViewableBy($user)) {
             $item = array();
             $item['title'] = $this->name;
             $item['order'] = $this->order;
@@ -186,7 +186,7 @@ class Indicator_Model extends Toucan_Model implements Ajax_Model {
                 $display[] = array('type'=>'text', 'label'=>'indicator.error', 'value'=>Kohana::lang($e->getMessage()));
                 $item['content'] = $display;
             }
-            if ($includeActions)
+            if (!$publicAccess)
                 $item['actions'] = $this->getItemActions($user);
             $color = $this->getColor();
             if (isset($color)) {
@@ -622,7 +622,7 @@ class Indicator_Model extends Toucan_Model implements Ajax_Model {
         return parent::getVisibleItems($filter, $user, $offset, $number, $constraints);
     }
 
-
+    
     public function count(& $filter , & $user, $constraints = null) {
        $parentId = $this->parentId;
         if (isset($constraints)&&isset($constraints[$parentId])) {
@@ -648,6 +648,14 @@ class Indicator_Model extends Toucan_Model implements Ajax_Model {
         return $this->getVisibleItems($filter , $user, $offset, $number, $constraints);
     }
 
+    public function getPublicItems(& $filter,& $user,$offset = 0, $number = null, $constraints = null) {
+        $savedAccessParent = $this->accessParent;
+        $this->accessParent = null;
+        $result = $this->getItems($filter, $user, $offset, $number, $constraints);
+        $this->accessParent = $savedAccessParent;
+        return $result;
+    }
+    
     public function getNextOrder($parentId) {
         $result = $this->db->query("SELECT max(`order`)+1 from indicators WHERE ".$this->parentId." = $parentId");
         $result->result(false,MYSQL_NUM);
