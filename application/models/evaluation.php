@@ -86,39 +86,7 @@ class Evaluation_Model extends Toucan_Model {
         return $displayableData;
     }
 
-    /*public function getDisplayableIndicators(& $user, $categoryId = null) {
-        $displayableIndicators = array();
-        $nullValue = null;
-        $constraints = array('evaluation_id'=>$this->id);
-        if (isset($categoryId)) {
-            $category = ORM::factory('category', $categoryId);
-            if (isset($category)&&!$category->isRecapitulative())
-                $constraints['category_id'] = $categoryId;
-        }
-        $indicators = ORM::factory('indicator')->getItems($nullValue,$user,0, $nullValue, $constraints);
-        foreach ($indicators as $indicator) {
-            $item = array();
-            $item['title'] = $indicator->name;
-            $item['order'] = $indicator->order;
-            $item['id'] = $indicator->id;
-            try {
-                $item['content'] = $indicator->getValue(access::MAY_VIEW);
-            } catch (Exception $e) {
-                $display = array();
-                $display[] = array('type'=>'text', 'label'=>'indicator.error', 'value'=>Kohana::lang($e->getMessage()));
-                $item['content'] = $display;
-            }
-            $item['actions'] = $indicator->getItemActions($user);
-            $color = $indicator->getColor();
-            if (isset($color)) {
-                $item['color'] = $color->code;
-            }
-            $displayableIndicators[] = $item;
-        }
-        return $displayableIndicators;
-    }*/
-    
-    public function getDisplayableIndicators(& $user, $ids, $pos, $count, $includeActions = true) {
+    public function getDisplayableIndicators(& $user, $ids, $pos, $count, $publicAccess = false) {
         $displayableIndicators = array();
         
         $sliceIds = array_slice($ids, $pos, $count);
@@ -127,7 +95,7 @@ class Evaluation_Model extends Toucan_Model {
         $indices = array_flip($sliceIds);
         
         foreach ($indicators as $indicator) {
-            $item = $indicator->getDisplayableItemData($user, $includeActions);
+            $item = $indicator->getDisplayableItemData($user, $publicAccess);
             if (isset($item)) {
                 $displayableIndicators[$indices[$indicator->id]] = $item;
             }
@@ -135,7 +103,7 @@ class Evaluation_Model extends Toucan_Model {
         ksort($displayableIndicators);
         return $displayableIndicators;
     }
-    
+
     public function getIndicatorIds(& $user, $categoryId = null) {
         $nullValue = null;
         $constraints = array('evaluation_id'=>$this->id);
@@ -145,6 +113,21 @@ class Evaluation_Model extends Toucan_Model {
                 $constraints['category_id'] = $categoryId;
         }
         $indicators = ORM::factory('indicator')->getItems($nullValue,$user,0, $nullValue, $constraints);
+        if (isset($indicators)&& count($indicators)>0)
+            return $indicators->primary_key_array();
+        else
+            return array();
+    }
+    
+    public function getPublicIndicatorIds(& $user, $categoryId = null) {
+        $nullValue = null;
+        $constraints = array('evaluation_id'=>$this->id);
+        if (isset($categoryId)) {
+            $category = ORM::factory('category', $categoryId);
+            if (isset($category)&&!$category->isRecapitulative())
+                $constraints['category_id'] = $categoryId;
+        }
+        $indicators = ORM::factory('indicator')->getPublicItems($nullValue,$user,0, $nullValue, $constraints);
         if (isset($indicators)&& count($indicators)>0)
             return $indicators->primary_key_array();
         else
