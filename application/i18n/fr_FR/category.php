@@ -30,6 +30,7 @@ $lang=array(
     "description"=>"Description\xc2\xa0:",
     "description_header"=>"Description",
     "details"=>"Détails",
+    "display"=>"Afficher",
     "edit_description"=>"Modification des informations de la catégorie\xc2\xa0:",
     "error_recapitulative"=>"Action impossible : catégorie récapitulative",
     "indicators"=>"Indicateurs",
