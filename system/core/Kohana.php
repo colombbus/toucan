@@ -710,7 +710,7 @@ final class Kohana {
 		if (ob_get_level() >= self::$buffer_level)
 		{
 			// Set the close function
-			$close = ($flush === TRUE) ? 'ob_end_flush' : 'ob_end_clean';
+                        $close = ($flush === TRUE) ? 'ob_end_flush' : 'Kohana::_ob_end_clean';
 
 			while (ob_get_level() > self::$buffer_level)
 			{
@@ -719,10 +719,39 @@ final class Kohana {
 			}
 
 			// Store the Kohana output buffer
-			ob_end_clean();
+                        Kohana::_ob_end_clean();
 		}
 	}
 
+        public static function _get($array, $key, $default = NULL)
+        {
+            return isset($array[$key]) ? $array[$key] : $default;
+        }
+        
+        /**
+        * Ends the current output buffer with callback in mind
+        * PHP doesn't pass the output to the callback defined in ob_start() since 5.4
+        * patch found here: https://gist.github.com/kemo/2881489
+        *
+        * @param callback $callback
+        * @return boolean
+        */
+        protected static function _ob_end_clean($callback = NULL)
+        {
+            // Pre-5.4 ob_end_clean() will pass the buffer to the callback anyways
+            if (version_compare(PHP_VERSION, '5.4', '<'))
+                return ob_end_clean();
+
+            $output = ob_get_contents();
+
+            if ($callback === NULL)
+            {
+                $callback = Kohana::_get(ob_list_handlers(), ob_get_level() - 1);
+            }
+
+            return is_callable($callback)? ob_end_clean() AND call_user_func($callback, $output): ob_end_clean();
+        }
+        
 	/**
 	 * Triggers the shutdown of Kohana by closing the output buffer, runs the system.display event.
 	 *
