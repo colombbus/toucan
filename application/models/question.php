@@ -100,7 +100,7 @@ class Question_Model extends ToucanTree_Model implements Ajax_Model {
         $editableData[] = array ('type' => 'select','name' => 'parent_id','id' => "triggers_choice_$this->id",'label' => $prefix.'.trigger','values' => $questionNames, 'value' => $this->parent_id);
         $editableData[] = array ('type' => 'check','name' => 'private', 'id' => "private",'label' => $prefix.'.private','value' => $this->private, 'checked' => $this->private);
         if ($this->parent_id > 0) {
-            $editableData = array_merge($editableData, $this->getTriggerChoicesEditableData($access, &$user));
+            $editableData = array_merge($editableData, $this->getTriggerChoicesEditableData($access, $user));
         }
         return $editableData;
     }
@@ -140,7 +140,7 @@ class Question_Model extends ToucanTree_Model implements Ajax_Model {
                 $choice->value = $item['value'];
                 $choice->order = $order;
                 $order++;
-                $choiceData['data'] = $choice->getEditableData($access, &$user);
+                $choiceData['data'] = $choice->getEditableData($access, $user);
                 $choiceData['index'] = $item['index'];
                 $editableData[] = $choiceData;
             }
@@ -148,7 +148,7 @@ class Question_Model extends ToucanTree_Model implements Ajax_Model {
             // retrieve choices from database
             $choices = $this->choices;
             foreach ($choices as $choice) {
-                $choiceData['data'] = $choice->getEditableData($access, &$user);
+                $choiceData['data'] = $choice->getEditableData($access, $user);
                 $choiceData['index'] = $choice->order;
                 $editableData[] = $choiceData;
             }
@@ -161,7 +161,7 @@ class Question_Model extends ToucanTree_Model implements Ajax_Model {
         if (!isset($index))
             $index = $this->choices->count();
         $choice = ORM::factory("choice");
-        $creationData['data'] = $choice->getCreationData($access, &$user, $index);
+        $creationData['data'] = $choice->getCreationData($access, $user, $index);
         $creationData['index'] = $index;
         return $creationData;
     }
@@ -359,7 +359,7 @@ class Question_Model extends ToucanTree_Model implements Ajax_Model {
 
     public function setValues($array) {
         $this->checkBooleans($array);
-        $choices = $this->retrieveChoices(& $array);
+        $choices = $this->retrieveChoices($array);
         if (sizeof($choices)>0) {
             $this->previousChoices = $choices;
         }
