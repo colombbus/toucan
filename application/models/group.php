@@ -158,11 +158,11 @@ class Group_Model extends Toucan_Model {
     }
 
     public function isViewableBy(& $user) {
-        return $this->isOwner(& $user);
+        return $this->isOwner($user);
     }
 
     public function isEditableBy(& $user) {
-        return $this->isOwner(& $user);
+        return $this->isOwner($user);
     }
 
     protected function checkBooleans(& $array) {
