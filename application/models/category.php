@@ -396,5 +396,14 @@ class Category_Model extends Toucan_Model {
             return "public/indicators/".$this->id;
         }
     }
+    
+    public function export() {
+        if (strlen($this->description)>0) {
+            $text = $this->description;
+        } else {
+            $text ="";
+        }
+        rtf::addSeparator($this->name, $text);
+    }
 }
 ?>

@@ -37,6 +37,7 @@ $lang=array(
     "end_date"=>"Date de fin :",
     "export"=>"Exporter les indicateurs",
     "export_file_name"=>"Indicateurs %s.rtf",
+    "export_file_name_with_category"=>"Indicateurs %s - %s.rtf",
     "export_subtitle"=>"%s",
     "export_title"=>"%s",
     "forms"=>"Questionnaires",

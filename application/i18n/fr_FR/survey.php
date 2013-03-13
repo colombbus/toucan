@@ -46,6 +46,7 @@ $lang=array(
     "edit_description"=>"Modification des informations sur l'enquête :",
     "export_document_name"=>"Enquête %s.rtf",
     "export_indicators_file_name"=>"Indicateurs %s.rtf",
+    "export_indicators_file_name_with_category"=>"Indicateurs %s - %s.rtf",
     "export_indicators_subtitle"=>"%s",
     "export_indicators_title"=>"%s",
     "export_result_description"=>"Résultat de l'export :",

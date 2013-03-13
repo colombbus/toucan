@@ -104,7 +104,7 @@ class Evaluation_Model extends Toucan_Model {
         return $displayableIndicators;
     }
 
-    public function getIndicatorIds(& $user, $categoryId = null) {
+    public function getIndicators(& $user, $categoryId = null) {
         $nullValue = null;
         $constraints = array('evaluation_id'=>$this->id);
         if (isset($categoryId)) {
@@ -112,7 +112,11 @@ class Evaluation_Model extends Toucan_Model {
             if (isset($category)&&!$category->isRecapitulative())
                 $constraints['category_id'] = $categoryId;
         }
-        $indicators = ORM::factory('indicator')->getItems($nullValue,$user,0, $nullValue, $constraints);
+        return ORM::factory('indicator')->getItems($nullValue,$user,0, $nullValue, $constraints);
+    }
+    
+    public function getIndicatorIds(& $user, $categoryId = null) {
+        $indicators = $this->getIndicators($user, $categoryId);
         if (isset($indicators)&& count($indicators)>0)
             return $indicators->primary_key_array();
         else
@@ -313,15 +317,29 @@ class Evaluation_Model extends Toucan_Model {
         }
     }
 
-    public function exportIndicators() {
+    public function exportIndicators(& $user, $categoryId = null) {
         $logo = null;
+        $category = null;
+        
         if ($this->activity->logo_id>0)
             $logo = $this->activity->logo->path;
         rtf::initDocument(sprintf(Kohana::lang('evaluation.export_title'), $this->activity->name), sprintf(Kohana::lang('evaluation.export_subtitle'), $this->name), $logo);
-        foreach ($this->indicators as $indicator) {
+        if (isset($categoryId)) {
+            $category = ORM::factory('category', $categoryId);
+            if (isset($category)) {
+                $category->export();
+            }
+        }
+
+        $indicators = $this->getIndicators($user, $categoryId);
+        foreach ($indicators as $indicator) {
             $indicator->export();
         }
-        rtf::sendDocument(sprintf(Kohana::lang('evaluation.export_file_name'), $this->name));
+        if (isset($category))
+            $title = sprintf(Kohana::lang('evaluation.export_file_name_with_category'), $this->name, $category->name);
+        else
+            $title = sprintf(Kohana::lang('evaluation.export_file_name'), $this->name);
+        rtf::sendDocument($title);
     }
 
     public function hasForms() {

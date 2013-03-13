@@ -159,16 +159,31 @@ class Survey_Model extends FormSession_Model {
         return $displayableCategories;
     }
     
-    public function exportIndicators(& $user) {
+    public function exportIndicators(& $user, $categoryId = null) {
         $logo = null;
+        $category = null;
+        
         if ($this->activity->logo_id>0)
             $logo = $this->activity->logo->path;
         rtf::initDocument(sprintf(Kohana::lang('survey.export_indicators_title'), $this->activity->name), sprintf(Kohana::lang('survey.export_indicators_subtitle'), $this->name), $logo);
-        $indicators = $this->getIndicators($user);
+
+        if (isset($categoryId)) {
+            $category = ORM::factory('category', $categoryId);
+            if (isset($category)) {
+                $category->export();
+            }
+        }
+
+        $indicators = $this->getIndicators($user, $categoryId);
         foreach ($indicators as $indicator) {
             $indicator->export();
         }
-        rtf::sendDocument(sprintf(Kohana::lang('survey.export_indicators_file_name'), $this->name));
+        
+        if (isset($category))
+            $title = sprintf(Kohana::lang('survey.export_indicators_file_name_with_category'), $this->name, $category->name);
+        else
+            $title = sprintf(Kohana::lang('survey.export_indicators_file_name'), $this->name);
+        rtf::sendDocument($title);
     }
 
     public function getIndicators(& $user, $categoryId = null) {

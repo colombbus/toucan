@@ -119,6 +119,8 @@ class Survey_Controller extends FormSession_Controller {
             $categoryId = null;
         }
         
+        $this->context['categoryId'] = $categoryId;
+        
         $indicatorIds = $this->data->getIndicatorIds($this->user, $categoryId);
         
         $indicatorsCount = count($indicatorIds);
@@ -203,14 +205,14 @@ class Survey_Controller extends FormSession_Controller {
         $this->setPageInfo('CATEGORIES');
     }
     
-    public function exportIndicators($surveyId) {
+    public function exportIndicators($surveyId, $categoryId = null) {
         // LOAD DATA
         $this->loadData($surveyId);
 
         // CONTROL ACCESS
         $this->controlAccess('EXPORT_INDICATORS');
 
-        $this->data->exportIndicators($this->user);
+        $this->data->exportIndicators($this->user, $categoryId);
 
         $this->auto_render = false;
     }
@@ -323,7 +325,11 @@ class Survey_Controller extends FormSession_Controller {
                 if ($this->testAccess(access::MAY_EDIT)) {
                     $actions_back[] = array('type' => 'button','text' => 'survey.categories','url' => 'survey/categories/'.$survey->id);
                     $actions[] = array('type' => 'button','text' => 'survey.add_indicator','url' => 'surveyIndicator/createStart/'.$survey->id);
-                    $actions[] = array('type' => 'button','text' => 'survey.export','url' => 'survey/exportIndicators/'.$survey->id);
+                    
+                    if (isset ($this->context['categoryId']))
+                        $actions[] = array('type' => 'button','text' => 'survey.export','url' => 'survey/exportIndicators/'.$survey->id.'/'.$this->context['categoryId']);
+                    else
+                        $actions[] = array('type' => 'button','text' => 'survey.export','url' => 'survey/exportIndicators/'.$survey->id);
                 }
                 $tabs[] = array('text'=>'survey.info', 'link' => 'survey/show/'.$survey->id, 'image'=>Kohana::config('toucan.images_directory')."/information.png");
                 if ($this->testAccess(access::MAY_EDIT)) {

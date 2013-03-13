@@ -222,6 +222,8 @@ class Evaluation_Controller extends DataPage_Controller {
             $categoryId = null;
         }
         
+        $this->context['categoryId'] = $categoryId;
+        
         $indicatorIds = $this->data->getIndicatorIds($this->user, $categoryId);
         
         $indicatorsCount = count($indicatorIds);
@@ -303,14 +305,14 @@ class Evaluation_Controller extends DataPage_Controller {
     }
 
 
-    public function export($evaluationId) {
+    public function export($evaluationId, $categoryId = null) {
         // LOAD DATA
         $this->loadData($evaluationId);
 
         // CONTROL ACCESS
         $this->controlAccess('EXPORT');
 
-        $this->data->exportIndicators();
+        $this->data->exportIndicators($this->user, $categoryId);
 
         $this->auto_render = false;
     }
@@ -411,7 +413,10 @@ class Evaluation_Controller extends DataPage_Controller {
                 if ($this->testAccess(access::MAY_EDIT)) {
                     $actions_back[] = array('type' => 'button','text' => 'evaluation.categories','url' => 'evaluation/categories/'.$evaluation->id);
                     $actions[] = array('type' => 'button','text' => 'evaluation.add_indicator','url' => 'indicator/createStart/'.$evaluation->id);
-                    $actions[] = array('type' => 'button','text' => 'evaluation.export','url' => 'evaluation/export/'.$evaluation->id);
+                    if (isset ($this->context['categoryId']))
+                        $actions[] = array('type' => 'button','text' => 'evaluation.export','url' => 'evaluation/export/'.$evaluation->id.'/'.$this->context['categoryId']);
+                    else
+                        $actions[] = array('type' => 'button','text' => 'evaluation.export','url' => 'evaluation/export/'.$evaluation->id);
                 }
                 break;
             case 'CATEGORIES' :
