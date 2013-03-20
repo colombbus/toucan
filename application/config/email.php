@@ -6,18 +6,19 @@
  * @see http://www.swiftmailer.org/wikidocs/v3/connections/sendmail
  * @see http://www.swiftmailer.org/wikidocs/v3/connections/smtp
  *
- * Put your own parameters here:
- * driver: valid drivers are: native, sendmail, smtp
- * sender: the email address to be used to send emails
- * hostanme: your hostname
- * username: username to access email server
- * password: password to access email server
- * to use secure connections with SMTP, set "port" to 465 instead of 25.
- * to enable TLS, set "encryption" to "tls".
-*/
-
-
+ * Valid drivers are: native, sendmail, smtp
+ */
 $config['driver'] = 'smtp';
-$config['sender']='admin@yoursite.com';
-$config['options'] = array('hostname'=>'your.hostname.com', 'port'=>'25', 'username'=>'admin@yoursite.com', 'password'=>'password');
+$config['sender']='toucan@colombbus.org';
+/**
+ * To use secure connections with SMTP, set "port" to 465 instead of 25.
+ * To enable TLS, set "encryption" to "tls".
+ *
+ * Driver options:
+ * @param   null    native: no options
+ * @param   string  sendmail: executable path, with -bs or equivalent attached
+ * @param   array   smtp: hostname, (username), (password), (port), (auth), (encryption)
+ */
+$config['options'] = array('hostname'=>'ns0.ovh.net', 'port'=>'25', 'username'=>'toucan@colombbus.org', 'password'=>'65sDIOS4');
 
+//$config['options'] = NULL;
