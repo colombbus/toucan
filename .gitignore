@@ -1,6 +1,4 @@
-.htaccess
 application/logs/*
-_install.php
 nbproject/
 media/public/avatar/*
 !media/public/avatar/index.html
@@ -15,6 +13,3 @@ media/public/templates/*
 !media/public/templates/default/*
 media/public/upload/*
 !media/public/upload/index.html
-application/config/email.php
-application/config/config.php
-application/config/database.php
