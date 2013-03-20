@@ -1,6 +1,4 @@
 .htaccess
-application/config/config.php
-application/config/database.php
 application/logs/*
 _install.php
 nbproject/
@@ -17,3 +15,5 @@ media/public/templates/*
 !media/public/templates/default/*
 media/public/upload/*
 !media/public/upload/index.html
+/application/config/config.php
+/application/config/database.php
