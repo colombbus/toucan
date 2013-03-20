@@ -229,7 +229,7 @@ class Home_Controller extends Page_Controller {
         $writeTest = array();
         $writeTest['title'] = "Write permissions";
         $writeTest['pass'] = true;
-        $publicDirectory = DOCROOT."public";
+        $publicDirectory = DOCROOT."media".DIRECTORY_SEPARATOR."public";
         if (is_writeable($publicDirectory)) {
             $ok = $publicDirectory;
             $public = opendir($publicDirectory);
