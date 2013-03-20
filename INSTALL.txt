@@ -1,0 +1,65 @@
+TOUCAN Installation
+-------------------
+
+1°) Copy all files into a directory on your web server (e.g. "toucan")
+
+2°) Ensure the rewrite engine of the web server is on
+(e.g. on Apache, make sure that in apache.conf
+'LoadModule rewrite_module modules/mod_rewrite.so' is uncommented)
+
+2°) Edit .htaccess file: replace [YOUR_PATH] with the relative path of toucan 
+(e.g. "/toucan/")
+
+3°) Edit file application/config/config.php, replace [YOUR_PATH] with the
+absolute path to toucan (e.g. "www.mysite.com/toucan/")
+
+4°) Ensure that the php user has write permission over directory "media/public" and
+its subdirectories
+
+5°) Create a database and import file "toucan.sql" to build the required tables
+
+6°) Edit file application/config/database.php, write your parameters to access
+the database (database type, host, username, password, database name).
+
+7°) Open the toucan page in a web browser: you should see the installation
+screen, which will perform environment tests. If problems are detected, follow
+instructions to solve them. There are 2 main steps:
+Step 1: Installation of framework kohana
+Step 2: Configuration of the Toucan application
+(if Step 1 tests are ok, you will directly jump to Step 2)
+
+8°) Remove files install.php, INSTALL.txt and toucan.sql
+
+9°) (optional) To enable emails, you have to set connection parameters in
+file application/config/email.php
+
+Requirements
+------------
+
+Toucan uses the Kohana framework, which requires the following:
+
+1°)Basic Requirements
+
+Kohana will run in almost any environment with minimal configuration. There are
+a few minimum server requirements:
+
+1.Server with Unicode support
+2.PHP version >= 5.2.3
+3.An HTTP server. Kohana is known to work with: Apache 1.3+, Apache 2.0+,
+lighttpd, and MS IIS
+4.A SQL server: MsSQL, MySQL, MySQLi or PostgreSQL
+
+2°) Required PHP Extensions
+
+1. PCRE must be compiled with –enable-utf8 and –enable-unicode-properties for
+UTF-8 functions to work properly.
+2. iconv is required for UTF-8 transliteration.
+3. mcrypt is required for encryption.
+4. SPL is required for several core libraries.
+
+3°) Recommended PHP Extensions
+
+1. mbstring will dramatically speed up Kohana's UTF-8 functions. However, note
+that the mbstring extension must not be overloading PHP's native string functions!
+
+For more information, see: http://kohanaframework.org/
