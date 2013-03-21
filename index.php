@@ -18,6 +18,12 @@
 define('IN_PRODUCTION', FALSE);
 
 /**
+ * Enable to ignore install file if present: set to TRUE for development purposes
+ */
+define('IGNORE_INSTALL', FALSE);
+
+
+/**
  * Website application directory. This directory should contain your application
  * configuration, controllers, models, views, and other resources.
  *
@@ -96,7 +102,7 @@ define('SYSPATH', str_replace('\\', '/', realpath($kohana_system)).'/');
 // Clean up
 unset($kohana_application, $kohana_modules, $kohana_system);
 
-if (file_exists(DOCROOT.'install'.EXT))
+if (!IGNORE_INSTALL && file_exists(DOCROOT.'install'.EXT))
 {
  	// Load the installation tests
 	include DOCROOT.'install'.EXT;
