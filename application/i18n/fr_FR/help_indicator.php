@@ -228,5 +228,10 @@ $lang=array(
     </ul>
     ",
     
+    "categories"=>"<h1>Définition des catégories auxquelles appartient l'indicateur</h1>
+    Cochez les catégories auxquelles vous souhaitez faire appartenir l'indicateur.
+    ",
+
+    
 );
 ?>

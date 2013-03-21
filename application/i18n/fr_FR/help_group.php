@@ -86,13 +86,10 @@ $lang=array(
     </ul>
     ",
     
-    "sendPassword"=>"<h1>Récupération du  mot de passe</h1>
-    Entrez l'adresse e-mail associée à votre compte dans Toucan : votre mot de passe vous sera automatiquement envoyé.
+    "owner"=>"<h1>Modification du propriétaire d'un groupe (administration)</h1>
+    Sélectionnez un utilisateur dans la liste pour en faire le nouveau propriétaire du groupe.
     ",
 
-    "setGroups"=>"<h1>Définition des groupes auxquels appartient l'utilisateur (administration)</h1>
-    Cochez les groupes auxquels vous souhaitez faire appartenir l'utilisateur.
-    ",
 
     
 );

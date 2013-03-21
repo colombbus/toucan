@@ -93,7 +93,7 @@ $lang=array(
     "indicators"=>"<h1>Liste des indicateurs de l'évaluation</h1>
     Cette page présente la liste des indicateurs définis pour l'évaluation. Chaque indicateur est représenté sous la forme d'un cadre.
     <ul>
-    <li>Un  <b>indicateur graphique</b> s'affiche directement sous la forme d'une représentation graphique</li>
+    <li>Un <b>indicateur graphique</b> s'affiche directement sous la forme d'une représentation graphique</li>
     <li>Un <b>indicateur numérique</b> affiche sa valeur sous la forme &laquo;&nbsp;Valeur : XXX&nbsp;&raquo;. Si des seuils de représentation ont été défini, sa couleur peut varier en fonction de cette valeur.</li>
     <li>Un <b>indicateur manuel</b> affiche la valeur telle qu'elle a été définie par les évaluateurs. En fonction de la manière dont il a été défini, sa couleur peut changer en fonction de cette valeur.</li>
     </ul>
@@ -101,6 +101,12 @@ $lang=array(
     <ul>
     <li>Si un indicateur ne trouve aucune information pour calculer sa valeur ou sa représentation graphique, il affiche le texte &laquo;&nbsp;aucune valeur&nbsp;&raquo;</li>
     <li>Si un indicateur manuel n'a pas encore été renseigné par les évaluateurs, il affiche le texte &laquo;&nbsp;indicateur non défini&nbsp;&raquo;</li>
+    </ul>
+    <h1>Catégories</h1>
+    Si des catégories d'indicateurs sont définies pour cette évaluation, une liste en haut de la page vous permet de sélectionner la catégorie que vous voulez afficher. Si vous avez les droits pour modifier l'évaluation (propriétaire, gestionnaires, administrateur) :
+    <ul>
+    <li>l'icone ".html::image(array("src"=>Kohana::config("toucan.images_directory")."/category.png"))." vous permet d'accéder à la description de la catégorie.</li>
+    <li>Un bouton en bas de la page vous permet de créer ou modifier des catégories d'indicateurs.</li>
     </ul>
     <h1>Exporter les indicateurs</h1>
     Un bouton situé en bas de la page vous permet d'exporter les indicateurs sous la forme d'un document au format rtf (lisible par MS Word, OpenOffice et de nombreux éditeurs de texte).
@@ -145,6 +151,16 @@ $lang=array(
     </ul>
     
     ",
+    
+    "categories"=>"<h1>Liste des catégories</h1>
+    Cette page présente la liste des catégories définies pour l'évaluation.
+    <h1>Changer l'ordre des catégories</h1>
+    Vous pouvez changer l'ordre des catégories en cliquant et faisant glisser l'image".html::image(array("src"=>Kohana::config("toucan.images_directory")."/handle.png")).".
+    La première catégorie sera celle affichée par défaut.
+    <h1>Catégories récapitulatives</h1>
+    Les catégories récapitulatives apparaissent en rose.
+    ",
+
 
 );
 ?>

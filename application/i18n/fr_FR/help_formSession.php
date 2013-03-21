@@ -32,6 +32,7 @@ $lang=array(
     <li><b>Evaluateurs</b> : l'utilisateur ou l'ensemble des utilisateurs pouvant saisir des questionnaires</li>
     <li class='help_separator'></li>
     <li><b>Adresse d'accès par le public (accès public)</b> : lien menant au questionnaire public, à envoyer aux personnes interrogées</li>
+    <li><b>Mot de passe (accès public)</b> : le mot de passe (si défini) protégeant l'accès au questionnaire</li>
     <li><b>Style (accès public)</b> : modèle de style utilisé pour le questionnaire public</li>
     <li><b>Langue du questionnaire (accès public)</b> : la langue utilisée par Toucan pour afficher les informations aux utilisateurs</li>
     <li class='help_separator'></li>
@@ -187,9 +188,9 @@ $lang=array(
     "copies"=>"<h1>Liste des questionnaires remplis</h1>
     Cette page donne la liste les questionnaires remplis. 
     <ul>
-    <li><b>Rempli par</b> : le nom de l'évaluateur. Dans le cas d'une session publique, cette information est vide.</li>
+    <li><b>Rempli par</b> : le nom de l'évaluateur. Dans le cas d'une session publique, cette information contient l'adresse IP utilisée.</li>
     <li><b>Date et heure</b> : la date et l'heure de l'enregistrement du questionnaire</li>
-    <li><b>Etat</b> : l'exemplaire peut être <i>sauvegardé automatiquement</i>, <i>provisoire</i>, <i>enregistré</i>, <i>signalé</i> ou <i>traité</i></li>
+    <li><b>Etat</b> : l'exemplaire peut être <i>sauvegardé automatiquement</i>, <i>provisoire</i>, <i>enregistré</i>, <i>en traitement</i>, <i>traité</i> ou <i>signalé</i></li>
     </ul>
     ",
     

@@ -31,6 +31,7 @@ $lang=array(
     <li><b>Enquêteurs</b> : l'utilisateur ou l'ensemble des utilisateurs pouvant saisir des questionnaires</li>
     <li class='help_separator'></li>
     <li><b>Adresse d'accès par le public (accès public)</b> : lien menant au questionnaire public, à envoyer aux personnes interrogées</li>
+    <li><b>Mot de passe (accès public)</b> : le mot de passe (si défini) protégeant l'accès au questionnaire</li>
     <li><b>Style (accès public)</b> : modèle de style utilisé pour le questionnaire public</li>
     <li><b>Langue du questionnaire (accès public)</b> : la langue utilisée par Toucan pour afficher les informations aux utilisateurs</li>
     <li class='help_separator'></li>
@@ -144,6 +145,12 @@ $lang=array(
     <li>Si un indicateur ne trouve aucune information pour calculer sa valeur ou sa représentation graphique, il affiche le texte &laquo;&nbsp;aucune valeur&nbsp;&raquo;</li>
     <li>Si un indicateur manuel n'a pas encore été renseigné par les évaluateurs, il affiche le texte &laquo;&nbsp;indicateur non défini&nbsp;&raquo;</li>
     </ul>
+    <h1>Catégories</h1>
+    Si des catégories d'indicateurs sont définies pour cette enquête, une liste en haut de la page vous permet de sélectionner la catégorie que vous voulez afficher. Si vous avez les droits pour modifier l'enquête (propriétaire, gestionnaires, administrateur) :
+    <ul>
+    <li>l'icone ".html::image(array("src"=>Kohana::config("toucan.images_directory")."/category.png"))." vous permet d'accéder à la description de la catégorie.</li>
+    <li>Un bouton en bas de la page vous permet de créer ou modifier des catégories d'indicateurs.</li>
+    </ul>
     <h1>Exporter les indicateurs</h1>
     Un bouton situé en bas de la page vous permet d'exporter les indicateurs sous la forme d'un document au format rtf (lisible par MS Word, OpenOffice et de nombreux éditeurs de texte).
     <h1>Réorganiser les indicateurs (gestionnaires)</h1>
@@ -224,9 +231,9 @@ $lang=array(
     "copies"=>"<h1>Liste des questionnaires remplis</h1>
     Cette page donne la liste les questionnaires remplis. 
     <ul>
-    <li><b>Rempli par</b> : le nom de l'enquêteur. Dans le cas d'une enquête publique, cette information est vide.</li>
+    <li><b>Rempli par</b> : le nom de l'enquêteur. Dans le cas d'une enquête publique, cette information contient l'adresse IP utilisée.</li>
     <li><b>Date et heure</b> : la date et l'heure de l'enregistrement du questionnaire</li>
-    <li><b>Etat</b> : le questionnaire peut être <i>sauvegardé automatiquement</i>, <i>provisoire</i>, <i>enregistré</i>, <i>signalé</i> ou <i>traité</i></li>
+    <li><b>Etat</b> : le questionnaire peut être <i>sauvegardé automatiquement</i>, <i>provisoire</i>, <i>enregistré</i>, <i>en traitement</i>, <i>traité</i> ou <i>signalé</i></li>
     </ul>
     ",
   

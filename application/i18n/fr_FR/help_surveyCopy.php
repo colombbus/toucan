@@ -34,18 +34,23 @@ $lang=array(
     
     "show"=>"<h1>Affichage d'un exemplaire de questionnaire</h1>
     <ul>
-    <li><b>Créé par</b> : le nom de la personne l'ayant rempli - en cas de questionnaire public, &lt;public&gt; apparaît</li>
+    <li><b>Créé par</b> : le nom de la personne l'ayant rempli - en cas de questionnaire public, l'adresse IP utilisée</li>
     <li><b>Date de création</b> : la date et l'heure d'enregistrement de l'exemplaire</li>
-    <li><b>Etat</b> : l'exemplaire peut être <i>sauvegardé automatiquement</i>, <i>provisoire</i>, <i>enregistré</i>, <i>signalé</i> ou <i>traité</i></li>
+    <li><b>Etat</b> : l'exemplaire peut être <i>sauvegardé automatiquement</i>, <i>provisoire</i>, <i>enregistré</i>, <i>en traitement</i>, <i>traité</i> ou <i>signalé</i></li>
     </ul>
     
     <h1>Actions rapides (gestionnaires)</h1>
     Si vous avez l'autorisation de modifier l'enquête (propriétaire, gestionnaire, administrateur) et que cet exemplaire n'est pas provisoire, des boutons en bas à droite vous permettent de changer son état :
     <ul class='no_bullet'>
     <li>".html::image(array("src"=>Kohana::config("toucan.images_directory")."/page_white.png"))." enregistré</li>
-    <li>".html::image(array("src"=>Kohana::config("toucan.images_directory")."/page_white_star.png"))." signalé</li>
+    <li>".html::image(array("src"=>Kohana::config("toucan.images_directory")."/page_white_gear.png"))." en traitement</li>
     <li>".html::image(array("src"=>Kohana::config("toucan.images_directory")."/page_white_tick.png"))." traité</li>
+    <li>".html::image(array("src"=>Kohana::config("toucan.images_directory")."/page_white_star.png"))." signalé</li>
     </ul>
+    
+    <h1>Téléchargement</h1>
+    Un bouton en bas de la page vous permet de télécharger l'exemplaire rempli au format rtf.
+
     ",
 
     "edit"=>"<h1>Modification d'un questionnaire</h1>
