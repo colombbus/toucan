@@ -226,7 +226,7 @@ class Survey_Model extends FormSession_Model {
     }
     
     public function hasCategories(& $user) {
-        return ($this->loaded && $this->getCategories($user)->count()>0);
+        return ($this->loaded && count($this->getCategories($user))>0);
     }
 
     
