@@ -275,7 +275,6 @@ class FormCopy_Model extends Copy_Model {
                         }
                         break;
                     case QuestionType_Model::MULTIPLE_CHOICE : // Checkboxes choices
-                        $item['type'] = 'multiple_choice';
                         if (! is_array($value)) {
                             // add error
                             $this->errors['question_'.$question->id] = "incorrect_value";
