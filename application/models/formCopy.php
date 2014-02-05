@@ -52,6 +52,7 @@ class FormCopy_Model extends Copy_Model {
                 else
                     $item['class'] = 'edit_copy';
                 $item['translated_label'] = $question->text;
+                $item['convert_urls'] = true;
                 if (strlen(trim($question->description))>0)
                     $item['translated_description'] = $question->description;
                 $item['required'] = $question->required;

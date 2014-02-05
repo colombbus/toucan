@@ -72,10 +72,12 @@
         if (isset($item['required'])&&$item['required']) {
             echo "<span class='required'>*</span>";
         }
+        if (!isset($item['convert_urls']))
+            $item['convert_urls'] = false;
         if (isset($item['label'])) {
-            echo form::label($item['name'],convert(Kohana::lang($item['label'])));
+            echo form::label($item['name'],convert(Kohana::lang($item['label']),$item['convert_urls']));
         } else if (isset($item['translated_label'])) {
-            echo form::label($item['name'],convert($item['translated_label']))." ";
+            echo form::label($item['name'],convert($item['translated_label'],$item['convert_urls']))." ";
         }
         if ($table) {
             echo "</td><td class='edition_entry";
@@ -226,9 +228,9 @@
                 break;
         }
         if (isset($item['description'])) {
-            echo "<div class='form_description'>".convert(Kohana::lang($item['description']))."</div>";
+            echo "<div class='form_description'>".convert(Kohana::lang($item['description']),$item['convert_urls'])."</div>";
         } else if (isset($item['translated_description'])) {
-            echo "<div class='form_description'>".convert($item['translated_description'])."</div>";
+            echo "<div class='form_description'>".convert($item['translated_description'],$item['convert_urls'])."</div>";
         }
         if (isset($item['name'])&&isset($errors[$item['name']]))
             echo "<div class='error'>".convert($errors[$item['name']])."</div>";
