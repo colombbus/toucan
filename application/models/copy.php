@@ -21,7 +21,7 @@
 abstract class Copy_Model extends Toucan_Model {
 
     const SHORT_VALUE_MAX_LENGTH = 127;
-    const LONG_VALUE_MAX_LENGTH = 500;
+    const LONG_VALUE_MAX_LENGTH = 1000;
     const TEXT_MAX_LENGTH = 65536;
 
     protected $table_name = "copies";
