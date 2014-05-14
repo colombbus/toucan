@@ -19,5 +19,5 @@
  */
 ?>
 <div id='credentials'>
-    <a href="http://toucan.colombbus.org">Toucan v2.2.dev</a> - <a href="http://www.colombbus.org">Colombbus</a>
+    <a href="http://toucan.colombbus.org">Toucan v2.2</a> - <a href="http://www.colombbus.org">Colombbus</a>
  </div>
