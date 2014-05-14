@@ -323,3 +323,8 @@ div.grippie         {background-color:#EEEEEE;background-image:url('../images/gr
 .resizable-textarea  {background-color:#F2F2F2;}
 td.edit_copy_private .resizable-textarea {background-color:#ddddff;}
 .resizable-textarea textarea {display:block;margin-bottom:0pt;width:95%;}
+
+
+/* Progress bars */
+.progress_bar         {height:20px;border:1px solid #376092;background-color:#FFFFFF;}
+.progress_level       {height:20px;background-color:#4A7EBB;}

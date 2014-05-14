@@ -390,6 +390,9 @@ abstract class Session_Controller extends DataPage_Controller {
                 $actions_back[] = array('type' => 'cancel','text' => 'button.cancel');
                 $actions[] = array('type' => 'submit','text' => $this->sessionName.'.launch_export');
                 break;
+            case 'LAUNCH_EXPORT' :
+                $actions_back[] = array('type' => 'cancel','text' => 'button.cancel');
+                break;
             case 'EXPORT_RESULT' :
                 $actions_back[] = array('type' => 'button','text' => 'button.terminate', 'url'=>$this->sessionName.'/copies/'.$session->id);
                 break;
@@ -452,6 +455,8 @@ abstract class Session_Controller extends DataPage_Controller {
                 break;
             case 'COPIES' :
             case 'EXPORT' :
+            case 'LAUNCH_EXPORT' :
+            case 'EXPORT_RESULT' :
                 $tabs[sizeof($tabs)-1]['current'] = 1;
                 break;
             case 'QUESTIONS' :
@@ -649,6 +654,8 @@ abstract class Session_Controller extends DataPage_Controller {
     }
     
     protected function launchExport(& $parameters) {
+        // SET UP LIST OF COPIES
+        $sessionId = $this->data->id;
         if ($parameters['date']) {
             // select a period
             if (isset($parameters['start_date'])&&(strlen(trim($parameters['start_date']))>0))
@@ -660,20 +667,26 @@ abstract class Session_Controller extends DataPage_Controller {
             $this->data->in('copies.state_id',CopyState_Model::getPublishedStates());
         else
             $this->data->in('copies.state_id', CopyState_Model::getAllStates());
-        /*if ($parameters['private'])
-            $this->data->where('copies.state_id',CopyState_Model::PUBLISHED);*/
-        $buffer = "";
         $copies = $this->data->getCopies();
-        $separator = stripslashes($parameters['field_separator']);
+        $copies_id = $copies->primary_key_array();
+        // SET PARAMETERS
+        $parameters['field_separator'] = stripslashes($parameters['field_separator']);
+        $parameters['copy_separator'] = str_replace("\\n", "\n", $parameters['copy_separator']);
+        if ($parameters['format']==1)
+            $parameters['escaped'] = array('"'=>'""');
+        else
+            $parameters['escaped'] = array();
+
+        $separator = $parameters['field_separator'];
+        $rowSeparator = $parameters['copy_separator'];
         $boundary = $parameters['field_boundary'];
-        $answerSeparator = $parameters['answer_separator'];
-        $rowSeparator = str_replace("\\n", "\n", $parameters['copy_separator']);
         $screen = ($parameters['format']==0);
         $iso = ($parameters['encoding']==0);
-        if ($parameters['format']==1)
-            $escaped = array('"'=>'""');
-        else
-            $escaped = array();
+        $escaped = $parameters['escaped'];
+                
+        // CREATE TEMP FILE
+        $fileName = tempnam("/tmp", "toucan_exp_");
+        
         if ($parameters['add_headers']) {
             $row = "";
             if ($parameters['add_author']) {
@@ -708,40 +721,70 @@ abstract class Session_Controller extends DataPage_Controller {
             } else if ($iso) {
                 $row = str_replace("\n","\r\n",utf8_decode($row));
             }
-            $buffer.=$row;
+            $file = fopen ($fileName, 'w');
+            fwrite($file, $row);
+            fclose($file);
         }
+        
+        // SET SESSION DATA
+        $sessionPrefix = "EXPORT_session_{$sessionId}";
+        $this->session->set_flash($sessionPrefix."_copies",$copies_id);
+        $this->session->set_flash($sessionPrefix."_count",$copies->count());
+        $this->session->set_flash($sessionPrefix."_processed",0);
+        $this->session->set_flash($sessionPrefix."_parameters",$parameters);
+        $this->session->set_flash($sessionPrefix."_fileName",$fileName);
+        $this->session->set_flash($sessionPrefix."_copyName",$this->copyName);
 
-        foreach ($copies as $copy) {
-            $row = "";
-            if ($parameters['add_author'])
-                $row.=$boundary.text::escape($copy->owner->fullName, $escaped).$boundary.$separator;
-            if ($parameters['add_date'])
-                $row.=$boundary.text::escape($copy->translated_created, $escaped).$boundary.$separator;
-            $row.=$copy->export($separator, $boundary, $answerSeparator, $escaped, $parameters['private']);
-            if ($parameters['add_state']) {
-                $row.=$separator.$boundary.text::escape($copy->state->getTranslatedName(), $escaped).$boundary;
-            }
-            $row.=$rowSeparator;
-            if ($screen) {
-                $row = str_replace("\n","<br>",$row);
-            } else if ($iso) {
-                $row = str_replace("\n","\r\n",utf8_decode($row));
-            }
-            $buffer.=$row;
+        
+        // SET TEMPLATE
+        $this->template->content=new View('session/export');
+        $this->template->content->fetchUrl= "axSession/export/{$this->dataName}/$sessionId";
+        $this->template->content->resultUrl= $this->sessionName.'/exportResult/'.$sessionId;
+        // PAGE INFOS
+        $this->setPageInfo('LAUNCH_EXPORT');
+    }
+    
+    public function exportResult($id) {
+        $this->loadData($id);
+        $this->controlAccess('EXPORT');
+        
+        $sessionPrefix = "EXPORT_session_$id";
+        $tmpFileName = $this->session->get($sessionPrefix."_fileName");
+        $parameters = $this->session->get($sessionPrefix."_parameters", null);
+        $download = $this->session->get($sessionPrefix."_download", false);
+        
+        if (!isset($parameters)) {
+            url::redirect($this->sessionName."/export/".$id);
         }
+        
+        $screen = ($parameters['format']==0);
+        
         if ($screen) {
+            $buffer = file_get_contents($tmpFileName);
+            unlink($tmpFileName);
             $this->template->content=new View('data/text');
             $this->template->content->text = $buffer;
             $this->setPageInfo('EXPORT_RESULT');
         } else {
-               $fileName = sprintf(Kohana::lang('session.export_filename'), Utils::translateTimestampForFilename(time()));
-            if ($parameters['format']==1) {
-               $fileName .= ".csv";
+            if (!$download) {
+                // first update display
+                $this->template->content=new View('session/download');
+                $this->setPageInfo('EXPORT_RESULT');
+                // set download to true for next call
+                $this->session->set_flash($sessionPrefix."_download",true);
+                $this->session->keep_flash();
             } else {
-               $fileName .= ".txt";
+                $buffer = file_get_contents($tmpFileName);
+                unlink($tmpFileName);
+                $fileName = sprintf(Kohana::lang('session.export_filename'), Utils::translateTimestampForFilename(time()));
+                if ($parameters['format']==1) {
+                   $fileName .= ".csv";
+                } else {
+                   $fileName .= ".txt";
+                }
+                download::force($fileName, $buffer);
+                $this->auto_render = false;
             }
-            download::force($fileName, $buffer);
-            $this->auto_render = false;
         }
     }
     

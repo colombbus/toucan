@@ -56,4 +56,5 @@
     $config['public_file_mode']=0664;
     $config['public_directory_mode']=0774;
     $config['items_per_fetch']=5;
+    $config['items_per_export'] = 10;
 ?>
