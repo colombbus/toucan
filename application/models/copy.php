@@ -21,7 +21,7 @@
 abstract class Copy_Model extends Toucan_Model {
 
     const SHORT_VALUE_MAX_LENGTH = 127;
-    const LONG_VALUE_MAX_LENGTH = 500;
+    const LONG_VALUE_MAX_LENGTH = 1000;
     const TEXT_MAX_LENGTH = 65536;
 
     protected $table_name = "copies";
@@ -120,11 +120,11 @@ abstract class Copy_Model extends Toucan_Model {
         } else {
             $publicGroup = Group_Model::SPECIAL_GROUP_PUBLIC;
             $registeredGroup = Group_Model::SPECIAL_GROUP_REGISTERED;
+            $publicStates = implode(",", CopyState_Model::getPublishedStates());
             if (isset($user)) {
                 $userGroups = $user->getGroups();
                 if (strlen($userGroups)>0)
                     $userGroups = ",".$userGroups;
-                $publicStates = implode(",", CopyState_Model::getPublishedStates());
                 $query = "select distinct $this->table_name.id from $this->table_name, sessions where (sessions.id = $this->table_name.session_id) and (((sessions.view_id in ($publicGroup, $registeredGroup $userGroups) or sessions.owner_id=$user->id) and ($this->table_name.state_id IN ($publicStates))) or ($this->table_name.owner_id = $user->id))";
             } else {
                 $query = "select distinct $this->table_name.id from $this->table_name, sessions where ((sessions.id = $this->table_name.session_id) and (sessions.view_id=$publicGroup) and ($this->table_name.state_id IN ($publicStates)))";
@@ -152,11 +152,11 @@ abstract class Copy_Model extends Toucan_Model {
         } else {
             $publicGroup = Group_Model::SPECIAL_GROUP_PUBLIC;
             $registeredGroup = Group_Model::SPECIAL_GROUP_REGISTERED;
+            $publicStates = implode(",", CopyState_Model::getPublishedStates());
             if (isset($user)) {
                 $userGroups = $user->getGroups();
                 if (strlen($userGroups)>0)
                     $userGroups = ",".$userGroups;
-                $publicStates = implode(",", CopyState_Model::getPublishedStates());
                 $query = "select distinct $this->table_name.* from $this->table_name, sessions where (sessions.id = $this->table_name.session_id) and (((sessions.view_id in ($publicGroup, $registeredGroup $userGroups) or sessions.owner_id=$user->id) and ($this->table_name.state_id IN ($publicStates))) or ($this->table_name.owner_id = $user->id))";
             } else {
                 $query = "select distinct $this->table_name.* from $this->table_name, sessions where ((sessions.id = $this->table_name.session_id) and (sessions.view_id=$publicGroup) and ($this->table_name.state_id IN ($publicStates)))";

@@ -347,7 +347,7 @@ class Evaluation_Model extends Toucan_Model {
     }
 
     public function hasCategories(& $user) {
-        return ($this->loaded && $this->getCategories($user)->count()>0);
+        return ($this->loaded && count($this->getCategories($user))>0);
     }
     
     public function copyIndicators(& $indicatorsIds,& $user, $sessionId = null, & $variables) {

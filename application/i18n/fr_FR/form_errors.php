@@ -91,7 +91,7 @@ $lang = array
     (
         'default' => "Données invalides",
     ),
-    'long_value_too_long' => 'La valeur ne doit pas dépasser 500 caractères',
+    'long_value_too_long' => 'La valeur ne doit pas dépasser 1000 caractères',
     'main' => Array
     (
         'email_problem' => "L'envoi de mail est actuellement impossible. Merci de contacter un administrateur.",

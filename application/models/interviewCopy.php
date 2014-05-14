@@ -45,6 +45,7 @@ class InterviewCopy_Model extends Copy_Model {
             foreach ($questions as $question) {
                 $item = array();
                 $item['translated_label'] = $question->text;
+                $item['convert_urls'] = true;
                 if (strlen(trim($question->description))>0)
                     $item['translated_description'] = $question->description;
                 $item['name'] = 'question_'.$question->id;

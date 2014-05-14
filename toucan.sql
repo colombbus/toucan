@@ -472,7 +472,7 @@ CREATE TABLE IF NOT EXISTS `limits` (
 
 CREATE TABLE IF NOT EXISTS `long_values` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `value` varchar(500) NOT NULL,
+  `value` varchar(1000) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 ;
 

@@ -266,6 +266,15 @@ $lang=array(
     "downloadTemplate"=>"<h1>Téléchargement du modèle : inclure ou non les questions privées</h1>
     Ce questionnaire comprend des questions privées (c'est à dire dont l'accès est réservé aux gestionnaires). Choisissez si vous souhaitez inclure ces questions dans le modèle téléchargé.
     ",
+    
+    "categories"=>"<h1>Liste des catégories</h1>
+    Cette page présente la liste des catégories définies pour l'enquête.
+    <h1>Changer l'ordre des catégories</h1>
+    Vous pouvez changer l'ordre des catégories en cliquant et faisant glisser l'image".html::image(array("src"=>Kohana::config("toucan.images_directory")."/handle.png")).".
+    La première catégorie sera celle affichée par défaut.
+    <h1>Catégories récapitulatives</h1>
+    Les catégories récapitulatives apparaissent en rose.
+    ",
 
 );
 ?>

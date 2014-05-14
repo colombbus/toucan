@@ -26,7 +26,7 @@ a:hover             {color:#CF0017;font-weight:normal;text-decoration:underline;
 
 /* main elements*/
 #container          {width:1024px;margin-left:auto;margin-right:auto;background-color:#ffffff;border:solid 1px #385D8A; text-align:left;overflow:hidden;border-radius:25px;}
-#header             {text-align:center;color:#558ED5;height:100px;overflow:hidden;position:relative;padding-top:35px;}
+#header             {text-align:center;color:#558ED5;min-height:100px;overflow:hidden;position:relative;padding-top:35px;}
 #header_logo        {position:absolute;left:10px;top:10px;}
 #header_title       {font-size:3em;font-weight:bold;margin-left:auto;margin-right:auto;padding-left:200px;padding-right:200px;}
 #content            {margin-left:150px;margin-top:20px;margin-right:40px;width:750px;min-height:300px;padding-bottom:30px;}

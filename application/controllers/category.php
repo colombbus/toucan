@@ -199,9 +199,11 @@ class Category_Controller extends DataPage_Controller {
                     } else {
                         $actions[] = array('type' => 'button_confirm','text' => 'button.activate','confirm' => 'category.activate_confirm','url' => "$this->controllerName/activate/$category->id/1");
                     }
+                    if ($this->testAccess(access::OWNER)) {
+                        $actions[] = array('type' => 'button_confirm','text' => 'button.delete','confirm' => 'category.delete_text','url' => "$this->controllerName/delete/$category->id");
+                    }
                     if ($this->testAdminAccess()) {
                         $actions[] = array('type' => 'button','text' => 'category.set_owner','url' => "$this->controllerName/owner/$category->id");
-                        $actions[] = array('type' => 'button_confirm','text' => 'button.delete','confirm' => 'category.delete_text','url' => "$this->controllerName/delete/$category->id");
                     }
                 }
                 break;
