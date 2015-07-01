@@ -40,6 +40,7 @@ class Indicator_Controller extends DataPage_Controller {
             case 'LIMITS' :
             case 'RESET' :
             case 'CATEGORIES' :
+            case 'DELETE' :
                 $this->ensureAccess(access::MAY_EDIT);
                 break;
             case 'SHOW' :
