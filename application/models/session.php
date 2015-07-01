@@ -531,7 +531,12 @@ abstract class Session_Model extends Toucan_Model {
 
     public function getIndicators(& $user) {
         $nullValue = null;
-        return ORM::factory('indicator')->getItems($nullValue,$user,0, $nullValue, array('session_id'=>$this->id));
+        $parameters = array();
+        $parameters['session_id'] = $this->id;
+        if ($this->evaluation_id>0) {
+            $parameters['evaluation_id'] = $this->evaluation_id;
+        }
+        return ORM::factory('indicator')->getItems($nullValue,$user,0, $nullValue, $parameters);
     }
     
     public function getIndicatorIds(& $user) {
