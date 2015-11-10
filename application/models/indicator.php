@@ -257,7 +257,7 @@ class Indicator_Model extends Toucan_Model implements Ajax_Model {
                 $id = $variable->getChoiceIds($copy);
                 if (isset($id)) {
                     if (is_array($id)) {
-                        foreach ($id as $single) {
+                        foreach (array_keys($values) as $single) {
                             if(isset($values[$single]))
                                 $values[$single]['count']++;
                         }
