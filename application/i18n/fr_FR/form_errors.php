@@ -33,6 +33,11 @@ $lang = array
         'default' => "Ville invalide",
         'length' => "La ville doit avoir entre 1 et 127 caractères",
     ),
+    'description' => Array
+    (
+        'default' => "Description invalide",
+        'length' => "La description ne doit pas dépasser les 500 caractères",
+    ),
     'directory' => Array
     (
         'uniqueDirectory' => "Ce répertoire existe déjà",
